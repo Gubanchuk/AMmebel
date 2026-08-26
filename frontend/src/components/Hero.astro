@@ -1,0 +1,59 @@
+---
+// Hero (page block 01) — ported from the .demo section in am-site-preview.html:
+// serif headline, manifest, lead, USP list, primary CTA + secondary "ray" link,
+// with the assembly Quiz mounted alongside it. No dedicated header task exists
+// in the plan, so the page's only Logo placement lives in the slim bar above.
+import Logo from './Logo.astro';
+import Quiz from './Quiz.astro';
+---
+
+<header class="top">
+	<div class="wrap">
+		<Logo size="sm" />
+	</div>
+</header>
+
+<section class="demo">
+	<div class="wrap">
+		<div>
+			<h2>Есть мебель, которая обставляет. И&nbsp;та, что определяет</h2>
+			<p class="manifest">Свет · Ткань · Форма</p>
+			<p class="demo__lead">Фабрика авторской мягкой мебели, Краснодар. Отгружаем салонам, проектам и маркетплейсам по всей России.</p>
+			<ul class="usp">
+				<li><b>ЦЕХ</b><span>Раскрой, каркас, обивка и упаковка — под одной крышей с 2018 года</span></li>
+				<li><b>100+</b><span>Моделей: диваны, угловые, модульные, кровати</span></li>
+				<li><b>ОБРАЗЕЦ</b><span>Выставочный образец на условиях <span class="dash">__</span> — ждём вашего решения</span></li>
+				<li><b>ШОУРУМ</b><span>Шоурум при цехе: приехать и потрогать до первой партии</span></li>
+			</ul>
+			<div class="qz__nav" style="margin:0">
+				<a class="cta" href="#price">Получить прайс</a>
+				<a class="ray" href="#conditions"><i></i>Условия для салонов</a>
+			</div>
+		</div>
+		<Quiz />
+	</div>
+</section>
+
+<style>
+	.top { border-bottom: 1px solid var(--line-soft); }
+	.top .wrap { display: flex; align-items: center; justify-content: space-between; padding-top: 20px; padding-bottom: 20px; gap: 14px; }
+
+	.demo { border-top: 1px solid var(--line-soft); border-bottom: 1px solid var(--line-soft); position: relative; overflow: hidden; }
+	.demo:before { content: ''; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(70% 80% at 68% 18%, rgba(122,103,68,.30) 0%, rgba(72,60,40,.13) 45%, transparent 75%); }
+	.demo .wrap { position: relative; display: grid; grid-template-columns: minmax(0,1fr) minmax(0,.95fr); gap: clamp(26px,4vw,56px); padding-top: clamp(36px,6vw,64px); padding-bottom: clamp(40px,6vw,72px); }
+	.demo h2 { font-family: var(--serif); font-weight: 400; font-size: clamp(28px,4.6vw,46px); line-height: 1.06; margin: 0 0 14px; color: var(--ivory); }
+	.manifest { font-size: 10.5px; letter-spacing: .3em; text-transform: uppercase; color: var(--grey); margin: 0 0 22px; }
+	.demo__lead { color: var(--grey); font-size: 15.5px; max-width: 44ch; margin: 0 0 28px; }
+	.usp { list-style: none; margin: 0 0 30px; padding: 0; display: grid; gap: 11px; }
+	.usp li { display: flex; gap: 12px; font-size: 14.5px; align-items: baseline; color: var(--ivory); }
+	.usp b { font-family: var(--mono); font-size: 11px; color: var(--grey-dim); flex: 0 0 auto; font-weight: 500; }
+	.dash { font-family: var(--mono); color: var(--ivory); border-bottom: 2px dotted rgba(242,239,233,.4); padding: 0 3px; }
+	.qz__nav { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-top: 6px; }
+
+	@media (max-width: 860px) {
+		.demo .wrap { grid-template-columns: 1fr; }
+	}
+	@media (max-width: 470px) {
+		.top .wrap { padding-top: 14px; padding-bottom: 14px; }
+	}
+</style>

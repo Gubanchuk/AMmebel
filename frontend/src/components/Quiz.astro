@@ -1,0 +1,99 @@
+---
+// Assembly quiz — ported from the .qz block in am-site-preview.html (SVG sofa scene,
+// 4-step questionnaire, progress lamps). Behavior lives in ../scripts/quiz.js.
+---
+
+<div class="qz" id="qz">
+	<div class="qz__stage">
+		<svg viewBox="0 0 340 150" role="img" aria-label="Схема дивана: с каждым шагом квиза появляется деталь">
+			<g id="p0" fill="none" stroke="#3A352C" stroke-width="2" stroke-dasharray="5 4">
+				<path d="M30 40 h280 v78 h-280 z"/>
+			</g>
+			<g id="p1" opacity="0">
+				<path d="M30 96 h280 v22 h-280 z" fill="#241F19"/>
+				<path d="M46 118 v16 M74 118 v16 M266 118 v16 M294 118 v16" stroke="#3A342C" stroke-width="6" stroke-linecap="round"/>
+			</g>
+			<g id="p2" opacity="0">
+				<path d="M62 66 h216 v30 h-216 z" fill="#2A251F"/>
+				<path d="M134 66 v30 M206 66 v30" stroke="#3A352C" stroke-width="2"/>
+			</g>
+			<g id="p3" opacity="0">
+				<path d="M62 28 h216 v38 h-216 z" fill="#2A251F"/>
+				<path d="M30 40 h32 v56 h-32 a5 5 0 0 1 -5 -5 v-46 a5 5 0 0 1 5 -5 z" fill="#272219"/>
+				<path d="M278 40 h32 a5 5 0 0 1 5 5 v46 a5 5 0 0 1 -5 5 h-32 z" fill="#272219"/>
+			</g>
+			<g id="p4" opacity="0">
+				<path d="M62 28 h216 v38 h-216 z M62 66 h216 v30 h-216 z" fill="#3B332B"/>
+				<path d="M30 40 h32 v56 h-32 a5 5 0 0 1 -5 -5 v-46 a5 5 0 0 1 5 -5 z" fill="#332C25"/>
+				<path d="M278 40 h32 a5 5 0 0 1 5 5 v46 a5 5 0 0 1 -5 5 h-32 z" fill="#332C25"/>
+				<path d="M62 28 h216 v7 h-216 z" fill="#7A6744" opacity=".8"/>
+				<path d="M134 66 v30 M206 66 v30 M62 66 h216" stroke="rgba(242,239,233,.22)" stroke-width="2"/>
+				<path d="M30 96 h280 v22 h-280 z" fill="#2B241D"/>
+			</g>
+		</svg>
+		<p class="qz__cap" id="qcap">Шаг 1 из 4 · собираем каркас</p>
+	</div>
+	<div class="prg"><i class="on"></i><i></i><i></i><i></i></div>
+
+	<div class="qz__body" id="qbody">
+		<div class="step" data-s="1">
+			<p class="qz__meta">Вопрос 1 из 4</p>
+			<p class="qz__q">Что вы продаёте сейчас?</p>
+			<button class="opt" type="button">Мебель в своём салоне или шоуруме</button>
+			<button class="opt" type="button">Мебель на маркетплейсах или в интернет-магазине</button>
+			<button class="opt" type="button">Комплектую объекты: отели, апарты, рестораны</button>
+			<button class="opt" type="button">Я дизайнер или архитектор, привожу клиентов</button>
+		</div>
+		<div class="step" data-s="2" hidden>
+			<p class="qz__meta">Вопрос 2 из 4</p>
+			<p class="qz__q">Какой у вас масштаб?</p>
+			<button class="opt" type="button">Одна точка или площадка</button>
+			<button class="opt" type="button">От двух до пяти</button>
+			<button class="opt" type="button">Больше пяти или сеть</button>
+			<button class="opt" type="button">Только открываюсь</button>
+		</div>
+		<div class="step" data-s="3" hidden>
+			<p class="qz__meta">Вопрос 3 из 4</p>
+			<p class="qz__q">В каком городе работаете?</p>
+			<div class="fld"><label for="q3">Город</label><input id="q3" placeholder="Ростов-на-Дону"></div>
+		</div>
+		<div class="step" data-s="4" hidden>
+			<p class="qz__meta">Последний шаг</p>
+			<p class="qz__q">Куда прислать каталог с оптовыми ценами?</p>
+			<div class="fld"><label for="q4a">Имя</label><input id="q4a" placeholder="Как к вам обращаться"></div>
+			<div class="fld"><label for="q4b">Телефон или мессенджер</label><input id="q4b" placeholder="+7 …"></div>
+		</div>
+		<div class="qz__nav">
+			<button class="ghost" type="button" id="qback" disabled>Назад</button>
+			<button class="cta" type="button" id="qnext">Дальше</button>
+		</div>
+	</div>
+
+	<div class="qz__res" id="qres">
+		<h3>Диван собран</h3>
+		<p>Каталог с оптовыми ценами придёт вам на почту, а менеджеру придёт заявка.</p>
+	</div>
+</div>
+
+<style>
+	.qz { background: var(--panel); border: 1px solid var(--line); position: relative; }
+	.qz__stage { border-bottom: 1px solid var(--line); padding: 18px 20px 8px; background: linear-gradient(180deg,#161411,#1B1916); }
+	.qz__stage svg { width: 100%; height: auto; display: block; max-height: 150px; }
+	.qz__cap { font-family: var(--mono); font-size: 9.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--grey-dim); text-align: center; padding: 8px 0 12px; margin: 0; }
+	.qz__body { padding: 22px 20px 26px; }
+	.qz__meta { font-family: var(--mono); font-size: 10px; letter-spacing: .11em; text-transform: uppercase; color: var(--grey-dim); margin: 0 0 10px; }
+	.qz__q { font-weight: 600; font-size: clamp(17px,2.1vw,21px); margin: 0 0 16px; line-height: 1.25; color: var(--ivory); }
+	.qz__nav { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-top: 6px; }
+	.qz__res { display: none; padding: 30px 20px 34px; text-align: center; }
+	.qz__res.on { display: block; }
+	.qz__res h3 { font-family: var(--serif); font-weight: 400; font-size: 22px; margin: 0 0 10px; color: var(--ivory); }
+	.qz__res p { color: var(--grey); font-size: 14px; max-width: 40ch; margin: 0 auto; }
+
+	@media (max-width: 470px) {
+		.qz__nav .cta { width: auto; flex: 1 1 auto; }
+	}
+</style>
+
+<script>
+	import '../scripts/quiz.js';
+</script>
