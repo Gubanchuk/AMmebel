@@ -1,0 +1,47 @@
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ivory);font-family:var(--sans);font-size:16px;line-height:1.6;overflow-x:hidden}
+a{color:var(--ivory)}
+:focus-visible{outline:2px solid var(--ivory);outline-offset:3px}
+
+.wrap{max-width:1080px;margin:0 auto;padding-left:var(--pad);padding-right:var(--pad)}
+.lbl{font-family:var(--mono);font-size:10px;letter-spacing:.11em;text-transform:uppercase;color:var(--grey-dim)}
+
+/* кнопки системы */
+.cta{display:inline-flex;align-items:center;justify-content:center;background:var(--ivory);color:var(--bg);padding:18px 38px;font-weight:600;font-size:12px;letter-spacing:.1em;text-transform:uppercase;border:1px solid var(--ivory);cursor:pointer;position:relative;transition:background var(--t) ease,color var(--t) ease;text-decoration:none;font-family:var(--sans)}
+.cta:hover{background:transparent;color:var(--ivory)}
+.cta:after{content:'';position:absolute;left:50%;bottom:-7px;height:1px;width:0;background:linear-gradient(90deg,transparent,var(--glow),transparent);transition:width var(--t) ease,left var(--t) ease}
+.cta:hover:after{width:100%;left:0}
+.ray{color:var(--ivory);font-size:13.5px;display:inline-flex;align-items:center;gap:14px;cursor:pointer;text-decoration:none}
+.ray i{display:inline-block;width:44px;height:1px;font-style:normal;background:linear-gradient(90deg,var(--ivory),rgba(242,239,233,.15));transition:width var(--t) ease}
+.ray:hover i{width:86px}
+.ghost{display:inline-flex;align-items:center;background:transparent;border:1px solid var(--line);color:var(--grey-dim);font-family:var(--sans);font-size:11px;letter-spacing:.1em;text-transform:uppercase;padding:12px 20px;cursor:pointer;transition:border-color var(--t) ease,color var(--t) ease}
+.ghost:hover{border-color:#524D42;color:#DAD5C9}
+.ghost:disabled{opacity:.35;cursor:not-allowed}
+
+/* квиз: опции и поля */
+.opt{display:flex;width:100%;text-align:left;background:#1F1C18;border:1px solid var(--line);color:#DAD5C9;font-family:var(--sans);font-size:14.5px;padding:15px 17px;cursor:pointer;position:relative;margin-bottom:10px;transition:border-color var(--t) ease,background var(--t) ease}
+.opt:before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:transparent;transition:background var(--t) ease}
+.opt:hover{background:#242019;border-color:#3A352C}
+.opt:hover:before{background:linear-gradient(180deg,rgba(242,239,233,.1),rgba(242,239,233,.7),rgba(242,239,233,.1))}
+.opt.sel{background:#241F19;border-color:#4A4438;color:var(--ivory)}
+.opt.sel:before{background:linear-gradient(180deg,rgba(242,239,233,.2),var(--ivory),rgba(242,239,233,.2))}
+.fld{margin-bottom:16px;position:relative}
+.fld label{display:block;font-family:var(--mono);font-size:9px;letter-spacing:.14em;color:var(--grey-dim);text-transform:uppercase;margin-bottom:8px}
+.fld input{width:100%;background:transparent;border:0;border-bottom:1px solid var(--line);color:var(--ivory);font-family:var(--sans);font-size:15px;padding:8px 2px;outline:none}
+.fld input::placeholder{color:#524D42}
+.fld:after{content:'';position:absolute;left:0;bottom:0;height:1px;width:0;background:linear-gradient(90deg,var(--ivory),rgba(242,239,233,.2));transition:width var(--t) ease}
+.fld:focus-within:after{width:100%}
+
+/* прогресс квиза */
+.prg{display:flex;gap:6px;padding:0 20px 16px}
+.prg i{flex:1;height:2px;background:var(--line)}
+.prg i.on{background:var(--ivory);box-shadow:0 0 14px var(--glow)}
+
+@media (max-width:470px){
+  .cta{width:100%;padding:16px 20px}
+}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .cta,.ray i,.opt,.fld:after,.ghost{transition:none}
+}
