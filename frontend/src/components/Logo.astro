@@ -1,0 +1,72 @@
+---
+// Логотип АМ — инлайн SVG, геометрия и пропорции взяты из .mark (am-site-preview.html).
+// Плашка «АВТОРСКАЯ МЕБЕЛЬ» перекрывает нижнюю треть букв «АМ», как на исходной вывеске.
+interface Props {
+	size?: 'lg' | 'sm';
+	inverted?: boolean;
+}
+
+const { size = 'lg', inverted = false } = Astro.props;
+const classes = ['logo', `logo--${size}`, inverted && 'logo--inverted'].filter(Boolean).join(' ');
+---
+
+<svg
+	class={classes}
+	viewBox="0 0 200 90"
+	role="img"
+	aria-label="АМ — Авторская мебель"
+	xmlns="http://www.w3.org/2000/svg"
+>
+	<text
+		class="logo__am"
+		x="100"
+		y="62"
+		text-anchor="middle"
+		font-family="Prata"
+		font-size="56"
+		letter-spacing="3"
+	>АМ</text>
+	<rect class="logo__plate-bg" x="18" y="46" width="164" height="21" />
+	<text
+		class="logo__plate-text"
+		x="100"
+		y="56.5"
+		text-anchor="middle"
+		dominant-baseline="central"
+		font-family="Onest"
+		font-weight="600"
+		font-size="9"
+		letter-spacing="2.4"
+	>АВТОРСКАЯ МЕБЕЛЬ</text>
+</svg>
+
+<style>
+	.logo {
+		display: inline-block;
+		line-height: 1;
+		color: var(--ivory);
+	}
+	.logo--lg {
+		width: 200px;
+		height: auto;
+	}
+	.logo--sm {
+		width: 120px;
+		height: auto;
+	}
+	.logo--inverted {
+		color: var(--bg);
+	}
+	.logo__am {
+		fill: currentColor;
+	}
+	.logo__plate-bg {
+		fill: currentColor;
+	}
+	.logo__plate-text {
+		fill: var(--bg);
+	}
+	.logo--inverted .logo__plate-text {
+		fill: var(--ivory);
+	}
+</style>
