@@ -1,0 +1,37 @@
+---
+// CookieBar (page block 11, mounted site-wide — index + legal pages). Behavior
+// and the window.amConsent API live in ../scripts/consent.js. Hidden by default
+// in markup to avoid a flash before JS decides; consent.js un-hides it only if
+// no prior choice is stored.
+---
+
+<div class="cookie" id="cookieBar" hidden>
+	<div class="wrap cookie__row">
+		<p class="cookie__text">
+			Используем файлы cookie для аналитики сайта. Подробнее — в <a href="/politika">политике обработки персональных данных</a>.
+		</p>
+		<div class="cookie__actions">
+			<button class="ghost" type="button" id="cookieDecline">Отклонить</button>
+			<button class="cta" type="button" id="cookieAccept">Принять</button>
+		</div>
+	</div>
+</div>
+
+<style>
+	.cookie { position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; background: var(--panel); border-top: 1px solid var(--line); }
+	.cookie__row { display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; padding-top: 16px; padding-bottom: 16px; }
+	.cookie__text { margin: 0; color: var(--grey); font-size: 13px; line-height: 1.5; max-width: 62ch; }
+	.cookie__text a { color: var(--ivory); }
+	.cookie__actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+	@media (max-width: 620px) {
+		.cookie__row { flex-direction: column; align-items: stretch; }
+		.cookie__actions { justify-content: stretch; }
+		.cookie__actions .cta,
+		.cookie__actions .ghost { flex: 1 1 auto; }
+	}
+</style>
+
+<script>
+	import '../scripts/consent.js';
+</script>

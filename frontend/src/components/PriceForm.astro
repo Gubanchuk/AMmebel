@@ -1,0 +1,135 @@
+---
+// PriceForm (page block 11) — id="price" per controller ruling R8 (Hero CTA and
+// Needs cards already link to #price). Copy follows ruling R12: the site never
+// promises automatic price delivery — a manager sends the offer manually, since
+// prices differ per buyer segment. Validation and the am:lead dispatch live in
+// ../scripts/form.js.
+const needs = [
+	{ value: 'salon', label: 'Выставить у себя', extraLabel: 'Сколько точек', extraPlaceholder: 'Например, 2' },
+	{ value: 'online', label: 'Продать онлайн без склада', extraLabel: 'Какие площадки', extraPlaceholder: 'Например, Wildberries, свой магазин' },
+	{ value: 'project', label: 'Закрыть объект', extraLabel: 'Объём и срок', extraPlaceholder: 'Например, 40 номеров, к сентябрю' },
+	{ value: 'agent', label: 'Привести клиента', extraLabel: 'Проектов в год', extraPlaceholder: 'Например, 5–10' },
+];
+---
+
+<section class="sec price" id="price">
+	<div class="wrap">
+		<h2>Получить оптовый прайс</h2>
+		<p class="sec__lead">Оставьте заявку — менеджер свяжется с вами и направит оптовое предложение под ваш запрос, по телефону или почте.</p>
+
+		<form class="pf" id="pfForm" novalidate>
+			<div class="pf__grid">
+				<div class="fld">
+					<label for="pf-company">Компания / ИНН</label>
+					<input id="pf-company" name="company_inn" required placeholder="ООО «Ромашка» или ИНН" />
+				</div>
+				<div class="fld">
+					<label for="pf-name">Имя</label>
+					<input id="pf-name" name="name" required placeholder="Как к вам обращаться" />
+				</div>
+				<div class="fld">
+					<label for="pf-phone">Телефон</label>
+					<input id="pf-phone" name="phone" type="tel" required placeholder="+7 …" />
+				</div>
+				<div class="fld">
+					<label for="pf-city">Город</label>
+					<input id="pf-city" name="city" required placeholder="Краснодар" />
+				</div>
+				<div class="fld">
+					<label for="pf-need">Что нужно</label>
+					<select id="pf-need" name="need" required>
+						<option value="" disabled selected>Выберите вариант</option>
+						{needs.map((n) => (
+							<option value={n.value}>{n.label}</option>
+						))}
+					</select>
+				</div>
+				<div class="fld" id="pfNeedExtraWrap" hidden>
+					<label for="pf-need-extra" id="pfNeedExtraLabel">Уточнение</label>
+					<input id="pf-need-extra" name="need_extra" placeholder="" />
+				</div>
+			</div>
+
+			<div class="pf__hp" aria-hidden="true">
+				<input name="website" tabindex="-1" autocomplete="off" />
+			</div>
+
+			<label class="pf__consent">
+				<input type="checkbox" id="pfConsent" name="consent" />
+				<span>Даю <a href="/soglasie">согласие на обработку персональных данных</a> и ознакомлен с <a href="/politika">политикой обработки персональных данных</a></span>
+			</label>
+
+			<div class="pf__actions">
+				<button class="cta" type="submit" id="pfSubmit" disabled>Получить оптовый прайс</button>
+				<p class="pf__err" id="pfError" role="alert" hidden></p>
+			</div>
+		</form>
+
+		<div class="pf__done" id="pfDone" hidden>
+			<h3>Заявка отправлена</h3>
+			<p>Менеджер свяжется с вами и пришлёт оптовое предложение по телефону или почте.</p>
+		</div>
+	</div>
+</section>
+
+<style>
+	.pf { background: var(--panel); border: 1px solid var(--line); padding: 28px 26px 30px; max-width: 720px; }
+	.pf__grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0 24px; }
+	@media (max-width: 640px) {
+		.pf__grid { grid-template-columns: 1fr; }
+	}
+	.fld select {
+		width: 100%;
+		background: transparent;
+		border: 0;
+		border-bottom: 1px solid var(--line);
+		color: var(--ivory);
+		font-family: var(--sans);
+		font-size: 15px;
+		padding: 8px 2px;
+		outline: none;
+	}
+	.fld select option { background: var(--panel); color: var(--ivory); }
+
+	.pf__hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+
+	.pf__consent { display: flex; gap: 12px; align-items: flex-start; cursor: pointer; margin: 8px 0 22px; max-width: 56ch; }
+	.pf__consent input {
+		appearance: none;
+		-webkit-appearance: none;
+		width: 18px;
+		height: 18px;
+		flex: 0 0 18px;
+		border: 1px solid var(--line);
+		background: transparent;
+		margin-top: 2px;
+		cursor: pointer;
+		position: relative;
+		transition: border-color var(--t) ease, background var(--t) ease;
+	}
+	.pf__consent input:checked { background: var(--ivory); border-color: var(--ivory); }
+	.pf__consent input:checked:after {
+		content: '';
+		position: absolute;
+		left: 5px;
+		top: 1px;
+		width: 5px;
+		height: 9px;
+		border: solid var(--bg);
+		border-width: 0 2px 2px 0;
+		transform: rotate(45deg);
+	}
+	.pf__consent span { color: var(--grey); font-size: 13.5px; line-height: 1.5; }
+	.pf__consent a { color: var(--ivory); text-decoration: underline; text-underline-offset: 2px; }
+
+	.pf__actions { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+	.pf__err { color: var(--ivory); font-size: 12.5px; margin: 0; border-left: 2px solid var(--ivory); padding-left: 10px; }
+
+	.pf__done { background: var(--panel); border: 1px solid var(--line); padding: 28px 26px; max-width: 720px; text-align: left; }
+	.pf__done h3 { font-family: var(--serif); font-weight: 400; font-size: 20px; margin: 0 0 8px; color: var(--ivory); }
+	.pf__done p { color: var(--grey); font-size: 14px; margin: 0; max-width: 46ch; }
+</style>
+
+<script>
+	import '../scripts/form.js';
+</script>

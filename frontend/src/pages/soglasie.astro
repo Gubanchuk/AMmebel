@@ -1,0 +1,70 @@
+---
+// Legal page skeleton (task 7, block 11). Since 156-ФЗ (01.09.2025), consent
+// must be a document separate from the privacy policy (see 04-fz152.md §1.2).
+// Section headings map 1:1 to the mandatory content of ч. 4 ст. 9 152-ФЗ listed
+// there: subject's full name/address, operator's name/address, purpose, the
+// list of personal data, the list of processing actions, consent validity term
+// and revocation procedure, and the name of any processor acting by assignment.
+// No legal text is invented here — the client's legal package supplies the
+// actual wording; publication is gated by task 17.
+import '../styles/tokens.css';
+import '../styles/base.css';
+import Logo from '../components/Logo.astro';
+import Footer from '../components/Footer.astro';
+import CookieBar from '../components/CookieBar.astro';
+
+const sections = [
+	'Субъект персональных данных (ФИО, адрес, реквизиты документа, удостоверяющего личность)',
+	'Оператор персональных данных (наименование, адрес)',
+	'Цель обработки персональных данных',
+	'Перечень персональных данных, на обработку которых даётся согласие',
+	'Перечень действий с персональными данными',
+	'Лицо, осуществляющее обработку по поручению оператора (Яндекс.Метрика)',
+	'Срок действия согласия и порядок его отзыва',
+];
+---
+
+<html lang="ru">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="icon" href="/favicon.ico" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="generator" content={Astro.generator} />
+		<title>Согласие на обработку персональных данных — АМ</title>
+	</head>
+	<body>
+		<header class="top">
+			<div class="wrap">
+				<a href="/" aria-label="На главную"><Logo size="sm" /></a>
+			</div>
+		</header>
+
+		<section class="sec legal">
+			<div class="wrap">
+				<h1>Согласие на обработку персональных данных</h1>
+				<p class="legal__note">Текст предоставляется юридическим пакетом клиента; страница не публикуется до вставки текста.</p>
+				<ol class="legal__toc">
+					{sections.map((s) => (
+						<li>{s}</li>
+					))}
+				</ol>
+			</div>
+		</section>
+
+		<Footer />
+		<CookieBar />
+	</body>
+</html>
+
+<style>
+	.top { border-bottom: 1px solid var(--line-soft); }
+	.top .wrap { display: flex; align-items: center; padding-top: 20px; padding-bottom: 20px; }
+
+	.legal h1 { font-family: var(--serif); font-weight: 400; font-size: clamp(24px, 3.8vw, 34px); line-height: 1.15; margin: 0 0 18px; color: var(--ivory); max-width: 32ch; }
+	.legal__note { font-family: var(--mono); font-size: 11px; letter-spacing: .06em; color: var(--grey-dim); border: 1px solid var(--line); padding: 14px 16px; margin: 0 0 32px; max-width: 60ch; }
+	.legal__toc { margin: 0; padding: 0; list-style: none; counter-reset: sec; }
+	.legal__toc li { counter-increment: sec; display: flex; gap: 16px; border-top: 1px solid var(--line-soft); padding: 14px 0; color: var(--grey); font-size: 14.5px; }
+	.legal__toc li:last-child { border-bottom: 1px solid var(--line-soft); }
+	.legal__toc li:before { content: counter(sec, decimal-leading-zero); flex: 0 0 24px; font-family: var(--mono); font-size: 11px; color: var(--grey-dim); }
+</style>
