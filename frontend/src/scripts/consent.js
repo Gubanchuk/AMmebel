@@ -82,14 +82,22 @@ window.amConsent = {
 		var availableHeight = window.innerHeight - barHeight;
 		var rect = target.getBoundingClientRect();
 		var delta = rect.height <= availableHeight ? rect.top : rect.bottom - availableHeight;
-		window.scrollBy({ top: delta, behavior: 'smooth' });
+		// Global constraint: prefers-reduced-motion disables all animation, this
+		// custom scroll included — the site's own html{scroll-behavior:smooth}
+		// already respects it (base.css), this manual scrollBy has to match.
+		var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+		window.scrollBy({ top: delta, behavior: reduceMotion ? 'auto' : 'smooth' });
 	}
 
 	document.querySelectorAll('a[href="#price"]').forEach(function (link) {
 		link.addEventListener('click', function (e) {
 			e.preventDefault();
 			scrollToPriceClear();
-			if (window.history && history.pushState) history.pushState(null, '', '#price');
+			// Repeated clicks on the CTA shouldn't each push a new history entry
+			// for the same #price hash.
+			if (window.history && history.pushState && window.location.hash !== '#price') {
+				history.pushState(null, '', '#price');
+			}
 		});
 	});
 
