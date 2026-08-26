@@ -16,18 +16,18 @@
     {"name": "НДС", "value": "Работаем без НДС"}
   ],
   "models": [
-    {"title": "Угловой диван, молочный букле", "size": "", "priceFrom": null, "priceTo": null, "photo": "/photos/models/model-01.jpg", "visible": true, "sort": 1},
-    {"title": "П-образный диван, светлый букле", "size": "", "priceFrom": null, "priceTo": null, "photo": "/photos/models/model-02.jpg", "visible": true, "sort": 2},
-    {"title": "Прямой диван, вельвет крем", "size": "", "priceFrom": null, "priceTo": null, "photo": "/photos/models/model-03.jpg", "visible": true, "sort": 3},
-    {"title": "Угловой диван на золотых ножках", "size": "", "priceFrom": null, "priceTo": null, "photo": "/photos/models/model-04.jpg", "visible": true, "sort": 4},
-    {"title": "Диван на низком основании, молочный", "size": "", "priceFrom": null, "priceTo": null, "photo": "/photos/models/model-05.jpg", "visible": true, "sort": 5},
-    {"title": "Компактный диван, графитовый букле", "size": "", "priceFrom": null, "priceTo": null, "photo": "/photos/models/model-06.jpg", "visible": true, "sort": 6},
-    {"title": "Угловой диван с пуфом, серый вельвет", "size": "", "priceFrom": null, "priceTo": null, "photo": "/photos/models/model-07.jpg", "visible": true, "sort": 7},
-    {"title": "Модульный диван, крем и оливковый", "size": "", "priceFrom": null, "priceTo": null, "photo": "/photos/models/model-08.jpg", "visible": true, "sort": 8},
-    {"title": "Бескаркасные диваны, оливковый и молочный", "size": "", "priceFrom": null, "priceTo": null, "photo": "/photos/models/model-09.jpg", "visible": true, "sort": 9},
-    {"title": "Прямой диван, терракотовый", "size": "", "priceFrom": null, "priceTo": null, "photo": "/photos/models/model-10.jpg", "visible": true, "sort": 10},
-    {"title": "Угловой диван на ножках, тёмно-синий велюр", "size": "", "priceFrom": null, "priceTo": null, "photo": "/photos/models/model-11.jpg", "visible": true, "sort": 11},
-    {"title": "Угловой диван, шоколадный вельвет", "size": "", "priceFrom": null, "priceTo": null, "photo": "/photos/models/model-12.jpg", "visible": true, "sort": 12}
+    {"title": "Угловой диван, молочный букле", "size": "", "priceFrom": null, "priceTo": null, "photo": "/photos/models/model-01.webp", "visible": true, "sort": 1},
+    {"title": "П-образный диван, светлый букле", "size": "", "priceFrom": null, "priceTo": null, "photo": "/photos/models/model-02.webp", "visible": true, "sort": 2},
+    {"title": "Прямой диван, вельвет крем", "size": "", "priceFrom": null, "priceTo": null, "photo": "/photos/models/model-03.webp", "visible": true, "sort": 3},
+    {"title": "Угловой диван на золотых ножках", "size": "", "priceFrom": null, "priceTo": null, "photo": "/photos/models/model-04.webp", "visible": true, "sort": 4},
+    {"title": "Диван на низком основании, молочный", "size": "", "priceFrom": null, "priceTo": null, "photo": "/photos/models/model-05.webp", "visible": true, "sort": 5},
+    {"title": "Компактный диван, графитовый букле", "size": "", "priceFrom": null, "priceTo": null, "photo": "/photos/models/model-06.webp", "visible": true, "sort": 6},
+    {"title": "Угловой диван с пуфом, серый вельвет", "size": "", "priceFrom": null, "priceTo": null, "photo": "/photos/models/model-07.webp", "visible": true, "sort": 7},
+    {"title": "Модульный диван, крем и оливковый", "size": "", "priceFrom": null, "priceTo": null, "photo": "/photos/models/model-08.webp", "visible": true, "sort": 8},
+    {"title": "Бескаркасные диваны, оливковый и молочный", "size": "", "priceFrom": null, "priceTo": null, "photo": "/photos/models/model-09.webp", "visible": true, "sort": 9},
+    {"title": "Прямой диван, терракотовый", "size": "", "priceFrom": null, "priceTo": null, "photo": "/photos/models/model-10.webp", "visible": true, "sort": 10},
+    {"title": "Угловой диван на ножках, тёмно-синий велюр", "size": "", "priceFrom": null, "priceTo": null, "photo": "/photos/models/model-11.webp", "visible": true, "sort": 11},
+    {"title": "Угловой диван, шоколадный вельвет", "size": "", "priceFrom": null, "priceTo": null, "photo": "/photos/models/model-12.webp", "visible": true, "sort": 12}
   ],
   "faq": [
     {"q": "Работаете с НДС?", "a": "Нет, работаем без НДС.", "sort": 1},
