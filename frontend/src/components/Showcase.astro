@@ -1,0 +1,70 @@
+---
+// Showcase grid (page block 03) — imports content-fallback.json directly per
+// Ruling R4. Photos are real client-supplied product shots (bright daylight
+// interiors) — spec §4 calls for a dark backing + vignette adaptation for this
+// exact case ("тёмные подложки, виньетирование"), applied via .model__photo:before.
+import content from '../../../content-fallback.json';
+
+interface Model {
+	title: string;
+	size: string;
+	priceFrom: number | null;
+	priceTo: number | null;
+	photo: string;
+	visible: boolean;
+	sort: number;
+}
+
+const models = (content.models as Model[])
+	.filter((m) => m.visible)
+	.sort((a, b) => a.sort - b.sort);
+
+function formatPrice(m: Model): string {
+	if (m.priceFrom == null) return 'цена по запросу';
+	const from = m.priceFrom.toLocaleString('ru-RU');
+	if (m.priceTo == null) return `от ${from} ₽`;
+	const to = m.priceTo.toLocaleString('ru-RU');
+	return `${from}–${to} ₽`;
+}
+---
+
+<section class="sec models" id="models">
+	<div class="wrap">
+		<h2>Витрина моделей</h2>
+		<p class="sec__lead">{content.settings.priceNote}</p>
+		<div class="models__grid">
+			{models.map((m) => (
+				<div class="model">
+					<div class="model__photo">
+						<img src={m.photo} alt={m.title} loading="lazy" width="640" height="480" />
+					</div>
+					<div class="model__body">
+						<h3 class="model__title">{m.title}</h3>
+						{m.size && <p class="model__size">{m.size}</p>}
+						<p class="model__price">{formatPrice(m)}</p>
+					</div>
+				</div>
+			))}
+		</div>
+	</div>
+</section>
+
+<style>
+	.models__grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+	.model { background: var(--panel); border: 1px solid var(--line); }
+	.model__photo { position: relative; aspect-ratio: 4 / 3; overflow: hidden; background: #000; }
+	.model__photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+	.model__photo:before {
+		content: '';
+		position: absolute;
+		inset: 0;
+		pointer-events: none;
+		background:
+			radial-gradient(70% 80% at 68% 18%, rgba(122,103,68,.30) 0%, rgba(72,60,40,.13) 45%, transparent 75%),
+			linear-gradient(180deg, transparent 45%, rgba(19,18,16,.72) 100%);
+	}
+	.model__body { padding: 16px 18px 20px; }
+	.model__title { font-size: 15px; font-weight: 600; color: var(--ivory); margin: 0 0 6px; line-height: 1.3; }
+	.model__size { font-family: var(--mono); font-size: 11px; color: var(--grey-dim); margin: 0 0 10px; }
+	.model__price { font-family: var(--mono); font-size: 13px; color: var(--ivory); margin: 0; }
+</style>

@@ -1,0 +1,57 @@
+---
+// Needs (page block 04) — four entry points from research §Q3
+// (clients/sf-sofa/research/b2b-opt-site-2026-07/SUMMARY.md). The 4th card's
+// commission figure (20%) is the client's own confirmed answer, replacing the
+// research's BOCA-reference placeholder (1–3%) with real data.
+const items = [
+	{
+		n: '01',
+		title: 'Выставить у себя',
+		body: 'Берёте образцы и торгуете под своим именем. Даём POS-материалы, держим розничную цену и защищаем вашу территорию от соседних дилеров.',
+	},
+	{
+		n: '02',
+		title: 'Продать онлайн без склада',
+		body: 'Работаете без своего склада — на маркетплейсе или в интернет-магазине. Даём фотоконтент, актуальные остатки и сроки отгрузки под дропшип.',
+	},
+	{
+		n: '03',
+		title: 'Закрыть объект',
+		body: 'Комплектуете отель, апартаменты или ресторан. Считаем смету на тираж, даём сертификаты и договор поставки со сроками на партию.',
+	},
+	{
+		n: '04',
+		title: 'Привести клиента',
+		body: 'Вы дизайнер или архитектор и не покупаете сами. Даём 3D-модели и каталог, а за приведённого клиента — 20% от суммы заказа с прозрачным учётом.',
+	},
+];
+---
+
+<section class="sec needs" id="needs">
+	<div class="wrap">
+		<h2>Работаем под четыре разные задачи</h2>
+		<p class="sec__lead">Один сайт, развилка по тому, что вам нужно в этой сделке — не по типу компании.</p>
+		<div class="needs__grid">
+			{items.map((it) => (
+				<div class="needs__card">
+					<p class="needs__meta">{it.n}</p>
+					<h3>{it.title}</h3>
+					<p>{it.body}</p>
+					<a class="ray" href="#price"><i></i>Оставить заявку</a>
+				</div>
+			))}
+		</div>
+	</div>
+</section>
+
+<style>
+	.needs__grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; background: var(--line-soft); border: 1px solid var(--line-soft); }
+	@media (max-width: 720px) {
+		.needs__grid { grid-template-columns: 1fr; }
+	}
+	.needs__card { background: var(--panel); padding: 26px 24px 28px; display: flex; flex-direction: column; gap: 10px; }
+	.needs__meta { font-family: var(--mono); font-size: 11px; letter-spacing: .11em; color: var(--grey-dim); margin: 0; }
+	.needs__card h3 { font-size: 18px; font-weight: 600; color: var(--ivory); margin: 0; }
+	.needs__card p { color: var(--grey); font-size: 14px; line-height: 1.5; margin: 0; flex: 1; }
+	.needs__card .ray { margin-top: 6px; }
+</style>

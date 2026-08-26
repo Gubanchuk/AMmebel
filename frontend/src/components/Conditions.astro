@@ -1,0 +1,45 @@
+---
+// Conditions table (page block 02) — imports content-fallback.json directly per
+// Ruling R4 (task 10 will switch this to props sourced from Directus).
+import content from '../../../content-fallback.json';
+
+const { conditions } = content;
+---
+
+<section class="sec cond" id="conditions">
+	<div class="wrap">
+		<h2>Условия сотрудничества</h2>
+		<div class="cond__scroll">
+			<table class="cond__table">
+				<tbody>
+					{conditions.map((row: { name: string; value: string }) => (
+						<tr>
+							<th class="lbl">{row.name}</th>
+							<td>{row.value}</td>
+						</tr>
+					))}
+				</tbody>
+			</table>
+		</div>
+		<p class="cond__note">Условия фиксируем в договоре поставки.</p>
+	</div>
+</section>
+
+<style>
+	.cond__scroll { overflow-x: auto; border-top: 1px solid var(--line-soft); }
+	.cond__table { width: 100%; border-collapse: collapse; min-width: 480px; }
+	.cond__table tr { border-bottom: 1px solid var(--line-soft); }
+	.cond__table th { text-align: left; vertical-align: top; padding: 16px 24px 16px 0; white-space: nowrap; }
+	.cond__table td { text-align: left; color: var(--ivory); font-size: 14.5px; line-height: 1.5; padding: 16px 0; }
+	.cond__note { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; color: var(--grey-dim); margin: 18px 0 0; text-transform: uppercase; }
+
+	/* Values here are full sentences (real client answers), not short data
+	   points — a side-scrolling table reads badly for prose, so below 600px
+	   the rows stack label-over-value instead of scrolling horizontally. */
+	@media (max-width: 600px) {
+		.cond__table { min-width: 0; width: 100%; }
+		.cond__table tr { display: block; padding: 14px 0; }
+		.cond__table th { display: block; padding: 0 0 6px; white-space: normal; }
+		.cond__table td { display: block; padding: 0; }
+	}
+</style>
