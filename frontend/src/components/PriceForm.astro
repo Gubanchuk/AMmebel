@@ -5,10 +5,10 @@
 // prices differ per buyer segment. Validation and the am:lead dispatch live in
 // ../scripts/form.js.
 const needs = [
-	{ value: 'salon', label: 'Выставить у себя', extraLabel: 'Сколько точек', extraPlaceholder: 'Например, 2' },
-	{ value: 'online', label: 'Продать онлайн без склада', extraLabel: 'Какие площадки', extraPlaceholder: 'Например, Wildberries, свой магазин' },
-	{ value: 'project', label: 'Закрыть объект', extraLabel: 'Объём и срок', extraPlaceholder: 'Например, 40 номеров, к сентябрю' },
-	{ value: 'agent', label: 'Привести клиента', extraLabel: 'Проектов в год', extraPlaceholder: 'Например, 5–10' },
+	{ value: 'salon', label: 'Выставить у себя' },
+	{ value: 'online', label: 'Продать онлайн без склада' },
+	{ value: 'project', label: 'Закрыть объект' },
+	{ value: 'agent', label: 'Привести клиента' },
 ];
 ---
 
@@ -128,6 +128,10 @@ const needs = [
 	.pf__done { background: var(--panel); border: 1px solid var(--line); padding: 28px 26px; max-width: 720px; text-align: left; }
 	.pf__done h3 { font-family: var(--serif); font-weight: 400; font-size: 20px; margin: 0 0 8px; color: var(--ivory); }
 	.pf__done p { color: var(--grey); font-size: 14px; margin: 0; max-width: 46ch; }
+
+	@media (prefers-reduced-motion: reduce) {
+		.pf__consent input { transition: none; }
+	}
 </style>
 
 <script>

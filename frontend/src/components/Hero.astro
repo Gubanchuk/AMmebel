@@ -16,13 +16,13 @@ import Quiz from './Quiz.astro';
 <section class="demo">
 	<div class="wrap">
 		<div>
-			<h2>Есть мебель, которая обставляет. И&nbsp;та, что определяет</h2>
+			<h1>Есть мебель, которая обставляет. И&nbsp;та, что определяет</h1>
 			<p class="manifest">Свет · Ткань · Форма</p>
 			<p class="demo__lead">Фабрика авторской мягкой мебели, Краснодар. Отгружаем салонам, проектам и маркетплейсам по всей России.</p>
 			<ul class="usp">
 				<li><b>ЦЕХ</b><span>Раскрой, каркас, обивка и упаковка — под одной крышей с 2018 года</span></li>
 				<li><b>100+</b><span>Моделей: диваны, угловые, модульные, кровати</span></li>
-				<li><b>ОБРАЗЕЦ</b><span>Выставочный образец на условиях <span class="dash">__</span> — ждём вашего решения</span></li>
+				<li><b>ОБРАЗЕЦ</b><span>Выставочный образец — скидка до −30% на первый заказ</span></li>
 				<li><b>ШОУРУМ</b><span>Шоурум при цехе: приехать и потрогать до первой партии</span></li>
 			</ul>
 			<div class="qz__nav" style="margin:0">
@@ -41,7 +41,7 @@ import Quiz from './Quiz.astro';
 	.demo { border-top: 1px solid var(--line-soft); border-bottom: 1px solid var(--line-soft); position: relative; overflow: hidden; }
 	.demo:before { content: ''; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(70% 80% at 68% 18%, rgba(122,103,68,.30) 0%, rgba(72,60,40,.13) 45%, transparent 75%); }
 	.demo .wrap { position: relative; display: grid; grid-template-columns: minmax(0,1fr) minmax(0,.95fr); gap: clamp(26px,4vw,56px); padding-top: clamp(36px,6vw,64px); padding-bottom: clamp(40px,6vw,72px); }
-	.demo h2 { font-family: var(--serif); font-weight: 400; font-size: clamp(28px,4.6vw,46px); line-height: 1.06; margin: 0 0 14px; color: var(--ivory); }
+	.demo h1 { font-family: var(--serif); font-weight: 400; font-size: clamp(28px,4.6vw,46px); line-height: 1.06; margin: 0 0 14px; color: var(--ivory); }
 	.manifest { font-size: 10.5px; letter-spacing: .3em; text-transform: uppercase; color: var(--grey); margin: 0 0 22px; }
 	.demo__lead { color: var(--grey); font-size: 15.5px; max-width: 44ch; margin: 0 0 28px; }
 	.usp { list-style: none; margin: 0 0 30px; padding: 0; display: grid; gap: 11px; }

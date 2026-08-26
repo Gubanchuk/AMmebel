@@ -52,4 +52,9 @@ const year = new Date().getFullYear();
 	.foot__sub { font-size: 12px; }
 	.foot__grid .ray { font-size: 13px; margin-top: 8px; }
 	.foot__legal { font-family: var(--mono); font-size: 10px; letter-spacing: .08em; color: var(--grey-dim); margin: 0; }
+
+	@media (prefers-reduced-motion: reduce) {
+		.foot__tel,
+		.foot__mail { transition: none; }
+	}
 </style>

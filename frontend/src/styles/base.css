@@ -50,5 +50,5 @@ a{color:var(--ivory)}
 }
 @media (prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
-  .cta,.ray i,.opt,.fld:after,.ghost{transition:none}
+  .cta,.ray i,.opt,.fld:after,.ghost,.chip,.cta:after,.opt:before{transition:none}
 }

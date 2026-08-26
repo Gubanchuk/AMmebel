@@ -23,6 +23,25 @@ if (typeof window.amGoal !== 'function') {
 	var cityInput = document.getElementById('q3');
 	var nameInput = document.getElementById('q4a');
 	var phoneInput = document.getElementById('q4b');
+	var consentInput = document.getElementById('qzConsent');
+	var errorEl = document.getElementById('qzError');
+
+	function setError(message) {
+		if (!errorEl) return;
+		if (!message) {
+			errorEl.hidden = true;
+			errorEl.textContent = '';
+			return;
+		}
+		errorEl.hidden = false;
+		errorEl.textContent = message;
+	}
+
+	// Consent only gates the finish action (last step) — earlier steps advance
+	// via the same shared button without needing it checked.
+	function syncNextState() {
+		next.disabled = (s === total) && !(consentInput && consentInput.checked);
+	}
 
 	function paint() {
 		steps.forEach(function (el) { el.hidden = Number(el.dataset.s) !== s; });
@@ -30,7 +49,9 @@ if (typeof window.amGoal !== 'function') {
 		for (var i = 1; i <= 4; i++) { var g = document.getElementById('p' + i); if (g) g.setAttribute('opacity', i <= s ? '1' : '0'); }
 		cap.textContent = 'Шаг ' + s + ' из ' + total + ' · ' + caps[s - 1];
 		back.disabled = (s === 1);
-		next.textContent = (s === total) ? 'Получить каталог' : 'Дальше';
+		next.textContent = (s === total) ? 'Получить прайс' : 'Дальше';
+		setError(null);
+		syncNextState();
 	}
 
 	function setStep(n) {
@@ -39,17 +60,45 @@ if (typeof window.amGoal !== 'function') {
 		window.amGoal('quiz_step_' + s);
 	}
 
+	function digitsCount(value) {
+		var match = value.match(/\d/g);
+		return match ? match.length : 0;
+	}
+
 	function finish() {
+		var name = nameInput ? nameInput.value.trim() : '';
+		var phone = phoneInput ? phoneInput.value.trim() : '';
+
+		if (!name) {
+			setError('Укажите имя.');
+			return;
+		}
+		if (digitsCount(phone) < 10) {
+			setError('Проверьте номер телефона — нужно не меньше 10 цифр.');
+			return;
+		}
+		if (!consentInput || !consentInput.checked) {
+			setError('Отметьте согласие на обработку персональных данных.');
+			return;
+		}
+		setError(null);
+
 		answers.city = cityInput ? cityInput.value.trim() : '';
-		answers.name = nameInput ? nameInput.value.trim() : '';
-		answers.phone = phoneInput ? phoneInput.value.trim() : '';
+		answers.name = name;
+		answers.phone = phone;
 		body.style.display = 'none';
 		res.classList.add('on');
 		cap.textContent = 'Диван собран · свет включён';
 		bars.forEach(function (b) { b.classList.add('on'); });
 		for (var i = 1; i <= 4; i++) { var g = document.getElementById('p' + i); if (g) g.setAttribute('opacity', '1'); }
 		window.amGoal('quiz_submit');
-		document.dispatchEvent(new CustomEvent('am:lead', { detail: { type: 'quiz', fields: answers } }));
+		document.dispatchEvent(new CustomEvent('am:lead', {
+			detail: {
+				type: 'quiz',
+				fields: answers,
+				consent: { version: '2026-08-25' },
+			},
+		}));
 	}
 
 	document.querySelectorAll('.opt').forEach(function (o) {
@@ -69,6 +118,7 @@ if (typeof window.amGoal !== 'function') {
 		else { finish(); }
 	});
 	back.addEventListener('click', function () { if (s > 1) { setStep(s - 1); } });
+	if (consentInput) { consentInput.addEventListener('change', syncNextState); }
 
 	setStep(1);
 })();

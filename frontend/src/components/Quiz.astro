@@ -59,9 +59,14 @@
 		</div>
 		<div class="step" data-s="4" hidden>
 			<p class="qz__meta">Последний шаг</p>
-			<p class="qz__q">Куда прислать каталог с оптовыми ценами?</p>
+			<p class="qz__q">Куда направить оптовое предложение?</p>
 			<div class="fld"><label for="q4a">Имя</label><input id="q4a" placeholder="Как к вам обращаться"></div>
 			<div class="fld"><label for="q4b">Телефон или мессенджер</label><input id="q4b" placeholder="+7 …"></div>
+			<label class="qz__consent">
+				<input type="checkbox" id="qzConsent">
+				<span>Даю <a href="/soglasie">согласие на обработку персональных данных</a> и ознакомлен с <a href="/politika">политикой обработки персональных данных</a></span>
+			</label>
+			<p class="qz__err" id="qzError" role="alert" hidden></p>
 		</div>
 		<div class="qz__nav">
 			<button class="ghost" type="button" id="qback" disabled>Назад</button>
@@ -89,8 +94,41 @@
 	.qz__res h3 { font-family: var(--serif); font-weight: 400; font-size: 22px; margin: 0 0 10px; color: var(--ivory); }
 	.qz__res p { color: var(--grey); font-size: 14px; max-width: 40ch; margin: 0 auto; }
 
+	.qz__consent { display: flex; gap: 12px; align-items: flex-start; cursor: pointer; margin: 4px 0 14px; }
+	.qz__consent input {
+		appearance: none;
+		-webkit-appearance: none;
+		width: 18px;
+		height: 18px;
+		flex: 0 0 18px;
+		border: 1px solid var(--line);
+		background: transparent;
+		margin-top: 2px;
+		cursor: pointer;
+		position: relative;
+		transition: border-color var(--t) ease, background var(--t) ease;
+	}
+	.qz__consent input:checked { background: var(--ivory); border-color: var(--ivory); }
+	.qz__consent input:checked:after {
+		content: '';
+		position: absolute;
+		left: 5px;
+		top: 1px;
+		width: 5px;
+		height: 9px;
+		border: solid var(--bg);
+		border-width: 0 2px 2px 0;
+		transform: rotate(45deg);
+	}
+	.qz__consent span { color: var(--grey); font-size: 12.5px; line-height: 1.5; }
+	.qz__consent a { color: var(--ivory); text-decoration: underline; text-underline-offset: 2px; }
+	.qz__err { color: var(--ivory); font-size: 12px; margin: 0 0 10px; border-left: 2px solid var(--ivory); padding-left: 10px; }
+
 	@media (max-width: 470px) {
 		.qz__nav .cta { width: auto; flex: 1 1 auto; }
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.qz__consent input { transition: none; }
 	}
 </style>
 

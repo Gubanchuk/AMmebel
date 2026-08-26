@@ -103,8 +103,22 @@ window.amConsent = {
 
 	// Cold load / direct link with #price already in the URL: the browser's own
 	// top-aligned jump happens before this script runs — correct it the same way.
+	// Chrome can also perform a SECOND, later fragment-scroll of its own (after
+	// paint, sometimes after 'load') that undoes the rAF correction below — so
+	// re-run the same idempotent correction after 'load' settles and once more
+	// on a short timeout as a safety net for slower cold loads. Redundant calls
+	// are harmless: if the section is already clear, the computed delta is ~0.
 	if (window.location.hash === '#price') {
-		window.requestAnimationFrame(scrollToPriceClear);
+		var correctPriceScroll = function () {
+			if (window.location.hash === '#price') { scrollToPriceClear(); }
+		};
+		window.requestAnimationFrame(correctPriceScroll);
+		window.addEventListener('load', function () {
+			window.requestAnimationFrame(function () {
+				window.requestAnimationFrame(correctPriceScroll);
+			});
+		});
+		setTimeout(correctPriceScroll, 600);
 	}
 
 	if (acceptBtn) {

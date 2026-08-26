@@ -8,7 +8,7 @@
 <div class="cookie" id="cookieBar" hidden>
 	<div class="wrap cookie__row">
 		<p class="cookie__text">
-			Используем файлы cookie для аналитики сайта. Подробнее — в <a href="/politika">политике обработки персональных данных</a>.
+			Используем cookie для аналитики — подробнее в <a href="/politika">политике</a>.
 		</p>
 		<div class="cookie__actions">
 			<button class="ghost" type="button" id="cookieDecline">Отклонить</button>
@@ -22,13 +22,17 @@
 	.cookie__row { display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; padding-top: 16px; padding-bottom: 16px; }
 	.cookie__text { margin: 0; color: var(--grey); font-size: 13px; line-height: 1.5; max-width: 62ch; }
 	.cookie__text a { color: var(--ivory); }
-	.cookie__actions { display: flex; gap: 10px; flex-wrap: wrap; }
+	.cookie__actions { display: flex; gap: 10px; flex-wrap: nowrap; flex: 0 0 auto; }
 
+	/* Compact stacked layout: text on its own line (1-2 lines), buttons below it
+	   in a single row (never stacked vertically) — keeps total bar height well
+	   under the viewport so it doesn't bury content sitting near the bottom. */
 	@media (max-width: 620px) {
-		.cookie__row { flex-direction: column; align-items: stretch; }
-		.cookie__actions { justify-content: stretch; }
+		.cookie__row { padding-top: 12px; padding-bottom: 12px; gap: 10px; }
+		.cookie__text { flex: 1 1 100%; font-size: 12px; line-height: 1.4; }
+		.cookie__actions { flex: 1 1 100%; flex-wrap: nowrap; }
 		.cookie__actions .cta,
-		.cookie__actions .ghost { flex: 1 1 auto; }
+		.cookie__actions .ghost { flex: 1 1 0; padding: 10px 14px; font-size: 10.5px; white-space: nowrap; }
 	}
 </style>
 
