@@ -1,0 +1,55 @@
+---
+// Footer (page block 12). settings from content-fallback.json (phone/email —
+// the client's designated lead-handling contact, not the docx's registration
+// phone). Legal name/INN/OGRN from the company-card docx, factual address is
+// settings.address (production/showroom address, distinct from Documents.astro's
+// юридический адрес). /politika and /soglasie pages are built in task 7.
+import content from '../../../content-fallback.json';
+
+const { settings } = content;
+const legal = { name: 'ООО «Авторская мебель»', inn: '2373027390', ogrn: '1252300034843' };
+const telHref = `tel:${settings.phone.replace(/[^\d+]/g, '')}`;
+const year = new Date().getFullYear();
+---
+
+<footer class="foot">
+	<div class="wrap">
+		<div class="foot__grid">
+			<div>
+				<p class="lbl">Юрлицо</p>
+				<p>{legal.name}<br />ИНН {legal.inn} · ОГРН {legal.ogrn}</p>
+			</div>
+			<div>
+				<p class="lbl">Контакты</p>
+				<p><a class="foot__tel" href={telHref}>{settings.phone}</a></p>
+				<p class="foot__sub">Основной мессенджер — MAX, также WhatsApp и Telegram</p>
+				<p><a class="foot__mail" href={`mailto:${settings.email}`}>{settings.email}</a></p>
+			</div>
+			<div>
+				<p class="lbl">Адрес</p>
+				<p>{settings.address}</p>
+			</div>
+			<div>
+				<p class="lbl">Документы</p>
+				<p><a class="ray" href="/politika"><i></i>Политика персональных данных</a></p>
+				<p><a class="ray" href="/soglasie"><i></i>Согласие на обработку данных</a></p>
+			</div>
+		</div>
+		<p class="foot__legal">АВТОРСКАЯ МЕБЕЛЬ · ОПТ-САЙТ · {year}</p>
+	</div>
+</footer>
+
+<style>
+	.foot { border-top: 1px solid var(--line-soft); padding-top: 40px; padding-bottom: 32px; }
+	.foot__grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 28px; margin-bottom: 30px; }
+	.foot__grid p { margin: 4px 0 0; color: var(--grey); font-size: 13.5px; line-height: 1.5; }
+	.foot__grid .lbl { margin: 0; }
+	.foot__grid a { text-decoration: none; }
+	.foot__tel { font-family: var(--mono); color: var(--ivory); transition: color var(--t) ease, text-shadow var(--t) ease; }
+	.foot__tel:hover { text-shadow: 0 0 12px var(--glow); }
+	.foot__mail { color: var(--grey); transition: color var(--t) ease; }
+	.foot__mail:hover { color: var(--ivory); }
+	.foot__sub { font-size: 12px; }
+	.foot__grid .ray { font-size: 13px; margin-top: 8px; }
+	.foot__legal { font-family: var(--mono); font-size: 10px; letter-spacing: .08em; color: var(--grey-dim); margin: 0; }
+</style>

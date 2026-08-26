@@ -1,0 +1,26 @@
+---
+// Partners (page block 08). No real testimonials received yet — 3 dotted slots
+// per the original plan step, not invented names/quotes.
+---
+
+<section class="sec partners" id="partners">
+	<div class="wrap">
+		<h2>Партнёры и кейсы</h2>
+		<p class="sec__lead">Отзывы дилеров появятся здесь по мере поступления — с именем, городом и фото мебели в их зале.</p>
+		<div class="partners__grid">
+			{[0, 1, 2].map(() => (
+				<div class="partner">
+					<p class="partner__quote">Место под отзыв дилера.</p>
+					<p class="partner__meta lbl">Имя, город — на подходе</p>
+				</div>
+			))}
+		</div>
+	</div>
+</section>
+
+<style>
+	.partners__grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1px; background: var(--line-soft); border: 1px solid var(--line-soft); }
+	.partner { background: var(--panel); padding: 24px 22px; display: flex; flex-direction: column; gap: 10px; min-height: 120px; justify-content: space-between; }
+	.partner__quote { color: var(--grey); font-size: 14px; line-height: 1.5; margin: 0; font-style: italic; }
+	.partner__meta { margin: 0; }
+</style>
