@@ -1,6 +1,15 @@
 ---
-// AM logo — inline SVG, geometry and proportions taken from .mark (am-site-preview.html).
-// The "AVTORSKAYA MEBEL" plate overlaps the bottom third of the "AM" letters, matching the original signboard.
+// AM logo — inline SVG. Geometry updated 27.08: user picked the "separate" plate
+// variant from clients/sf-sofa/opt-site-mockups/quiz-scene-variants.html section 2
+// (feedback on the original ~41%-overlap geometry from .mark: "АМ сливается в
+// нижние буквы" — reads as mush at header size). The plate now sits as its own
+// line below the "AM" letters with a small gap, no overlap. Letter size, tracking,
+// and plate-text size/tracking are unchanged from before — only the plate's y
+// position moved down, which required a taller viewBox (114 instead of 90) to
+// keep the empty margin above the letters and below the plate roughly
+// symmetric. Since the viewBox grew taller at the same width, .logo--sm/--lg
+// switched from fixing width (which would have rendered taller than before) to
+// fixing height, so the on-screen size in the header is unchanged.
 interface Props {
 	size?: 'lg' | 'sm';
 	inverted?: boolean;
@@ -12,7 +21,7 @@ const classes = ['logo', `logo--${size}`, inverted && 'logo--inverted'].filter(B
 
 <svg
 	class={classes}
-	viewBox="0 0 200 90"
+	viewBox="0 0 200 114"
 	role="img"
 	aria-label="АМ — Авторская мебель"
 	xmlns="http://www.w3.org/2000/svg"
@@ -26,11 +35,11 @@ const classes = ['logo', `logo--${size}`, inverted && 'logo--inverted'].filter(B
 		font-size="56"
 		letter-spacing="3"
 	>АМ</text>
-	<rect class="logo__plate-bg" x="18" y="46" width="164" height="21" />
+	<rect class="logo__plate-bg" x="18" y="70" width="164" height="21" />
 	<text
 		class="logo__plate-text"
 		x="100"
-		y="56.5"
+		y="80.5"
 		text-anchor="middle"
 		dominant-baseline="central"
 		font-family="Onest"
@@ -47,12 +56,12 @@ const classes = ['logo', `logo--${size}`, inverted && 'logo--inverted'].filter(B
 		color: var(--ivory);
 	}
 	.logo--lg {
-		width: 200px;
-		height: auto;
+		height: 90px;
+		width: auto;
 	}
 	.logo--sm {
-		width: 120px;
-		height: auto;
+		height: 54px;
+		width: auto;
 	}
 	.logo--inverted {
 		color: var(--bg);
