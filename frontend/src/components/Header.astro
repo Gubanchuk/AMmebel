@@ -288,6 +288,17 @@ const telHref = `tel:${settings.phone.replace(/[^\d+]/g, '')}`;
 		// off-screen) toggle would fight the browser's own fragment jump.
 		function close(returnFocus) {
 			if (overlay.hidden) return;
+			// Re-entrancy guard, mirroring open()'s: without it, a second
+			// close() call (e.g. a fast double-Esc) before the first
+			// TRANSITION_MS timeout fires schedules a second timer without
+			// clearing the first. The first still fires on schedule and nulls
+			// the shared closeTimeoutId — losing the handle needed to cancel
+			// the second — so if the overlay gets reopened in between, that
+			// orphaned second timer later force-hides the freshly reopened one.
+			if (closeTimeoutId !== null) {
+				window.clearTimeout(closeTimeoutId);
+				closeTimeoutId = null;
+			}
 			overlay.classList.remove('on');
 			document.body.style.overflow = '';
 			toggle.setAttribute('aria-expanded', 'false');
@@ -304,8 +315,23 @@ const telHref = `tel:${settings.phone.replace(/[^\d+]/g, '')}`;
 		});
 		closeBtn.addEventListener('click', function () { close(); });
 
+		// Focus trap for the aria-modal dialog: the overlay's focusable set is
+		// fixed (close button, 4 nav links, phone, price CTA — same order as
+		// the markup), so a plain first/last wrap is enough — no need to walk
+		// a dynamic list. Escape closes from anywhere while open.
 		document.addEventListener('keydown', function (e) {
-			if (e.key === 'Escape' && !overlay.hidden) { close(); }
+			if (overlay.hidden) return;
+			if (e.key === 'Escape') { close(); return; }
+			if (e.key !== 'Tab') return;
+			var first = closeBtn;
+			var last = overlay.querySelector('.hdr-menu__price');
+			if (e.shiftKey && document.activeElement === first) {
+				e.preventDefault();
+				last.focus();
+			} else if (!e.shiftKey && document.activeElement === last) {
+				e.preventDefault();
+				first.focus();
+			}
 		});
 
 		// Clicking any link inside the overlay closes it without
@@ -316,7 +342,12 @@ const telHref = `tel:${settings.phone.replace(/[^\d+]/g, '')}`;
 		// handles the cookie-bar-aware scroll — both listeners fire, neither
 		// interferes with the other.
 		overlay.querySelectorAll('a').forEach(function (link) {
-			link.addEventListener('click', function () { close(false); });
+			link.addEventListener('click', function () {
+				// close(false): don't return focus to the toggle here — the
+				// user is navigating to a page section, so let the browser's
+				// own focus/scroll flow take over instead of fighting it.
+				close(false);
+			});
 		});
 
 		// amGoal is defined once, globally, by quiz.js on the pages where the
