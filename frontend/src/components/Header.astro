@@ -30,7 +30,7 @@ import Logo from './Logo.astro';
 			<a href="#production">Производство</a>
 			<a href="#faq">FAQ</a>
 		</nav>
-		<a class="hdr__price" href="#price">
+		<a class="cta hdr__price" href="#price">
 			<span class="hdr__price-full">Получить прайс</span>
 			<span class="hdr__price-short">Прайс</span>
 		</a>
@@ -79,38 +79,31 @@ import Logo from './Logo.astro';
 	.hdr__nav a:hover:after,
 	.hdr__nav a:focus-visible:after { transform: scaleX(1); }
 
-	.hdr__price {
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-		flex: 0 0 auto;
-		background: var(--ivory);
-		color: var(--bg);
-		border: 1px solid var(--ivory);
-		padding: 12px 26px;
-		font-family: var(--sans);
-		font-size: 11px;
-		font-weight: 600;
-		letter-spacing: .1em;
-		text-transform: uppercase;
-		text-decoration: none;
-		cursor: pointer;
-		transition: background var(--t) ease, color var(--t) ease;
-	}
-	.hdr__price:hover { background: transparent; color: var(--ivory); }
+	/* .hdr__price reuses the shared .cta class for fill/border/hover-invert/
+	   flash/transition/focus — only layout and sizing are overridden here so
+	   the header's compact plate can't silently drift from the button system.
+	   .cta's own default is 18px/38px padding at 12px font, sized for the
+	   hero/PriceForm CTA; the header needs a smaller instance to fit its
+	   60px bar. .cta's :after light-line flash is left untouched — it reads
+	   fine at this scale. */
+	.hdr__price { flex: 0 0 auto; padding: 12px 26px; font-size: 11px; }
 	.hdr__price-short { display: none; }
 
 	@media (max-width: 620px) {
 		.hdr { height: 56px; }
 		.hdr__nav { display: none; }
-		.hdr__price { padding: 10px 18px; }
+		/* .cta's own ≤470px rule sets width:100% for the full-size hero button
+		   — reset it here so the compact plate doesn't stretch across the row. */
+		.hdr__price { width: auto; padding: 10px 18px; }
 		.hdr__price-full { display: none; }
 		.hdr__price-short { display: inline; }
 	}
 
+	/* .hdr__price's own transitions come from .cta, which already has a
+	   prefers-reduced-motion rule in base.css — only the nav underline
+	   (local to this component) needs one here. */
 	@media (prefers-reduced-motion: reduce) {
 		.hdr__nav a,
-		.hdr__nav a:after,
-		.hdr__price { transition: none; }
+		.hdr__nav a:after { transition: none; }
 	}
 </style>
