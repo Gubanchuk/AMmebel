@@ -2,6 +2,9 @@
 // Adaptations vs. the preview: capture each step's answer into `answers`, replace
 // step-counter increments with setStep() so every transition reports window.amGoal,
 // and dispatch am:lead with the collected fields instead of showing a static stub.
+// The stage was later replaced from an SVG assembly scene to a real photo with a
+// CSS light reveal (data-lit="1".."4" on #qzScene) — the step machine itself is
+// unchanged, only the one line that used to toggle SVG group opacity.
 
 if (typeof window.amGoal !== 'function') {
 	window.amGoal = function (name) {
@@ -11,10 +14,11 @@ if (typeof window.amGoal !== 'function') {
 
 (function () {
 	var s = 1, total = 4;
-	var caps = ['собираем каркас', 'кладём подушки', 'ставим спинку и подлокотники', 'включаем свет над обивкой'];
+	var caps = ['включаем свет', 'свет разгорается', 'ещё ярче', 'свет включён'];
 	var answers = { business: '', scale: '', city: '', name: '', phone: '' };
 	var steps = document.querySelectorAll('.step');
 	var bars = document.querySelectorAll('.prg i');
+	var scene = document.getElementById('qzScene');
 	var back = document.getElementById('qback');
 	var next = document.getElementById('qnext');
 	var cap = document.getElementById('qcap');
@@ -46,7 +50,7 @@ if (typeof window.amGoal !== 'function') {
 	function paint() {
 		steps.forEach(function (el) { el.hidden = Number(el.dataset.s) !== s; });
 		bars.forEach(function (b, i) { b.classList.toggle('on', i < s); });
-		for (var i = 1; i <= 4; i++) { var g = document.getElementById('p' + i); if (g) g.setAttribute('opacity', i <= s ? '1' : '0'); }
+		if (scene) { scene.setAttribute('data-lit', String(s)); }
 		cap.textContent = 'Шаг ' + s + ' из ' + total + ' · ' + caps[s - 1];
 		back.disabled = (s === 1);
 		next.textContent = (s === total) ? 'Получить прайс' : 'Дальше';
@@ -88,9 +92,8 @@ if (typeof window.amGoal !== 'function') {
 		answers.phone = phone;
 		body.style.display = 'none';
 		res.classList.add('on');
-		cap.textContent = 'Диван собран · свет включён';
+		cap.textContent = 'Готово · свет включён';
 		bars.forEach(function (b) { b.classList.add('on'); });
-		for (var i = 1; i <= 4; i++) { var g = document.getElementById('p' + i); if (g) g.setAttribute('opacity', '1'); }
 		window.amGoal('quiz_submit');
 		document.dispatchEvent(new CustomEvent('am:lead', {
 			detail: {

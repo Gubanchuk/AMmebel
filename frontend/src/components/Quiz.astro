@@ -1,45 +1,30 @@
 ---
-// Assembly quiz — ported from the .qz block in am-site-preview.html (SVG sofa scene,
-// 4-step questionnaire, progress lamps). Behavior lives in ../scripts/quiz.js.
+// Quiz stage — a real product photo with a CSS light-reveal per step, replacing
+// the earlier SVG assembly scene (rejected by the user). Chosen photo:
+// model-06.webp (charcoal bouclé loveseat) — of the 12 showcase photos, it has
+// the strongest directional/raking side-light already baked into the shot
+// (visible diagonal light-and-shadow bands across the cushions from a window,
+// left of frame), the most readable upholstery texture under that light
+// (bouclé's nubby weave catches contrast well), and the cleanest dark/neutral
+// background (plain wall + two framed prints, no clutter) — the combination
+// that reads most convincingly as "light gradually revealing form" once
+// brightness/contrast are stepped up via CSS. Light state is driven by
+// data-lit="1".."4" on .qz__scene, set by quiz.js's paint() (same place the
+// old code toggled SVG opacity) — no new animation/JS framework, CSS
+// transitions only. Behavior lives in ../scripts/quiz.js.
 ---
 
 <div class="qz" id="qz">
 	<div class="qz__stage">
-		<svg viewBox="0 0 340 150" role="img" aria-label="Схема дивана: с каждым шагом квиза появляется деталь">
-			<defs>
-				<radialGradient id="p0Glow" cx="68%" cy="18%" r="75%">
-					<stop offset="0%" stop-color="#7A6744" stop-opacity=".30"/>
-					<stop offset="45%" stop-color="#483C28" stop-opacity=".13"/>
-					<stop offset="75%" stop-color="#7A6744" stop-opacity="0"/>
-				</radialGradient>
-			</defs>
-			<rect x="0" y="0" width="340" height="150" fill="url(#p0Glow)"/>
-			<g id="p0" fill="none" stroke="#7A6744" stroke-width="2" stroke-dasharray="5 4" stroke-opacity=".85">
-				<path d="M30 40 h280 v78 h-280 z"/>
-			</g>
-			<g id="p1" opacity="0">
-				<path d="M30 96 h280 v22 h-280 z" fill="#241F19"/>
-				<path d="M46 118 v16 M74 118 v16 M266 118 v16 M294 118 v16" stroke="#3A342C" stroke-width="6" stroke-linecap="round"/>
-			</g>
-			<g id="p2" opacity="0">
-				<path d="M62 66 h216 v30 h-216 z" fill="#2A251F"/>
-				<path d="M134 66 v30 M206 66 v30" stroke="#3A352C" stroke-width="2"/>
-			</g>
-			<g id="p3" opacity="0">
-				<path d="M62 28 h216 v38 h-216 z" fill="#2A251F"/>
-				<path d="M30 40 h32 v56 h-32 a5 5 0 0 1 -5 -5 v-46 a5 5 0 0 1 5 -5 z" fill="#272219"/>
-				<path d="M278 40 h32 a5 5 0 0 1 5 5 v46 a5 5 0 0 1 -5 5 h-32 z" fill="#272219"/>
-			</g>
-			<g id="p4" opacity="0">
-				<path d="M62 28 h216 v38 h-216 z M62 66 h216 v30 h-216 z" fill="#3B332B"/>
-				<path d="M30 40 h32 v56 h-32 a5 5 0 0 1 -5 -5 v-46 a5 5 0 0 1 5 -5 z" fill="#332C25"/>
-				<path d="M278 40 h32 a5 5 0 0 1 5 5 v46 a5 5 0 0 1 -5 5 h-32 z" fill="#332C25"/>
-				<path d="M62 28 h216 v7 h-216 z" fill="#7A6744" opacity=".8"/>
-				<path d="M134 66 v30 M206 66 v30 M62 66 h216" stroke="rgba(242,239,233,.22)" stroke-width="2"/>
-				<path d="M30 96 h280 v22 h-280 z" fill="#2B241D"/>
-			</g>
-		</svg>
-		<p class="qz__cap" id="qcap">Шаг 1 из 4 · собираем каркас</p>
+		<div class="qz__scene" id="qzScene" data-lit="1">
+			<img
+				src="/models/model-06.webp"
+				alt="Диван крупным планом — свет постепенно проявляет обивку"
+				loading="eager"
+				fetchpriority="high"
+			/>
+		</div>
+		<p class="qz__cap" id="qcap">Шаг 1 из 4 · включаем свет</p>
 	</div>
 	<div class="prg"><i class="on"></i><i></i><i></i><i></i></div>
 
@@ -83,7 +68,7 @@
 	</div>
 
 	<div class="qz__res" id="qres">
-		<h3>Диван собран</h3>
+		<h3>Свет включён</h3>
 		<p>Заявка ушла менеджеру — он свяжется с вами и направит предложение под ваш запрос.</p>
 	</div>
 </div>
@@ -91,7 +76,31 @@
 <style>
 	.qz { background: var(--panel); border: 1px solid var(--line); position: relative; }
 	.qz__stage { border-bottom: 1px solid var(--line); padding: 18px 20px 8px; background: linear-gradient(180deg,#161411,#1B1916); }
-	.qz__stage svg { width: 100%; height: auto; display: block; max-height: 150px; }
+	.qz__scene { position: relative; aspect-ratio: 4 / 3; overflow: hidden; background: #000; }
+	.qz__scene img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		object-position: 50% 55%;
+		display: block;
+		filter: brightness(.3);
+		transition: filter var(--t) ease;
+	}
+	.qz__scene:before {
+		content: '';
+		position: absolute;
+		inset: 0;
+		pointer-events: none;
+		background: radial-gradient(70% 80% at 50% 10%, rgba(122,103,68,.35) 0%, rgba(72,60,40,.15) 45%, transparent 75%);
+		opacity: .25;
+		transition: opacity var(--t) ease;
+	}
+	.qz__scene[data-lit="2"] img { filter: brightness(.55); }
+	.qz__scene[data-lit="2"]:before { opacity: .5; }
+	.qz__scene[data-lit="3"] img { filter: brightness(.8); }
+	.qz__scene[data-lit="3"]:before { opacity: .8; }
+	.qz__scene[data-lit="4"] img { filter: brightness(1); }
+	.qz__scene[data-lit="4"]:before { opacity: 1; }
 	.qz__cap { font-family: var(--mono); font-size: 9.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--grey-dim); text-align: center; padding: 8px 0 12px; margin: 0; }
 	.qz__body { padding: 22px 20px 26px; }
 	.qz__meta { font-family: var(--mono); font-size: 10px; letter-spacing: .11em; text-transform: uppercase; color: var(--grey-dim); margin: 0 0 10px; }
@@ -137,6 +146,7 @@
 	}
 	@media (prefers-reduced-motion: reduce) {
 		.qz__consent input { transition: none; }
+		.qz__scene img, .qz__scene:before { transition: none; }
 	}
 </style>
 
