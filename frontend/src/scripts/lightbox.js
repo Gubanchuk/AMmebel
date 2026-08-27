@@ -12,6 +12,7 @@
 
 	var photos = window.__amModelPhotos || [];
 	var lastTrigger = null;
+	var closeTimeoutId = null;
 	var TRANSITION_MS = 450; // matches --t (.45s)
 
 	function reducedMotion() {
@@ -21,6 +22,13 @@
 	function open(trigger, index) {
 		var photo = photos[index];
 		if (!photo) return;
+		// Cancel a pending close-cleanup from a previous session — without this,
+		// close() -> reopen() within TRANSITION_MS lets the stale timeout fire
+		// mid-new-session and blank img.src / re-hide the overlay it just opened.
+		if (closeTimeoutId !== null) {
+			window.clearTimeout(closeTimeoutId);
+			closeTimeoutId = null;
+		}
 		img.src = photo.src;
 		img.alt = photo.alt;
 		lastTrigger = trigger;
@@ -39,9 +47,10 @@
 		overlay.classList.remove('on');
 		document.body.style.overflow = '';
 		var delay = reducedMotion() ? 0 : TRANSITION_MS;
-		window.setTimeout(function () {
+		closeTimeoutId = window.setTimeout(function () {
 			overlay.hidden = true;
 			img.src = '';
+			closeTimeoutId = null;
 		}, delay);
 		if (lastTrigger) { lastTrigger.focus(); }
 	}
@@ -52,6 +61,9 @@
 		});
 	});
 
+	// #lightboxClose has no listener of its own by design — it's inside the
+	// overlay, so a click on it bubbles to this handler and closes like any
+	// other click on the overlay. Don't stopPropagation on it elsewhere.
 	overlay.addEventListener('click', close);
 
 	document.addEventListener('keydown', function (e) {
