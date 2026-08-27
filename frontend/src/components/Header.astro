@@ -13,10 +13,21 @@
 // the CTA) was rejected as looking off. Nav links are plain uppercase
 // micro-labels with no decoration at rest — the underline grows in on
 // hover/focus via a transform, never a layout-affecting property. The phone
-// number has no home in the header in this variant; it lives in Footer and
-// PriceForm instead. Mobile drops the nav entirely (logo + a compact price
-// link) to keep one row with no wrap at 390px.
+// number has no home in the compact header bar in this variant.
+//
+// Mobile (≤620px) drops the inline nav to keep one row with no wrap at
+// 390px, but the user browsing the live deploy on a phone had no way to
+// reach any section — this adds a "МЕНЮ" toggle that opens a fullscreen
+// overlay with the same four links at a large caps size, plus the phone
+// (absent from the compact bar) and a full-size price CTA. The overlay
+// reuses Showcase's lightbox open/close/scroll-lock pattern verbatim
+// (proven: hidden attribute + .on class + forced layout flush before the
+// opacity transition, TRANSITION_MS matching --t).
 import Logo from './Logo.astro';
+import content from '../../../content-fallback.json';
+
+const { settings } = content;
+const telHref = `tel:${settings.phone.replace(/[^\d+]/g, '')}`;
 ---
 
 <header class="hdr" id="siteHeader">
@@ -30,12 +41,37 @@ import Logo from './Logo.astro';
 			<a href="#production">Производство</a>
 			<a href="#faq">FAQ</a>
 		</nav>
-		<a class="cta hdr__price" href="#price">
-			<span class="hdr__price-full">Получить прайс</span>
-			<span class="hdr__price-short">Прайс</span>
-		</a>
+		<div class="hdr__right">
+			<button
+				type="button"
+				class="hdr__menu-toggle"
+				id="hdrMenuToggle"
+				aria-expanded="false"
+				aria-controls="hdrMenu"
+			>Меню</button>
+			<a class="cta hdr__price" href="#price">
+				<span class="hdr__price-full">Получить прайс</span>
+				<span class="hdr__price-short">Прайс</span>
+			</a>
+		</div>
 	</div>
 </header>
+
+<div class="hdr-menu" id="hdrMenu" role="dialog" aria-modal="true" aria-label="Меню" hidden>
+	<div class="hdr-menu__top wrap">
+		<button type="button" class="hdr-menu__close" id="hdrMenuClose">Закрыть</button>
+	</div>
+	<nav class="hdr-menu__nav wrap" aria-label="Разделы страницы">
+		<a href="#models">Модели</a>
+		<a href="#conditions">Условия</a>
+		<a href="#production">Производство</a>
+		<a href="#faq">FAQ</a>
+	</nav>
+	<div class="hdr-menu__foot wrap">
+		<a class="hdr-menu__tel" href={telHref} id="hdrMenuTel">{settings.phone}</a>
+		<a class="cta hdr-menu__price" href="#price">Получить прайс</a>
+	</div>
+</div>
 
 <style>
 	.hdr {
@@ -79,6 +115,25 @@ import Logo from './Logo.astro';
 	.hdr__nav a:hover:after,
 	.hdr__nav a:focus-visible:after { transform: scaleX(1); }
 
+	.hdr__right { display: flex; align-items: center; gap: 20px; flex: 0 0 auto; }
+
+	/* Hidden on desktop — the inline .hdr__nav covers navigation there. */
+	.hdr__menu-toggle {
+		display: none;
+		background: none;
+		border: 0;
+		padding: 0;
+		cursor: pointer;
+		font-family: var(--sans);
+		font-size: 11px;
+		letter-spacing: .1em;
+		text-transform: uppercase;
+		color: var(--grey);
+		transition: color var(--t) ease;
+	}
+	.hdr__menu-toggle:hover,
+	.hdr__menu-toggle:focus-visible { color: var(--ivory); }
+
 	/* .hdr__price reuses the shared .cta class for fill/border/hover-invert/
 	   flash/transition/focus — only layout and sizing are overridden here so
 	   the header's compact plate can't silently drift from the button system.
@@ -92,6 +147,7 @@ import Logo from './Logo.astro';
 	@media (max-width: 620px) {
 		.hdr { height: 56px; }
 		.hdr__nav { display: none; }
+		.hdr__menu-toggle { display: inline-block; }
 		/* .cta's own ≤470px rule sets width:100% for the full-size hero button
 		   — reset it here so the compact plate doesn't stretch across the row. */
 		.hdr__price { width: auto; padding: 10px 18px; }
@@ -100,10 +156,177 @@ import Logo from './Logo.astro';
 	}
 
 	/* .hdr__price's own transitions come from .cta, which already has a
-	   prefers-reduced-motion rule in base.css — only the nav underline
-	   (local to this component) needs one here. */
+	   prefers-reduced-motion rule in base.css — only the nav underline and
+	   the menu toggle/overlay (local to this component) need one here. */
 	@media (prefers-reduced-motion: reduce) {
 		.hdr__nav a,
-		.hdr__nav a:after { transition: none; }
+		.hdr__nav a:after,
+		.hdr__menu-toggle,
+		.hdr-menu,
+		.hdr-menu__nav a:after,
+		.hdr-menu__close,
+		.hdr-menu__tel { transition: none; }
+	}
+
+	/* ============ fullscreen mobile menu overlay ============ */
+	.hdr-menu {
+		position: fixed;
+		inset: 0;
+		z-index: 60;
+		background: var(--bg);
+		display: flex;
+		flex-direction: column;
+		opacity: 0;
+		pointer-events: none;
+		transition: opacity var(--t) ease;
+		overflow-y: auto;
+	}
+	.hdr-menu.on { opacity: 1; pointer-events: auto; }
+
+	.hdr-menu__top { display: flex; justify-content: flex-end; align-items: center; height: 56px; flex: 0 0 auto; border-bottom: 1px solid var(--line); }
+	.hdr-menu__close {
+		background: none;
+		border: 0;
+		padding: 0;
+		cursor: pointer;
+		font-family: var(--sans);
+		font-size: 11px;
+		letter-spacing: .1em;
+		text-transform: uppercase;
+		color: var(--grey);
+		transition: color var(--t) ease;
+	}
+	.hdr-menu__close:hover,
+	.hdr-menu__close:focus-visible { color: var(--ivory); }
+
+	.hdr-menu__nav { display: flex; flex-direction: column; padding-top: 8px; }
+	.hdr-menu__nav a {
+		position: relative;
+		display: block;
+		padding: 20px 0;
+		font-family: var(--sans);
+		font-weight: 500;
+		font-size: clamp(22px, 6vw, 26px);
+		letter-spacing: .02em;
+		text-transform: uppercase;
+		color: var(--ivory);
+		text-decoration: none;
+		border-top: 1px solid var(--line-soft);
+	}
+	.hdr-menu__nav a:last-child { border-bottom: 1px solid var(--line-soft); }
+	.hdr-menu__nav a:after {
+		content: '';
+		position: absolute;
+		left: 0;
+		bottom: 0;
+		width: 100%;
+		height: 2px;
+		background: var(--ivory);
+		transform: scaleX(0);
+		transform-origin: left;
+		transition: transform var(--t) ease;
+	}
+	.hdr-menu__nav a:hover:after,
+	.hdr-menu__nav a:focus-visible:after { transform: scaleX(1); }
+
+	.hdr-menu__foot { display: flex; flex-direction: column; align-items: center; gap: 22px; padding: 32px 0 40px; margin-top: auto; }
+	.hdr-menu__tel {
+		font-family: var(--mono);
+		font-size: 15px;
+		color: var(--ivory);
+		text-decoration: none;
+		transition: color var(--t) ease, text-shadow var(--t) ease;
+	}
+	.hdr-menu__tel:hover { text-shadow: 0 0 12px var(--glow); }
+	/* .cta already goes full-width at ≤470px (base.css) — this holds that
+	   same intent across the whole ≤620px range the overlay lives in, since
+	   a compact inline button would look stranded in a fullscreen menu. */
+	.hdr-menu__price { width: 100%; }
+
+	/* The toggle that opens this overlay only exists ≤620px, but pin this
+	   too as a safety net in case the viewport is resized wider while open. */
+	@media (min-width: 621px) {
+		.hdr-menu { display: none !important; }
 	}
 </style>
+
+<script>
+	// Mobile fullscreen menu — open/close/scroll-lock pattern copied verbatim
+	// from ../scripts/lightbox.js (hidden attribute + .on class + forced
+	// layout flush before the opacity transition, TRANSITION_MS matching --t).
+	(function () {
+		var toggle = document.getElementById('hdrMenuToggle');
+		var overlay = document.getElementById('hdrMenu');
+		var closeBtn = document.getElementById('hdrMenuClose');
+		if (!toggle || !overlay || !closeBtn) return;
+
+		var TRANSITION_MS = 450; // matches --t (.45s)
+		var closeTimeoutId = null;
+
+		function reducedMotion() {
+			return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+		}
+
+		function open() {
+			if (closeTimeoutId !== null) {
+				window.clearTimeout(closeTimeoutId);
+				closeTimeoutId = null;
+			}
+			overlay.hidden = false;
+			document.body.style.overflow = 'hidden';
+			// Force a layout flush so the browser commits the un-hidden state
+			// before the opacity transition starts (same reasoning as the
+			// lightbox — rAF-based deferral was unreliable right after load).
+			void overlay.offsetHeight;
+			overlay.classList.add('on');
+			toggle.setAttribute('aria-expanded', 'true');
+			closeBtn.focus();
+		}
+
+		// returnFocus is false for a link click inside the overlay — the user
+		// is navigating away, so yanking focus back up to the (now often
+		// off-screen) toggle would fight the browser's own fragment jump.
+		function close(returnFocus) {
+			if (overlay.hidden) return;
+			overlay.classList.remove('on');
+			document.body.style.overflow = '';
+			toggle.setAttribute('aria-expanded', 'false');
+			var delay = reducedMotion() ? 0 : TRANSITION_MS;
+			closeTimeoutId = window.setTimeout(function () {
+				overlay.hidden = true;
+				closeTimeoutId = null;
+			}, delay);
+			if (returnFocus !== false) { toggle.focus(); }
+		}
+
+		toggle.addEventListener('click', function () {
+			if (overlay.hidden) { open(); } else { close(); }
+		});
+		closeBtn.addEventListener('click', function () { close(); });
+
+		document.addEventListener('keydown', function (e) {
+			if (e.key === 'Escape' && !overlay.hidden) { close(); }
+		});
+
+		// Clicking any link inside the overlay closes it without
+		// preventDefault — the native fragment jump (scroll-margin-top on
+		// .sec covers the header offset) proceeds underneath the fade-out.
+		// The price link additionally has its own listener from consent.js
+		// (attached to every a[href="#price"] in the DOM at load) that
+		// handles the cookie-bar-aware scroll — both listeners fire, neither
+		// interferes with the other.
+		overlay.querySelectorAll('a').forEach(function (link) {
+			link.addEventListener('click', function () { close(false); });
+		});
+
+		// amGoal is defined once, globally, by quiz.js on the pages where the
+		// quiz mounts. The legal pages don't load quiz.js, so guard the call
+		// instead of assuming it exists — never redefine it here.
+		var tel = document.getElementById('hdrMenuTel');
+		if (tel) {
+			tel.addEventListener('click', function () {
+				if (typeof window.amGoal === 'function') { window.amGoal('phone_click'); }
+			});
+		}
+	})();
+</script>
