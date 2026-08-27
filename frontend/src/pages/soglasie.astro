@@ -9,7 +9,7 @@
 // actual wording; publication is gated by task 17.
 import '../styles/tokens.css';
 import '../styles/base.css';
-import Logo from '../components/Logo.astro';
+import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import CookieBar from '../components/CookieBar.astro';
 
@@ -37,11 +37,7 @@ const sections = [
 		<title>Согласие на обработку персональных данных — АМ</title>
 	</head>
 	<body>
-		<header class="top">
-			<div class="wrap">
-				<a href="/" aria-label="На главную"><Logo size="sm" /></a>
-			</div>
-		</header>
+		<Header />
 
 		<section class="sec legal">
 			<div class="wrap">
@@ -61,9 +57,6 @@ const sections = [
 </html>
 
 <style>
-	.top { border-bottom: 1px solid var(--line-soft); }
-	.top .wrap { display: flex; align-items: center; padding-top: 20px; padding-bottom: 20px; }
-
 	.legal h1 { font-family: var(--serif); font-weight: 400; font-size: clamp(24px, 3.8vw, 34px); line-height: 1.15; margin: 0 0 18px; color: var(--ivory); max-width: 32ch; }
 	.legal__note { font-family: var(--mono); font-size: 11px; letter-spacing: .06em; color: var(--grey-dim); border: 1px solid var(--line); padding: 14px 16px; margin: 0 0 32px; max-width: 60ch; }
 	.legal__toc { margin: 0; padding: 0; list-style: none; counter-reset: sec; }

@@ -21,7 +21,7 @@ const year = new Date().getFullYear();
 			</div>
 			<div>
 				<p class="lbl">Контакты</p>
-				<p><a class="foot__tel" href={telHref}>{settings.phone}</a></p>
+				<p><a class="foot__tel" href={telHref} id="footTel">{settings.phone}</a></p>
 				<p class="foot__sub">Основной мессенджер — MAX, также WhatsApp и Telegram</p>
 				<p><a class="foot__mail" href={`mailto:${settings.email}`}>{settings.email}</a></p>
 			</div>
@@ -58,3 +58,16 @@ const year = new Date().getFullYear();
 		.foot__mail { transition: none; }
 	}
 </style>
+
+<script>
+	// amGoal is defined once, globally, by quiz.js on the pages where the quiz
+	// mounts. The legal pages don't load quiz.js, so guard the call instead of
+	// assuming it exists — never redefine it here.
+	(function () {
+		var tel = document.getElementById('footTel');
+		if (!tel) return;
+		tel.addEventListener('click', function () {
+			if (typeof window.amGoal === 'function') { window.amGoal('phone_click'); }
+		});
+	})();
+</script>

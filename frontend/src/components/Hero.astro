@@ -1,17 +1,10 @@
 ---
 // Hero (page block 01) — ported from the .demo section in am-site-preview.html:
 // serif headline, manifest, lead, USP list, primary CTA + secondary "ray" link,
-// with the assembly Quiz mounted alongside it. No dedicated header task exists
-// in the plan, so the page's only Logo placement lives in the slim bar above.
-import Logo from './Logo.astro';
+// with the assembly Quiz mounted alongside it. The top bar that used to live
+// here now lives in the shared Header component, mounted separately by pages.
 import Quiz from './Quiz.astro';
 ---
-
-<header class="top">
-	<div class="wrap">
-		<Logo size="sm" />
-	</div>
-</header>
 
 <section class="demo">
 	<div class="wrap">
@@ -35,9 +28,6 @@ import Quiz from './Quiz.astro';
 </section>
 
 <style>
-	.top { border-bottom: 1px solid var(--line-soft); }
-	.top .wrap { display: flex; align-items: center; justify-content: space-between; padding-top: 20px; padding-bottom: 20px; gap: 14px; }
-
 	.demo { border-top: 1px solid var(--line-soft); border-bottom: 1px solid var(--line-soft); position: relative; overflow: hidden; }
 	.demo:before { content: ''; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(70% 80% at 68% 18%, rgba(122,103,68,.30) 0%, rgba(72,60,40,.13) 45%, transparent 75%); }
 	.demo .wrap { position: relative; display: grid; grid-template-columns: minmax(0,1fr) minmax(0,.95fr); gap: clamp(26px,4vw,56px); padding-top: clamp(36px,6vw,64px); padding-bottom: clamp(40px,6vw,72px); }
@@ -52,8 +42,5 @@ import Quiz from './Quiz.astro';
 
 	@media (max-width: 860px) {
 		.demo .wrap { grid-template-columns: 1fr; }
-	}
-	@media (max-width: 470px) {
-		.top .wrap { padding-top: 14px; padding-bottom: 14px; }
 	}
 </style>

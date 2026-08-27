@@ -1,0 +1,90 @@
+---
+// Site header (page-wide) — extracted from the .top bar that used to live
+// inline in Hero.astro, and now replaces the ad-hoc top bars politika.astro
+// and soglasie.astro each had of their own. Mounted on all three pages;
+// sticky at the top of the viewport (z-index 50, between the fixed CookieBar
+// at 40 and the Showcase lightbox overlay at 100). The logo always links
+// home — on index that's a scroll to top, on the legal pages a real
+// navigation. Desktop shows the full section nav plus phone + a "get price"
+// link; mobile drops the nav entirely (logo + phone + a short price link)
+// to keep one row with no wrap at 390px.
+import Logo from './Logo.astro';
+import content from '../../../content-fallback.json';
+
+const { settings } = content;
+const telHref = `tel:${settings.phone.replace(/[^\d+]/g, '')}`;
+---
+
+<header class="hdr" id="siteHeader">
+	<div class="wrap hdr__row">
+		<a class="hdr__logo" href="/" aria-label="Авторская Мебель — на главную">
+			<Logo size="sm" />
+		</a>
+		<nav class="hdr__nav" aria-label="Разделы страницы">
+			<a class="ray" href="#models"><i></i>Модели</a>
+			<a class="ray" href="#conditions"><i></i>Условия</a>
+			<a class="ray" href="#production"><i></i>Производство</a>
+			<a class="ray" href="#faq"><i></i>FAQ</a>
+		</nav>
+		<div class="hdr__right">
+			<a class="hdr__tel" href={telHref} id="hdrTel">{settings.phone}</a>
+			<a class="ray hdr__price" href="#price">
+				<i></i>
+				<span class="hdr__price-full">Получить прайс</span>
+				<span class="hdr__price-short">Прайс</span>
+			</a>
+		</div>
+	</div>
+</header>
+
+<style>
+	.hdr {
+		position: sticky;
+		top: 0;
+		z-index: 50;
+		height: 60px;
+		background: var(--bg);
+		border-bottom: 1px solid var(--line);
+	}
+	.hdr__row { display: flex; align-items: center; justify-content: space-between; gap: 24px; height: 100%; }
+	.hdr__logo { display: flex; align-items: center; flex: 0 0 auto; }
+	.hdr__nav { display: flex; align-items: center; gap: 28px; flex: 1 1 auto; justify-content: center; }
+	.hdr__right { display: flex; align-items: center; gap: 26px; flex: 0 0 auto; }
+	.hdr__tel {
+		font-family: var(--mono);
+		font-size: 13px;
+		color: var(--ivory);
+		white-space: nowrap;
+		text-decoration: none;
+		transition: color var(--t) ease, text-shadow var(--t) ease;
+	}
+	.hdr__tel:hover { text-shadow: 0 0 12px var(--glow); }
+	.hdr__price-short { display: none; }
+
+	@media (max-width: 620px) {
+		.hdr { height: 56px; }
+		.hdr__nav { display: none; }
+		.hdr__right { gap: 16px; }
+		.hdr__tel { font-size: 11px; }
+		.hdr__price-full { display: none; }
+		.hdr__price-short { display: inline; }
+		.hdr__price i { width: 22px; }
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.hdr__tel { transition: none; }
+	}
+</style>
+
+<script>
+	// amGoal is defined once, globally, by quiz.js on the pages where the quiz
+	// mounts. The legal pages don't load quiz.js, so guard the call instead of
+	// assuming it exists — never redefine it here.
+	(function () {
+		var tel = document.getElementById('hdrTel');
+		if (!tel) return;
+		tel.addEventListener('click', function () {
+			if (typeof window.amGoal === 'function') { window.amGoal('phone_click'); }
+		});
+	})();
+</script>

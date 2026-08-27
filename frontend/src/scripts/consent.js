@@ -75,13 +75,22 @@ window.amConsent = {
 	// Fix that case directly: if #price doesn't fit above the bar, align the
 	// section's bottom with the bar's top instead of the section's top with the
 	// viewport's top, so the actionable controls are the part guaranteed visible.
+	//
+	// The sticky header (#siteHeader) sits on top of the viewport too, so the
+	// "fits" branch also needs the section's top pushed down below it — the
+	// "too tall" branch's target is the bar's top, which the header doesn't
+	// touch, so its formula is unchanged.
 	function scrollToPriceClear() {
 		var target = document.getElementById('price');
 		if (!target) return;
+		var header = document.getElementById('siteHeader');
+		var headerHeight = header ? header.getBoundingClientRect().height : 0;
 		var barHeight = bar.hidden ? 0 : bar.getBoundingClientRect().height;
-		var availableHeight = window.innerHeight - barHeight;
+		var availableHeight = window.innerHeight - headerHeight - barHeight;
 		var rect = target.getBoundingClientRect();
-		var delta = rect.height <= availableHeight ? rect.top : rect.bottom - availableHeight;
+		var delta = rect.height <= availableHeight
+			? rect.top - headerHeight
+			: rect.bottom - (window.innerHeight - barHeight);
 		// Global constraint: prefers-reduced-motion disables all animation, this
 		// custom scroll included — the site's own html{scroll-behavior:smooth}
 		// already respects it (base.css), this manual scrollBy has to match.
