@@ -2,9 +2,11 @@
 // Adaptations vs. the preview: capture each step's answer into `answers`, replace
 // step-counter increments with setStep() so every transition reports window.amGoal,
 // and dispatch am:lead with the collected fields instead of showing a static stub.
-// The stage was later replaced from an SVG assembly scene to a real photo with a
-// CSS light reveal (data-lit="1".."4" on #qzScene) — the step machine itself is
-// unchanged, only the one line that used to toggle SVG group opacity.
+// The stage went through two replacements after the plan's original SVG
+// assembly scene: a brightness-ramp photo scene, then the current texture
+// zoom-out ("от ткани к дивану", user's pick 27.08) — the step machine itself
+// is unchanged throughout, only the CSS driven by data-lit="1".."4" on
+// #qzScene (and this file's caption/lexicon strings) changed.
 
 if (typeof window.amGoal !== 'function') {
 	window.amGoal = function (name) {
@@ -14,7 +16,7 @@ if (typeof window.amGoal !== 'function') {
 
 (function () {
 	var s = 1, total = 4;
-	var caps = ['включаем свет', 'свет разгорается', 'ещё ярче', 'свет включён'];
+	var caps = ['фактура', 'фактура', 'форма', 'форма'];
 	var answers = { business: '', scale: '', city: '', name: '', phone: '' };
 	var steps = document.querySelectorAll('.step');
 	var bars = document.querySelectorAll('.prg i');
@@ -92,7 +94,7 @@ if (typeof window.amGoal !== 'function') {
 		answers.phone = phone;
 		body.style.display = 'none';
 		res.classList.add('on');
-		cap.textContent = 'Готово · свет включён';
+		cap.textContent = 'Финал · свет';
 		bars.forEach(function (b) { b.classList.add('on'); });
 		window.amGoal('quiz_submit');
 		document.dispatchEvent(new CustomEvent('am:lead', {

@@ -1,30 +1,31 @@
 ---
-// Quiz stage — a real product photo with a CSS light-reveal per step, replacing
-// the earlier SVG assembly scene (rejected by the user). Chosen photo:
-// model-06.webp (charcoal bouclé loveseat) — of the 12 showcase photos, it has
-// the strongest directional/raking side-light already baked into the shot
-// (visible diagonal light-and-shadow bands across the cushions from a window,
-// left of frame), the most readable upholstery texture under that light
-// (bouclé's nubby weave catches contrast well), and the cleanest dark/neutral
-// background (plain wall + two framed prints, no clutter) — the combination
-// that reads most convincingly as "light gradually revealing form" once
-// brightness/contrast are stepped up via CSS. Light state is driven by
-// data-lit="1".."4" on .qz__scene, set by quiz.js's paint() (same place the
-// old code toggled SVG opacity) — no new animation/JS framework, CSS
-// transitions only. Behavior lives in ../scripts/quiz.js.
+// Quiz stage — "от ткани к дивану" (variant B), chosen by the user 27.08 from
+// five live mockups in clients/sf-sofa/opt-site-mockups/quiz-scene-variants.html
+// (the SVG assembly scene and an interim brightness-ramp scene were both
+// rejected before this). Photo: model-01.webp (ivory herringbone sectional) —
+// of the 12 showcase photos it has the highest native resolution (1280px),
+// which the mockup review confirmed stays sharp under a ~4.4x CSS zoom; its
+// herringbone weave also reads as a strong, legible texture at that
+// magnification. Mechanic: step 1 is an extreme close-up on the fabric
+// (transform: scale, no crop/zoom framework), each step zooms out and
+// brightens, step 4 is near-full, finish() leaves the scene on the step-4
+// (near-full) state since finish() never re-paints the scene. Zoom/light state
+// is driven by data-lit="1".."4" on .qz__scene, set by quiz.js's paint() —
+// same attribute/mechanism as the two earlier scenes, only the CSS the
+// attribute drives has changed. Behavior lives in ../scripts/quiz.js.
 ---
 
 <div class="qz" id="qz">
 	<div class="qz__stage">
 		<div class="qz__scene" id="qzScene" data-lit="1">
 			<img
-				src="/models/model-06.webp"
-				alt="Диван крупным планом — свет постепенно проявляет обивку"
+				src="/models/model-01.webp"
+				alt="Фактура обивки крупным планом — камера отдаляется и открывает весь диван на свету"
 				loading="eager"
 				fetchpriority="high"
 			/>
 		</div>
-		<p class="qz__cap" id="qcap">Шаг 1 из 4 · включаем свет</p>
+		<p class="qz__cap" id="qcap">Шаг 1 из 4 · фактура</p>
 	</div>
 	<div class="prg"><i class="on"></i><i></i><i></i><i></i></div>
 
@@ -81,26 +82,15 @@
 		width: 100%;
 		height: 100%;
 		object-fit: cover;
-		object-position: 50% 55%;
 		display: block;
-		filter: brightness(.3);
-		transition: filter var(--t) ease;
+		transform-origin: 35% 55%;
+		transition: transform var(--t) ease, filter var(--t) ease;
+		transform: scale(4.4);
+		filter: brightness(.55) saturate(.9);
 	}
-	.qz__scene:before {
-		content: '';
-		position: absolute;
-		inset: 0;
-		pointer-events: none;
-		background: radial-gradient(70% 80% at 50% 10%, rgba(122,103,68,.35) 0%, rgba(72,60,40,.15) 45%, transparent 75%);
-		opacity: .25;
-		transition: opacity var(--t) ease;
-	}
-	.qz__scene[data-lit="2"] img { filter: brightness(.55); }
-	.qz__scene[data-lit="2"]:before { opacity: .5; }
-	.qz__scene[data-lit="3"] img { filter: brightness(.8); }
-	.qz__scene[data-lit="3"]:before { opacity: .8; }
-	.qz__scene[data-lit="4"] img { filter: brightness(1); }
-	.qz__scene[data-lit="4"]:before { opacity: 1; }
+	.qz__scene[data-lit="2"] img { transform: scale(2.9); filter: brightness(.75) saturate(.95); }
+	.qz__scene[data-lit="3"] img { transform: scale(1.5); filter: brightness(.92) saturate(1); }
+	.qz__scene[data-lit="4"] img { transform: scale(1); filter: brightness(1) saturate(1.05); }
 	.qz__cap { font-family: var(--mono); font-size: 9.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--grey-dim); text-align: center; padding: 8px 0 12px; margin: 0; }
 	.qz__body { padding: 22px 20px 26px; }
 	.qz__meta { font-family: var(--mono); font-size: 10px; letter-spacing: .11em; text-transform: uppercase; color: var(--grey-dim); margin: 0 0 10px; }
@@ -146,7 +136,7 @@
 	}
 	@media (prefers-reduced-motion: reduce) {
 		.qz__consent input { transition: none; }
-		.qz__scene img, .qz__scene:before { transition: none; }
+		.qz__scene img { transition: none; }
 	}
 </style>
 
