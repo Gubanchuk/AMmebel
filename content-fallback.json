@@ -1,38 +1,182 @@
 {
-  "settings": {
-    "phone": "+7 928 418-83-18",
-    "email": "am_sofa@bk.ru",
-    "address": "Краснодар, СТ Калина, ул. Сливовая 337",
-    "priceNote": "Оптовый прайс по моделям высылаем после заявки — отдельно опт и розница."
-  },
-  "conditions": [
-    {"name": "Минимальная партия", "value": "От 1 изделия — сразу честная оптовая цена"},
-    {"name": "Дилерская скидка", "value": "Единый оптовый прайс для всех дилеров, дополнительных скидок нет"},
-    {"name": "Выставочный образец", "value": "Скидка на первый заказ на экспозицию до −30%, отсрочка — обсуждаем индивидуально по объёму первой партии"},
-    {"name": "Отсрочка", "value": "Предоплата 50%, доплата по факту готовности — с фотоотчётом заказа"},
-    {"name": "Срок производства", "value": "25–30 рабочих дней, максимум — 40"},
-    {"name": "Гарантия", "value": "обсуждаем под объём"},
-    {"name": "Эксклюзив по городу", "value": "Количество дилеров в городе ограничено — модельный ряд не пересекается у соседних точек"},
-    {"name": "НДС", "value": "Работаем без НДС"}
-  ],
-  "models": [
-    {"title": "Угловой диван, молочный букле", "size": "", "priceFrom": null, "priceTo": null, "photo": "/models/model-01.webp", "visible": true, "sort": 1},
-    {"title": "П-образный диван, светлый букле", "size": "", "priceFrom": null, "priceTo": null, "photo": "/models/model-02.webp", "visible": true, "sort": 2},
-    {"title": "Прямой диван, вельвет крем", "size": "", "priceFrom": null, "priceTo": null, "photo": "/models/model-03.webp", "visible": true, "sort": 3},
-    {"title": "Угловой диван на золотых ножках", "size": "", "priceFrom": null, "priceTo": null, "photo": "/models/model-04.webp", "visible": true, "sort": 4},
-    {"title": "Диван на низком основании, молочный", "size": "", "priceFrom": null, "priceTo": null, "photo": "/models/model-05.webp", "visible": true, "sort": 5},
-    {"title": "Компактный диван, графитовый букле", "size": "", "priceFrom": null, "priceTo": null, "photo": "/models/model-06.webp", "visible": true, "sort": 6},
-    {"title": "Угловой диван с пуфом, серый вельвет", "size": "", "priceFrom": null, "priceTo": null, "photo": "/models/model-07.webp", "visible": true, "sort": 7},
-    {"title": "Модульный диван, крем и оливковый", "size": "", "priceFrom": null, "priceTo": null, "photo": "/models/model-08.webp", "visible": true, "sort": 8},
-    {"title": "Бескаркасные диваны, оливковый и молочный", "size": "", "priceFrom": null, "priceTo": null, "photo": "/models/model-09.webp", "visible": true, "sort": 9},
-    {"title": "Прямой диван, терракотовый", "size": "", "priceFrom": null, "priceTo": null, "photo": "/models/model-10.webp", "visible": true, "sort": 10},
-    {"title": "Угловой диван на ножках, тёмно-синий велюр", "size": "", "priceFrom": null, "priceTo": null, "photo": "/models/model-11.webp", "visible": true, "sort": 11},
-    {"title": "Угловой диван, шоколадный вельвет", "size": "", "priceFrom": null, "priceTo": null, "photo": "/models/model-12.webp", "visible": true, "sort": 12}
-  ],
-  "faq": [
-    {"q": "Работаете с НДС?", "a": "Нет, работаем без НДС.", "sort": 1},
-    {"q": "Даёте бонус дизайнерам и архитекторам за приведённого клиента?", "a": "Да, предоставляем бонус 20%.", "sort": 2},
-    {"q": "Сколько диванов производите в месяц?", "a": "Более 50 изделий, каждое — по индивидуальным размерам клиента.", "sort": 3},
-    {"q": "Были ли рекламации на изделия?", "a": "Рекламаций не было: производство полного цикла под собственным контролем, проверенные комплектующие, качественный каркас и пены.", "sort": 4}
-  ]
+	"settings": {
+		"phone": "+7 928 418-83-18",
+		"email": "am_sofa@bk.ru",
+		"address": "Краснодар, СТ Калина, ул. Сливовая 337",
+		"priceNote": "Оптовый прайс по моделям высылаем после заявки — отдельно опт и розница.",
+		"heroModels": [
+			8,
+			4,
+			6,
+			11,
+			9
+		],
+		"quizModel": 1
+	},
+	"conditions": [
+		{
+			"name": "Минимальная партия",
+			"value": "От 1 изделия — сразу честная оптовая цена"
+		},
+		{
+			"name": "Дилерская скидка",
+			"value": "Единый оптовый прайс для всех дилеров, дополнительных скидок нет"
+		},
+		{
+			"name": "Выставочный образец",
+			"value": "Скидка на первый заказ на экспозицию до −30%, отсрочка — обсуждаем индивидуально по объёму первой партии"
+		},
+		{
+			"name": "Отсрочка",
+			"value": "Предоплата 50%, доплата по факту готовности — с фотоотчётом заказа"
+		},
+		{
+			"name": "Срок производства",
+			"value": "25–30 рабочих дней, максимум — 40"
+		},
+		{
+			"name": "Гарантия",
+			"value": "обсуждаем под объём"
+		},
+		{
+			"name": "Эксклюзив по городу",
+			"value": "Количество дилеров в городе ограничено — модельный ряд не пересекается у соседних точек"
+		},
+		{
+			"name": "НДС",
+			"value": "Работаем без НДС"
+		}
+	],
+	"models": [
+		{
+			"title": "Угловой диван, молочный букле",
+			"size": "",
+			"priceFrom": null,
+			"priceTo": null,
+			"photo": "/models/model-01.webp",
+			"visible": true,
+			"sort": 1
+		},
+		{
+			"title": "П-образный диван, светлый букле",
+			"size": "",
+			"priceFrom": null,
+			"priceTo": null,
+			"photo": "/models/model-02.webp",
+			"visible": true,
+			"sort": 2
+		},
+		{
+			"title": "Прямой диван, вельвет крем",
+			"size": "",
+			"priceFrom": null,
+			"priceTo": null,
+			"photo": "/models/model-03.webp",
+			"visible": true,
+			"sort": 3
+		},
+		{
+			"title": "Угловой диван на золотых ножках",
+			"size": "",
+			"priceFrom": null,
+			"priceTo": null,
+			"photo": "/models/model-04.webp",
+			"visible": true,
+			"sort": 4
+		},
+		{
+			"title": "Диван на низком основании, молочный",
+			"size": "",
+			"priceFrom": null,
+			"priceTo": null,
+			"photo": "/models/model-05.webp",
+			"visible": true,
+			"sort": 5
+		},
+		{
+			"title": "Компактный диван, графитовый букле",
+			"size": "",
+			"priceFrom": null,
+			"priceTo": null,
+			"photo": "/models/model-06.webp",
+			"visible": true,
+			"sort": 6
+		},
+		{
+			"title": "Угловой диван с пуфом, серый вельвет",
+			"size": "",
+			"priceFrom": null,
+			"priceTo": null,
+			"photo": "/models/model-07.webp",
+			"visible": true,
+			"sort": 7
+		},
+		{
+			"title": "Модульный диван, крем и оливковый",
+			"size": "",
+			"priceFrom": null,
+			"priceTo": null,
+			"photo": "/models/model-08.webp",
+			"visible": true,
+			"sort": 8
+		},
+		{
+			"title": "Бескаркасные диваны, оливковый и молочный",
+			"size": "",
+			"priceFrom": null,
+			"priceTo": null,
+			"photo": "/models/model-09.webp",
+			"visible": true,
+			"sort": 9
+		},
+		{
+			"title": "Прямой диван, терракотовый",
+			"size": "",
+			"priceFrom": null,
+			"priceTo": null,
+			"photo": "/models/model-10.webp",
+			"visible": true,
+			"sort": 10
+		},
+		{
+			"title": "Угловой диван на ножках, тёмно-синий велюр",
+			"size": "",
+			"priceFrom": null,
+			"priceTo": null,
+			"photo": "/models/model-11.webp",
+			"visible": true,
+			"sort": 11
+		},
+		{
+			"title": "Угловой диван, шоколадный вельвет",
+			"size": "",
+			"priceFrom": null,
+			"priceTo": null,
+			"photo": "/models/model-12.webp",
+			"visible": true,
+			"sort": 12
+		}
+	],
+	"faq": [
+		{
+			"q": "Работаете с НДС?",
+			"a": "Нет, работаем без НДС.",
+			"sort": 1
+		},
+		{
+			"q": "Даёте бонус дизайнерам и архитекторам за приведённого клиента?",
+			"a": "Да, предоставляем бонус 20%.",
+			"sort": 2
+		},
+		{
+			"q": "Сколько диванов производите в месяц?",
+			"a": "Более 50 изделий, каждое — по индивидуальным размерам клиента.",
+			"sort": 3
+		},
+		{
+			"q": "Были ли рекламации на изделия?",
+			"a": "Рекламаций не было: производство полного цикла под собственным контролем, проверенные комплектующие, качественный каркас и пены.",
+			"sort": 4
+		}
+	]
 }

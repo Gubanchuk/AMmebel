@@ -1,13 +1,20 @@
 ---
 // Footer (page block 12). settings from content-fallback.json (phone/email —
 // the client's designated lead-handling contact, not the docx's registration
-// phone). Legal name/INN/OGRN from the company-card docx, factual address is
-// settings.address (production/showroom address, distinct from Documents.astro's
-// юридический адрес). /politika and /soglasie pages are built in task 7.
+// phone). Legal requisites from the company-card docx — since 04.09 the footer
+// is their only home (the Documents section was cut with the client's "shorter"
+// feedback of 31.08). Factual address is settings.address (production), the
+// registration address is legal.address. /politika and /soglasie: task 7.
 import content from '../../../content-fallback.json';
 
 const { settings } = content;
-const legal = { name: 'ООО «Авторская мебель»', inn: '2373027390', ogrn: '1252300034843' };
+const legal = {
+	name: 'ООО «Авторская мебель»',
+	inn: '2373027390',
+	kpp: '237301001',
+	ogrn: '1252300034843',
+	address: '353217, Краснодарский край, Динской район, с/п Южно-Кубанское, пос. Южный, ул. Войсковая, д. 1 Б, пом. 12',
+};
 const telHref = `tel:${settings.phone.replace(/[^\d+]/g, '')}`;
 const year = new Date().getFullYear();
 ---
@@ -17,7 +24,8 @@ const year = new Date().getFullYear();
 		<div class="foot__grid">
 			<div>
 				<p class="lbl">Юрлицо</p>
-				<p>{legal.name}<br />ИНН {legal.inn} · ОГРН {legal.ogrn}</p>
+				<p>{legal.name}<br />ИНН {legal.inn} · КПП {legal.kpp}<br />ОГРН {legal.ogrn}</p>
+				<p class="foot__sub">Юр. адрес: {legal.address}</p>
 			</div>
 			<div>
 				<p class="lbl">Контакты</p>

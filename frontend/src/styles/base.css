@@ -18,6 +18,9 @@ a{color:var(--ivory)}
 .ghost{display:inline-flex;align-items:center;background:transparent;border:1px solid var(--line);color:var(--grey-dim);font-family:var(--sans);font-size:11px;letter-spacing:.1em;text-transform:uppercase;padding:12px 20px;cursor:pointer;transition:border-color var(--t) ease,color var(--t) ease}
 .ghost:hover{border-color:#524D42;color:#DAD5C9}
 .ghost:disabled{opacity:.35;cursor:not-allowed}
+.arrow{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;padding:0;background:transparent;border:1px solid var(--line);color:var(--grey);cursor:pointer;transition:border-color var(--t) ease,color var(--t) ease}
+.arrow svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
+.arrow:hover{border-color:#524D42;color:var(--ivory)}
 .chip{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.08em;color:var(--grey);border:1px solid var(--line);padding:7px 14px;margin-right:8px;transition:border-color var(--t) ease}
 .chip:hover{border-color:#4a4438}
 
@@ -50,5 +53,5 @@ a{color:var(--ivory)}
 }
 @media (prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
-  .cta,.ray i,.opt,.fld:after,.ghost,.chip,.cta:after,.opt:before{transition:none}
+  .cta,.ray i,.opt,.fld:after,.ghost,.chip,.cta:after,.opt:before,.arrow{transition:none}
 }

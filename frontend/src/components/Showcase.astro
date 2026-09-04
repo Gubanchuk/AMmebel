@@ -1,14 +1,13 @@
 ---
-// Showcase grid (page block 03) — imports content-fallback.json directly per
-// Ruling R4. Photos are real client-supplied product shots (bright daylight
-// interiors) — spec §4 calls for a dark backing + vignette adaptation for this
-// exact case ("тёмные подложки, виньетирование"), applied via .model__photo:before.
-//
-// User change wave 27.08: renamed to "Популярные модели" (this is a subset, not
-// the full range), prices intentionally not rendered — priceFrom/priceTo stay in
-// the data shape for the Directus schema (task 9) and future use, just not shown
-// here — and photos open in a fullscreen lightbox (behavior in
-// ../scripts/lightbox.js).
+// Showcase (page block 03) — since 04.09 a horizontal snap carousel of six
+// models instead of the 12-card grid (client feedback 31.08: the page must not
+// scroll long; six photos, none repeated from the hero). Hero picks come from
+// settings.heroModels and the quiz scene is settings.quizModel, so no photo
+// shown above the fold repeats here. Cards are
+// portrait 4:5 because the client product shots are portrait — the old 4:3
+// crop cut the sofas. Prices stay in the data shape (Directus, task 9) and
+// are not rendered. Photos open in the fullscreen lightbox
+// (../scripts/lightbox.js).
 import content from '../../../content-fallback.json';
 
 interface Model {
@@ -21,20 +20,34 @@ interface Model {
 	sort: number;
 }
 
+const shownAbove = new Set([...(content.settings.heroModels as number[]), content.settings.quizModel as number]);
 const models = (content.models as Model[])
-	.filter((m) => m.visible)
-	.sort((a, b) => a.sort - b.sort);
+	.filter((m) => m.visible && !shownAbove.has(m.sort))
+	.sort((a, b) => a.sort - b.sort)
+	.slice(0, 6);
 ---
 
 <section class="sec models" id="models">
 	<div class="wrap">
-		<h2>Популярные модели</h2>
-		<p class="sec__lead">Показываем часть ассортимента — полный модельный ряд направим вместе с оптовым предложением после заявки.</p>
-		<div class="models__grid">
+		<div class="models__head">
+			<div>
+				<h2>Популярные модели</h2>
+				<p class="sec__lead">Шесть моделей из ста с лишним. Полный ряд вышлем вместе с оптовым прайсом.</p>
+			</div>
+			<div class="models__nav">
+				<button class="arrow" type="button" id="modelsPrev" aria-label="Прокрутить модели назад">
+					<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3 5 8l5 5" /></svg>
+				</button>
+				<button class="arrow" type="button" id="modelsNext" aria-label="Прокрутить модели вперёд">
+					<svg viewBox="0 0 16 16" aria-hidden="true"><path d="m6 3 5 5-5 5" /></svg>
+				</button>
+			</div>
+		</div>
+		<div class="models__track" id="modelsTrack">
 			{models.map((m, i) => (
 				<div class="model">
 					<button class="model__photo" type="button" data-lightbox-open data-index={i}>
-						<img src={m.photo} alt={m.title} loading="lazy" width="640" height="480" />
+						<img src={m.photo} alt={m.title} loading="lazy" width="640" height="800" />
 					</button>
 					<div class="model__body">
 						<h3 class="model__title">{m.title}</h3>
@@ -56,11 +69,40 @@ const models = (content.models as Model[])
 </script>
 <script>
 	import '../scripts/lightbox.js';
+
+	// Arrow buttons scroll the snap track by one card; on touch widths the
+	// buttons are hidden and the track is swiped natively.
+	(function () {
+		var track = document.getElementById('modelsTrack');
+		var prev = document.getElementById('modelsPrev');
+		var next = document.getElementById('modelsNext');
+		if (!track || !prev || !next) return;
+		function step() {
+			var card = track.querySelector('.model');
+			return card ? card.getBoundingClientRect().width + 20 : track.clientWidth;
+		}
+		prev.addEventListener('click', function () { track.scrollBy({ left: -step(), behavior: 'smooth' }); });
+		next.addEventListener('click', function () { track.scrollBy({ left: step(), behavior: 'smooth' }); });
+	})();
 </script>
 
 <style>
-	.models__grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
-	.model { background: var(--panel); border: 1px solid var(--line); }
+	.models__head { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; }
+	.models__head .sec__lead { margin-bottom: 0; }
+	.models__nav { display: flex; gap: 6px; flex: 0 0 auto; padding-bottom: 4px; }
+	.models__track {
+		display: flex;
+		gap: 20px;
+		margin: 26px calc(-1 * var(--pad)) 0;
+		padding: 0 var(--pad);
+		overflow-x: auto;
+		scroll-snap-type: x mandatory;
+		scroll-padding-left: var(--pad);
+		scrollbar-width: none;
+		-webkit-overflow-scrolling: touch;
+	}
+	.models__track::-webkit-scrollbar { display: none; }
+	.model { flex: 0 0 calc((100% - 40px) / 3); scroll-snap-align: start; background: var(--panel); border: 1px solid var(--line); }
 	.model__photo {
 		display: block;
 		width: 100%;
@@ -69,7 +111,7 @@ const models = (content.models as Model[])
 		border: 0;
 		cursor: pointer;
 		position: relative;
-		aspect-ratio: 4 / 3;
+		aspect-ratio: 4 / 5;
 		overflow: hidden;
 		background: #000;
 	}
@@ -81,11 +123,19 @@ const models = (content.models as Model[])
 		pointer-events: none;
 		background:
 			radial-gradient(70% 80% at 68% 18%, rgba(122,103,68,.30) 0%, rgba(72,60,40,.13) 45%, transparent 75%),
-			linear-gradient(180deg, transparent 45%, rgba(19,18,16,.72) 100%);
+			linear-gradient(180deg, transparent 55%, rgba(19,18,16,.66) 100%);
 	}
-	.model__body { padding: 16px 18px 20px; }
-	.model__title { font-size: 15px; font-weight: 600; color: var(--ivory); margin: 0 0 6px; line-height: 1.3; }
-	.model__size { font-family: var(--mono); font-size: 11px; color: var(--grey-dim); margin: 0; }
+	.model__body { padding: 14px 16px 18px; }
+	.model__title { font-size: 14.5px; font-weight: 600; color: var(--ivory); margin: 0; line-height: 1.3; }
+	.model__size { font-family: var(--mono); font-size: 11px; color: var(--grey-dim); margin: 6px 0 0; }
+
+	@media (max-width: 860px) {
+		.model { flex-basis: calc((100% - 20px) / 2); }
+	}
+	@media (max-width: 620px) {
+		.models__nav { display: none; }
+		.model { flex-basis: 74%; }
+	}
 
 	.lightbox {
 		position: fixed;

@@ -18,7 +18,7 @@
 // Mobile (≤620px) drops the inline nav to keep one row with no wrap at
 // 390px, but the user browsing the live deploy on a phone had no way to
 // reach any section — this adds a "МЕНЮ" toggle that opens a fullscreen
-// overlay with the same four links at a large caps size, plus the phone
+// overlay with the same section links at a large caps size, plus the phone
 // (absent from the compact bar) and a full-size price CTA. The overlay
 // reuses Showcase's lightbox open/close/scroll-lock pattern verbatim
 // (proven: hidden attribute + .on class + forced layout flush before the
@@ -39,7 +39,6 @@ const telHref = `tel:${settings.phone.replace(/[^\d+]/g, '')}`;
 			<a href="#models">Модели</a>
 			<a href="#conditions">Условия</a>
 			<a href="#production">Производство</a>
-			<a href="#faq">FAQ</a>
 		</nav>
 		<div class="hdr__right">
 			<button
@@ -65,7 +64,6 @@ const telHref = `tel:${settings.phone.replace(/[^\d+]/g, '')}`;
 		<a href="#models">Модели</a>
 		<a href="#conditions">Условия</a>
 		<a href="#production">Производство</a>
-		<a href="#faq">FAQ</a>
 	</nav>
 	<div class="hdr-menu__foot wrap">
 		<a class="hdr-menu__tel" href={telHref} id="hdrMenuTel">{settings.phone}</a>

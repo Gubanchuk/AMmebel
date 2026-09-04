@@ -1,46 +1,138 @@
 ---
-// Hero (page block 01) — ported from the .demo section in am-site-preview.html:
-// serif headline, manifest, lead, USP list, primary CTA + secondary "ray" link,
-// with the assembly Quiz mounted alongside it. The top bar that used to live
-// here now lives in the shared Header component, mounted separately by pages.
+// Hero (page block 01) — reworked 04.09 after the client feedback of 31.08
+// ("opens like a newspaper article"): photo first, two or three sentences,
+// price CTA. Left column is a square crossfade carousel of five models
+// (settings.heroModels in content-fallback.json, by sort id — Showcase
+// excludes the same ids so the two sets never repeat a photo) with the
+// headline set over the photo, then the lead and the two facts the client
+// kept (full cycle since 2018, sample discount). The "100+ models" and
+// "showroom" lines were dropped on the client call. The Quiz keeps the
+// right column; on mobile the order is photo → text → CTA → quiz.
+// Carousel behavior lives in ../scripts/hero.js.
 import Quiz from './Quiz.astro';
----
+import content from '../../../content-fallback.json';
 
+interface Model {
+	title: string;
+	photo: string;
+	visible: boolean;
+	sort: number;
+}
+
+const heroIds = content.settings.heroModels as number[];
+const bySort = new Map((content.models as Model[]).map((m) => [m.sort, m]));
+const slides = heroIds
+	.map((id) => bySort.get(id))
+	.filter((m): m is Model => Boolean(m && m.visible));
+const pad = (n: number) => (n < 10 ? `0${n}` : String(n));
+---
 <section class="demo">
 	<div class="wrap">
-		<div>
-			<h1>Есть мебель, которая обставляет. И&nbsp;та, что определяет</h1>
-			<p class="manifest">Свет · Ткань · Форма</p>
-			<p class="demo__lead">Фабрика авторской мягкой мебели, Краснодар. Отгружаем салонам, проектам и маркетплейсам по всей России.</p>
+		<div class="demo__main">
+			<div class="hc" id="heroCar" aria-roledescription="карусель" aria-label="Модели фабрики">
+				<div class="hc__frame" id="heroFrame">
+					{slides.map((m, i) => (
+						<figure class:list={['hc__slide', { on: i === 0 }]} aria-hidden={i === 0 ? 'false' : 'true'}>
+							<img
+								src={m.photo}
+								alt={m.title}
+								width="960"
+								height="960"
+								loading={i === 0 ? 'eager' : 'lazy'}
+								fetchpriority={i === 0 ? 'high' : 'auto'}
+							/>
+						</figure>
+					))}
+					<h1 class="hc__title">Диваны, на&nbsp;которых зарабатывают</h1>
+				</div>
+				<div class="hc__bar">
+					<p class="hc__cap" aria-live="polite">
+						<span class="hc__num" id="heroNum">{pad(1)} / {pad(slides.length)}</span>
+						<span id="heroName">{slides[0]?.title}</span>
+					</p>
+					<div class="hc__nav">
+						<button class="arrow" type="button" id="heroPrev" aria-label="Предыдущая модель">
+							<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3 5 8l5 5" /></svg>
+						</button>
+						<button class="arrow" type="button" id="heroNext" aria-label="Следующая модель">
+							<svg viewBox="0 0 16 16" aria-hidden="true"><path d="m6 3 5 5-5 5" /></svg>
+						</button>
+					</div>
+				</div>
+				<div class="prg hc__prg" aria-hidden="true">
+					{slides.map((_, i) => <i class:list={{ on: i === 0 }}></i>)}
+				</div>
+			</div>
+
+			<p class="demo__lead">Фабрика авторской мягкой мебели, Краснодар. Отгружаем салонам, маркетплейсам и проектам по всей России.</p>
 			<ul class="usp">
 				<li><b>ЦЕХ</b><span>Раскрой, каркас, обивка и упаковка — под одной крышей с 2018 года</span></li>
-				<li><b>100+</b><span>Моделей: диваны, угловые, модульные, кровати</span></li>
 				<li><b>ОБРАЗЕЦ</b><span>Выставочный образец — скидка до −30% на первый заказ</span></li>
-				<li><b>ШОУРУМ</b><span>Шоурум при цехе: приехать и потрогать до первой партии</span></li>
 			</ul>
-			<div class="qz__nav" style="margin:0">
+			<div class="demo__nav">
 				<a class="cta" href="#price">Получить прайс</a>
-				<a class="ray" href="#conditions"><i></i>Условия для салонов</a>
+				<a class="ray" href="#conditions"><i></i>Условия сотрудничества</a>
 			</div>
 		</div>
 		<Quiz />
 	</div>
 </section>
 
+<script>
+	import '../scripts/hero.js';
+</script>
+
 <style>
 	.demo { border-top: 1px solid var(--line-soft); border-bottom: 1px solid var(--line-soft); position: relative; overflow: hidden; }
 	.demo:before { content: ''; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(70% 80% at 68% 18%, rgba(122,103,68,.30) 0%, rgba(72,60,40,.13) 45%, transparent 75%); }
-	.demo .wrap { position: relative; display: grid; grid-template-columns: minmax(0,1fr) minmax(0,.95fr); gap: clamp(26px,4vw,56px); padding-top: clamp(36px,6vw,64px); padding-bottom: clamp(40px,6vw,72px); }
-	.demo h1 { font-family: var(--serif); font-weight: 400; font-size: clamp(28px,4.6vw,46px); line-height: 1.06; margin: 0 0 14px; color: var(--ivory); }
-	.manifest { font-size: 10.5px; letter-spacing: .3em; text-transform: uppercase; color: var(--grey); margin: 0 0 22px; }
-	.demo__lead { color: var(--grey); font-size: 15.5px; max-width: 44ch; margin: 0 0 28px; }
-	.usp { list-style: none; margin: 0 0 30px; padding: 0; display: grid; gap: 11px; }
+	.demo .wrap { position: relative; display: grid; grid-template-columns: minmax(0,1fr) minmax(0,.95fr); gap: clamp(26px,4vw,56px); padding-top: clamp(28px,4vw,44px); padding-bottom: clamp(40px,6vw,72px); align-items: start; }
+	.demo__main { min-width: 0; }
+
+	/* carousel */
+	.hc { border: 1px solid var(--line); background: var(--panel); margin: 0 0 26px; }
+	.hc__frame { position: relative; aspect-ratio: 1 / 1; overflow: hidden; background: #000; touch-action: pan-y; }
+	.hc__slide { position: absolute; inset: 0; margin: 0; opacity: 0; transition: opacity var(--t) ease; }
+	.hc__slide.on { opacity: 1; }
+	.hc__slide img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 55%; display: block; }
+	.hc__frame:after {
+		content: '';
+		position: absolute;
+		inset: 0;
+		pointer-events: none;
+		background:
+			radial-gradient(70% 80% at 68% 18%, rgba(122,103,68,.22) 0%, rgba(72,60,40,.10) 45%, transparent 75%),
+			linear-gradient(180deg, transparent 48%, rgba(19,18,16,.86) 100%);
+	}
+	.hc__title {
+		position: absolute;
+		left: clamp(16px,3vw,26px);
+		right: clamp(16px,3vw,26px);
+		bottom: clamp(14px,2.6vw,22px);
+		z-index: 1;
+		margin: 0;
+		font-family: var(--serif);
+		font-weight: 400;
+		font-size: clamp(27px,3.6vw,38px);
+		line-height: 1.06;
+		color: var(--ivory);
+		text-shadow: 0 2px 22px rgba(0,0,0,.45);
+	}
+	.hc__bar { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 12px 14px 10px 18px; border-top: 1px solid var(--line); }
+	.hc__cap { margin: 0; font-size: 13px; line-height: 1.35; color: var(--grey); display: flex; align-items: baseline; gap: 12px; min-width: 0; }
+	.hc__num { font-family: var(--mono); font-size: 10.5px; letter-spacing: .1em; color: var(--grey-dim); flex: 0 0 auto; }
+	.hc__nav { display: flex; gap: 6px; flex: 0 0 auto; }
+	.hc__prg { padding: 0 18px 14px; }
+
+	.demo__lead { color: var(--grey); font-size: 15.5px; max-width: 46ch; margin: 0 0 20px; }
+	.usp { list-style: none; margin: 0 0 26px; padding: 0; display: grid; gap: 11px; }
 	.usp li { display: flex; gap: 12px; font-size: 14.5px; align-items: baseline; color: var(--ivory); }
 	.usp b { font-family: var(--mono); font-size: 11px; color: var(--grey-dim); flex: 0 0 auto; font-weight: 500; }
-	.dash { font-family: var(--mono); color: var(--ivory); border-bottom: 2px dotted rgba(242,239,233,.4); padding: 0 3px; }
-	.qz__nav { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-top: 6px; }
+	.demo__nav { display: flex; gap: 12px 22px; align-items: center; flex-wrap: wrap; }
 
 	@media (max-width: 860px) {
 		.demo .wrap { grid-template-columns: 1fr; }
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.hc__slide { transition: none; }
 	}
 </style>
