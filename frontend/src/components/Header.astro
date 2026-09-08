@@ -76,12 +76,12 @@ const telHref = `tel:${settings.phone.replace(/[^\d+]/g, '')}`;
 		position: sticky;
 		top: 0;
 		z-index: 50;
-		height: 60px;
+		height: 72px;
 		background: var(--bg);
 		border-bottom: 1px solid var(--line);
 	}
 	.hdr__row { display: flex; align-items: center; justify-content: space-between; gap: 24px; height: 100%; }
-	.hdr__logo { display: flex; align-items: center; flex: 0 0 auto; }
+	.hdr__logo { display: flex; align-items: center; flex: 0 0 auto; --logo-sm: 50px; }
 
 	.hdr__nav { display: flex; align-items: center; gap: 34px; flex: 1 1 auto; justify-content: center; }
 	.hdr__nav a {
@@ -143,7 +143,8 @@ const telHref = `tel:${settings.phone.replace(/[^\d+]/g, '')}`;
 	.hdr__price-short { display: none; }
 
 	@media (max-width: 620px) {
-		.hdr { height: 56px; }
+		.hdr { height: 64px; }
+		.hdr__logo { --logo-sm: 42px; }
 		.hdr__nav { display: none; }
 		.hdr__menu-toggle { display: inline-block; }
 		/* .cta's own ≤470px rule sets width:100% for the full-size hero button
@@ -181,7 +182,7 @@ const telHref = `tel:${settings.phone.replace(/[^\d+]/g, '')}`;
 	}
 	.hdr-menu.on { opacity: 1; pointer-events: auto; }
 
-	.hdr-menu__top { display: flex; justify-content: flex-end; align-items: center; height: 56px; flex: 0 0 auto; border-bottom: 1px solid var(--line); }
+	.hdr-menu__top { display: flex; justify-content: flex-end; align-items: center; height: 64px; flex: 0 0 auto; border-bottom: 1px solid var(--line); }
 	.hdr-menu__close {
 		background: none;
 		border: 0;

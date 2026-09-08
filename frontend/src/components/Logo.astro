@@ -10,6 +10,10 @@
 // symmetric. Since the viewBox grew taller at the same width, .logo--sm/--lg
 // switched from fixing width (which would have rendered taller than before) to
 // fixing height, so the on-screen size in the header is unchanged.
+// 08.09: the viewBox is cropped to the drawn content (12 18 176 78 instead of
+// 0 0 200 114) — before, ~40% of the box height was empty margin and the mark
+// read small in the header (user: «лого мелкое»). The sm height is a CSS
+// variable so Header can shrink it on narrow screens without :global.
 interface Props {
 	size?: 'lg' | 'sm';
 	inverted?: boolean;
@@ -21,7 +25,7 @@ const classes = ['logo', `logo--${size}`, inverted && 'logo--inverted'].filter(B
 
 <svg
 	class={classes}
-	viewBox="0 0 200 114"
+	viewBox="12 18 176 78"
 	role="img"
 	aria-label="АМ — Авторская мебель"
 	xmlns="http://www.w3.org/2000/svg"
@@ -60,7 +64,7 @@ const classes = ['logo', `logo--${size}`, inverted && 'logo--inverted'].filter(B
 		width: auto;
 	}
 	.logo--sm {
-		height: 54px;
+		height: var(--logo-sm, 50px);
 		width: auto;
 	}
 	.logo--inverted {

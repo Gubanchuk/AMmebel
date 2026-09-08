@@ -13,8 +13,9 @@ a{color:var(--ivory)}
 .cta:after{content:'';position:absolute;left:50%;bottom:-7px;height:1px;width:0;background:linear-gradient(90deg,transparent,var(--glow),transparent);transition:width var(--t) ease,left var(--t) ease}
 .cta:hover:after{width:100%;left:0}
 .ray{color:var(--ivory);font-size:13.5px;display:inline-flex;align-items:center;gap:14px;cursor:pointer;text-decoration:none}
-.ray i{display:inline-block;width:44px;height:1px;font-style:normal;background:linear-gradient(90deg,var(--ivory),rgba(242,239,233,.15));transition:width var(--t) ease}
-.ray:hover i{width:86px}
+/* the line is a fixed 86px box scaled from its right end, so hover never moves the label (a width animation slid the label out from under the cursor and flickered) */
+.ray i{display:inline-block;width:86px;height:1px;font-style:normal;background:linear-gradient(90deg,rgba(242,239,233,.15),var(--ivory));transform:scaleX(.5);transform-origin:right center;transition:transform var(--t) ease}
+.ray:hover i{transform:scaleX(1)}
 .ghost{display:inline-flex;align-items:center;background:transparent;border:1px solid var(--line);color:var(--grey-dim);font-family:var(--sans);font-size:11px;letter-spacing:.1em;text-transform:uppercase;padding:12px 20px;cursor:pointer;transition:border-color var(--t) ease,color var(--t) ease}
 .ghost:hover{border-color:#524D42;color:#DAD5C9}
 .ghost:disabled{opacity:.35;cursor:not-allowed}
@@ -44,7 +45,7 @@ a{color:var(--ivory)}
 .prg i.on{background:var(--ivory);box-shadow:0 0 14px var(--glow)}
 
 /* секции */
-.sec{padding-top:clamp(40px,6vw,72px);padding-bottom:clamp(40px,6vw,72px);scroll-margin-top:76px}
+.sec{padding-top:clamp(40px,6vw,72px);padding-bottom:clamp(40px,6vw,72px);scroll-margin-top:88px}
 .sec h2{font-family:var(--serif);font-weight:400;font-size:clamp(24px,3.8vw,36px);line-height:1.12;margin:0 0 10px;color:var(--ivory);max-width:26ch}
 .sec__lead{color:var(--grey);max-width:60ch;margin:0 0 30px;font-size:15.5px}
 

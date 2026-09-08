@@ -1,5 +1,7 @@
-// Fullscreen lightbox for the showcase model photos (vanilla JS, no libraries).
-// Opens on click/Enter on a [data-lightbox-open] button, closes on click
+// Fullscreen lightbox for the showcase model photos and the production stage
+// photos (vanilla JS, no libraries). Opens on click/Enter on any
+// [data-lightbox-open] button and shows that button's own <img> (src/alt), so
+// cloned carousel cards and other blocks need no shared index. Closes on click
 // anywhere in the overlay, Esc, or the visible close control. Body scroll is
 // locked while open; focus moves to the close control on open and returns to
 // the triggering card on close.
@@ -10,7 +12,6 @@
 	var closeBtn = document.getElementById('lightboxClose');
 	if (!overlay || !img || !closeBtn) return;
 
-	var photos = window.__amModelPhotos || [];
 	var lastTrigger = null;
 	var closeTimeoutId = null;
 	var TRANSITION_MS = 450; // matches --t (.45s)
@@ -19,9 +20,9 @@
 		return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 	}
 
-	function open(trigger, index) {
-		var photo = photos[index];
-		if (!photo) return;
+	function open(trigger) {
+		var pic = trigger.querySelector('img');
+		if (!pic) return;
 		// Cancel a pending close-cleanup from a previous session — without this,
 		// close() -> reopen() within TRANSITION_MS lets the stale timeout fire
 		// mid-new-session and blank img.src / re-hide the overlay it just opened.
@@ -29,8 +30,8 @@
 			window.clearTimeout(closeTimeoutId);
 			closeTimeoutId = null;
 		}
-		img.src = photo.src;
-		img.alt = photo.alt;
+		img.src = pic.currentSrc || pic.src;
+		img.alt = pic.alt;
 		lastTrigger = trigger;
 		overlay.hidden = false;
 		document.body.style.overflow = 'hidden';
@@ -57,7 +58,7 @@
 
 	document.querySelectorAll('[data-lightbox-open]').forEach(function (btn) {
 		btn.addEventListener('click', function () {
-			open(btn, Number(btn.dataset.index));
+			open(btn);
 		});
 	});
 

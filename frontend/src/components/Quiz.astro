@@ -1,5 +1,15 @@
 ---
-// Quiz stage — "fabric to sofa" (variant B), chosen by the user 27.08 from
+// Quiz stage — since 08.09 four workshop photos, one per step, crossfading
+// as the sofa comes together: frame → foam filling → upholstery → finished
+// sofa. This is the client's own idea (his question about the old scene:
+// «незаполнены картинки, какая идея» → «каркас, наполнение, полуобивка,
+// целый диван»). Step 3 currently shows the sewing photo; the client has
+// not yet sent a half-upholstered frame — swap the src when it arrives.
+// Step 4 is model-01 (settings.quizModel), the one product photo not used by
+// hero or showcase. Zoom/light state is still data-lit="1".."4" on
+// .qz__scene set by quiz.js's paint(); only the CSS it drives changed.
+//
+// Previous scene, kept for history — "fabric to sofa" (variant B), chosen by the user 27.08 from
 // five live mockups in clients/sf-sofa/opt-site-mockups/quiz-scene-variants.html
 // (the SVG assembly scene and an interim brightness-ramp scene were both
 // rejected before this). Photo: model-01.webp (ivory herringbone sectional) —
@@ -18,14 +28,12 @@
 <div class="qz" id="qz">
 	<div class="qz__stage">
 		<div class="qz__scene" id="qzScene" data-lit="1">
-			<img
-				src="/models/model-01.webp"
-				alt="Фактура обивки крупным планом — камера отдаляется и открывает весь диван на свету"
-				loading="eager"
-				fetchpriority="high"
-			/>
+			<img src="/ceh/karkasy.webp" alt="Собранные каркасы дивана с эластичными ремнями" loading="eager" fetchpriority="high" width="720" height="960" />
+			<img src="/ceh/pena.webp" alt="Формовка пеной — заготовка будущего дивана" loading="lazy" width="720" height="960" />
+			<img src="/ceh/poshiv.webp" alt="Пошив обивки на промышленных машинах" loading="lazy" width="720" height="960" />
+			<img src="/models/model-01.webp" alt="Готовый угловой диван в молочном букле" loading="lazy" width="960" height="960" />
 		</div>
-		<p class="qz__cap" id="qcap">Шаг 1 из 4 · фактура</p>
+		<p class="qz__cap" id="qcap">Шаг 1 из 4 · каркас</p>
 	</div>
 	<div class="prg"><i class="on"></i><i></i><i></i><i></i></div>
 
@@ -69,7 +77,7 @@
 	</div>
 
 	<div class="qz__res" id="qres">
-		<h3>Свет включён</h3>
+		<h3>Диван собран</h3>
 		<p>Заявка ушла менеджеру — он свяжется с вами и направит предложение под ваш запрос.</p>
 	</div>
 </div>
@@ -79,18 +87,20 @@
 	.qz__stage { border-bottom: 1px solid var(--line); padding: 18px 20px 8px; background: linear-gradient(180deg,#161411,#1B1916); }
 	.qz__scene { position: relative; aspect-ratio: 4 / 3; overflow: hidden; background: #000; }
 	.qz__scene img {
+		position: absolute;
+		inset: 0;
 		width: 100%;
 		height: 100%;
 		object-fit: cover;
+		object-position: 50% 55%;
 		display: block;
-		transform-origin: 35% 55%;
-		transition: transform var(--t) ease, filter var(--t) ease;
-		transform: scale(4.4);
-		filter: brightness(.55) saturate(.9);
+		opacity: 0;
+		transition: opacity var(--t) ease;
 	}
-	.qz__scene[data-lit="2"] img { transform: scale(2.9); filter: brightness(.75) saturate(.95); }
-	.qz__scene[data-lit="3"] img { transform: scale(1.5); filter: brightness(.92) saturate(1); }
-	.qz__scene[data-lit="4"] img { transform: scale(1); filter: brightness(1) saturate(1.05); }
+	.qz__scene[data-lit="1"] img:nth-child(1),
+	.qz__scene[data-lit="2"] img:nth-child(2),
+	.qz__scene[data-lit="3"] img:nth-child(3),
+	.qz__scene[data-lit="4"] img:nth-child(4) { opacity: 1; }
 	.qz__cap { font-family: var(--mono); font-size: 9.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--grey-dim); text-align: center; padding: 8px 0 12px; margin: 0; }
 	.qz__body { padding: 22px 20px 26px; }
 	.qz__meta { font-family: var(--mono); font-size: 10px; letter-spacing: .11em; text-transform: uppercase; color: var(--grey-dim); margin: 0 0 10px; }

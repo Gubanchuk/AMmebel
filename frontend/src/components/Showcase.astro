@@ -3,11 +3,18 @@
 // models instead of the 12-card grid (client feedback 31.08: the page must not
 // scroll long; six photos, none repeated from the hero). Hero picks come from
 // settings.heroModels and the quiz scene is settings.quizModel, so no photo
-// shown above the fold repeats here. Cards are
-// portrait 4:5 because the client product shots are portrait — the old 4:3
-// crop cut the sofas. Prices stay in the data shape (Directus, task 9) and
-// are not rendered. Photos open in the fullscreen lightbox
-// (../scripts/lightbox.js).
+// shown above the fold repeats here. Cards are portrait 4:5 because the
+// product shots are portrait.
+//
+// Since 08.09 the track loops (user: "по кругу, чтобы не возвращаться
+// назад"): the last CLONES cards are repeated before the first real card and
+// the first CLONES after the last. The inline script parks the track on the
+// first real card before paint; the module script jumps silently by the real
+// width whenever a scroll settles inside a clone zone, so "next" from the
+// last card lands on a view identical to the first. Clones are aria-hidden
+// and out of the tab order. Prices stay in the data shape (Directus, task 9)
+// and are not rendered. Photos open in the fullscreen lightbox
+// (../scripts/lightbox.js reads the clicked card's own img).
 import content from '../../../content-fallback.json';
 
 interface Model {
@@ -25,6 +32,12 @@ const models = (content.models as Model[])
 	.filter((m) => m.visible && !shownAbove.has(m.sort))
 	.sort((a, b) => a.sort - b.sort)
 	.slice(0, 6);
+const CLONES = models.length > 3 ? 3 : 0;
+const track = [
+	...models.slice(models.length - CLONES).map((m) => ({ m, clone: true })),
+	...models.map((m) => ({ m, clone: false })),
+	...models.slice(0, CLONES).map((m) => ({ m, clone: true })),
+];
 ---
 
 <section class="sec models" id="models">
@@ -43,10 +56,16 @@ const models = (content.models as Model[])
 				</button>
 			</div>
 		</div>
-		<div class="models__track" id="modelsTrack">
-			{models.map((m, i) => (
-				<div class="model">
-					<button class="model__photo" type="button" data-lightbox-open data-index={i}>
+		<div class="models__track" id="modelsTrack" data-clones={CLONES} data-real={models.length}>
+			{track.map(({ m, clone }) => (
+				<div class="model" data-clone={clone ? '' : undefined} aria-hidden={clone ? 'true' : undefined}>
+					<button
+						class="model__photo"
+						type="button"
+						data-lightbox-open
+						tabindex={clone ? -1 : undefined}
+						aria-label={`Открыть фото: ${m.title}`}
+					>
 						<img src={m.photo} alt={m.title} loading="lazy" width="640" height="800" />
 					</button>
 					<div class="model__body">
@@ -64,25 +83,72 @@ const models = (content.models as Model[])
 	</div>
 </section>
 
-<script define:vars={{ photos: models.map((m) => ({ src: m.photo, alt: m.title })) }}>
-	window.__amModelPhotos = photos;
+<script define:vars={{ clones: CLONES }}>
+	// Park the track on the first real card before first paint so the clones
+	// at the head are never seen on load (the module script below does the
+	// same again once it runs — this only covers the gap until then).
+	(function () {
+		var track = document.getElementById('modelsTrack');
+		var card = track && track.querySelector('.model');
+		if (!card || !clones) return;
+		var gap = parseFloat(getComputedStyle(track).columnGap) || 0;
+		track.scrollLeft = clones * (card.getBoundingClientRect().width + gap);
+	})();
 </script>
 <script>
 	import '../scripts/lightbox.js';
 
-	// Arrow buttons scroll the snap track by one card; on touch widths the
-	// buttons are hidden and the track is swiped natively.
+	// Looping snap track. Arrow buttons scroll by one card; on touch widths
+	// the buttons are hidden and the track is swiped natively. Whenever a
+	// scroll settles on a clone, the track jumps (no animation) by the real
+	// width to the identical real card, so the loop has no visible seam.
 	(function () {
 		var track = document.getElementById('modelsTrack');
 		var prev = document.getElementById('modelsPrev');
 		var next = document.getElementById('modelsNext');
-		if (!track || !prev || !next) return;
-		function step() {
-			var card = track.querySelector('.model');
-			return card ? card.getBoundingClientRect().width + 20 : track.clientWidth;
+		if (!track) return;
+		var first = track.querySelector('.model');
+		if (!first) return;
+		var clones = Number(track.dataset.clones) || 0;
+		var real = Number(track.dataset.real) || 0;
+		var loops = clones > 0 && real > 0;
+		var reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+		function pitch() {
+			var gap = parseFloat(getComputedStyle(track).columnGap) || 0;
+			return first.getBoundingClientRect().width + gap;
 		}
-		prev.addEventListener('click', function () { track.scrollBy({ left: -step(), behavior: 'smooth' }); });
-		next.addEventListener('click', function () { track.scrollBy({ left: step(), behavior: 'smooth' }); });
+		function jump(i) {
+			track.style.scrollBehavior = 'auto';
+			track.scrollLeft = i * pitch();
+			track.style.scrollBehavior = '';
+		}
+		function normalize() {
+			if (!loops) return;
+			var i = Math.round(track.scrollLeft / pitch());
+			if (i < clones) jump(i + real);
+			else if (i >= clones + real) jump(i - real);
+		}
+		function step(dir) {
+			normalize();
+			track.scrollBy({ left: dir * pitch(), behavior: reduced.matches ? 'auto' : 'smooth' });
+		}
+
+		if (loops) {
+			jump(clones);
+			if ('onscrollend' in window) {
+				track.addEventListener('scrollend', normalize);
+			} else {
+				var timer = null;
+				track.addEventListener('scroll', function () {
+					if (timer !== null) window.clearTimeout(timer);
+					timer = window.setTimeout(normalize, 150);
+				}, { passive: true });
+			}
+			window.addEventListener('resize', normalize);
+		}
+		if (prev) prev.addEventListener('click', function () { step(-1); });
+		if (next) next.addEventListener('click', function () { step(1); });
 	})();
 </script>
 

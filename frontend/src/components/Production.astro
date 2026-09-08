@@ -1,9 +1,13 @@
 ---
-// Production (page block 05). Since 08.09 the frames carry the client's real
-// workshop photos (sent in MAX, portrait 3:4): cutting table and sewing. More
-// stages are promised ("ещё фото вечером пришлю"); a frame without a photo
-// falls back to the warm-glow placeholder from the original plan step, so
-// adding a stage is one more entry in `frames`. Photos live in public/ceh/.
+// Production (page block 05). Since 08.09 a horizontal snap strip of the
+// client's real workshop photos in process order (captions are the client's
+// own from MAX, normalised): kiln-dried timber → frame cutting → frame
+// assembly → finished frames → foam forming → fabric cutting → sewing. More
+// stages are promised ("осталось несколько фото, отправлю завтра") — adding
+// one is one more entry in `stages`. Photos live in public/ceh/ and open in
+// the Showcase lightbox (../scripts/lightbox.js binds every
+// [data-lightbox-open] on the page). The strip does not loop: it is a
+// sequence, not a catalogue.
 const facts = [
 	{ label: 'Мощность', value: 'Более 50 изделий в месяц — каждое по индивидуальным размерам клиента' },
 	{
@@ -11,27 +15,46 @@ const facts = [
 		value: 'Рекламаций нет: производство полного цикла под собственным контролем, проверенные поставщики комплектующих, качественный каркас и пены',
 	},
 ];
-interface Frame {
+interface Stage {
 	label: string;
-	photo?: string;
-	alt?: string;
+	photo: string;
+	alt: string;
 }
-const frames: Frame[] = [
-	{ label: 'Раскрой', photo: '/ceh/ceh-01.webp', alt: 'Закройщица размечает ткань по лекалам на раскройном столе' },
-	{ label: 'Пошив', photo: '/ceh/ceh-02.webp', alt: 'Швеи собирают чехлы подушек на промышленных машинах' },
+const stages: Stage[] = [
+	{ label: 'Брус камерной сушки', photo: '/ceh/brus.webp', alt: 'Штабели строганого бруса камерной сушки у стены цеха' },
+	{ label: 'Распил каркаса', photo: '/ceh/raspil.webp', alt: 'Столяр распиливает лист на форматно-раскроечном станке' },
+	{ label: 'Сборка каркаса', photo: '/ceh/sborka.webp', alt: 'Столяр собирает каркас дивана на верстаке' },
+	{ label: 'Готовые каркасы', photo: '/ceh/karkasy.webp', alt: 'Собранные каркасы с эластичными ремнями' },
+	{ label: 'Формовка пеной', photo: '/ceh/pena.webp', alt: 'Мастер формует пенополиуретан на заготовке будущего дивана' },
+	{ label: 'Раскрой', photo: '/ceh/raskroy.webp', alt: 'Закройщица размечает ткань по лекалам на раскройном столе' },
+	{ label: 'Пошив', photo: '/ceh/poshiv.webp', alt: 'Швеи собирают чехлы подушек на промышленных машинах' },
 ];
+const pad = (n: number) => (n < 10 ? `0${n}` : String(n));
 ---
 
 <section class="sec production" id="production">
 	<div class="wrap">
-		<h2>Производство</h2>
-		<p class="sec__lead">Полный цикл под одной крышей в Краснодаре с 2018 года: раскрой, сборка каркаса, обивка и упаковка.</p>
-		<div class="frames" style={`--n:${Math.min(frames.length, 4)}`}>
-			{frames.map((f) => (
-				<figure class:list={['frame', { 'frame--photo': Boolean(f.photo) }]}>
-					{f.photo && <img src={f.photo} alt={f.alt ?? f.label} loading="lazy" width="720" height="960" />}
-					<figcaption class="lbl">{f.label}</figcaption>
-					{!f.photo && <span class="frame__ph">фото на подходе</span>}
+		<div class="prod__head">
+			<div>
+				<h2>Производство</h2>
+				<p class="sec__lead">Полный цикл под одной крышей в Краснодаре с 2018 года: раскрой, сборка каркаса, обивка и упаковка.</p>
+			</div>
+			<div class="prod__nav">
+				<button class="arrow" type="button" id="prodPrev" aria-label="Прокрутить этапы назад">
+					<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3 5 8l5 5" /></svg>
+				</button>
+				<button class="arrow" type="button" id="prodNext" aria-label="Прокрутить этапы вперёд">
+					<svg viewBox="0 0 16 16" aria-hidden="true"><path d="m6 3 5 5-5 5" /></svg>
+				</button>
+			</div>
+		</div>
+		<div class="prod__track" id="prodTrack">
+			{stages.map((s, i) => (
+				<figure class="stage">
+					<button class="stage__photo" type="button" data-lightbox-open aria-label={`Открыть фото: ${s.label}`}>
+						<img src={s.photo} alt={s.alt} loading="lazy" width="720" height="960" />
+					</button>
+					<figcaption class="stage__cap"><span class="stage__num">{pad(i + 1)}</span>{s.label}</figcaption>
 				</figure>
 			))}
 		</div>
@@ -46,20 +69,76 @@ const frames: Frame[] = [
 	</div>
 </section>
 
+<script>
+	// Arrow buttons scroll the snap strip by one stage; on touch widths the
+	// buttons are hidden and the strip is swiped natively.
+	(function () {
+		var track = document.getElementById('prodTrack');
+		var prev = document.getElementById('prodPrev');
+		var next = document.getElementById('prodNext');
+		if (!track || !prev || !next) return;
+		var reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+		function step() {
+			var card = track.querySelector('.stage');
+			var gap = parseFloat(getComputedStyle(track).columnGap) || 0;
+			return card ? card.getBoundingClientRect().width + gap : track.clientWidth;
+		}
+		function go(dir) {
+			track.scrollBy({ left: dir * step(), behavior: reduced.matches ? 'auto' : 'smooth' });
+		}
+		prev.addEventListener('click', function () { go(-1); });
+		next.addEventListener('click', function () { go(1); });
+	})();
+</script>
+
 <style>
-	.frames { display: grid; grid-template-columns: repeat(var(--n, 2), minmax(0, 1fr)); max-width: calc(var(--n, 2) * 340px); gap: 1px; background: var(--line-soft); border: 1px solid var(--line-soft); margin: 0 0 30px; }
-	.frame { position: relative; margin: 0; background: linear-gradient(160deg, #1B1916, #221E19); aspect-ratio: 3 / 4; display: flex; flex-direction: column; justify-content: flex-end; gap: 6px; padding: 14px; overflow: hidden; }
-	.frame:before { content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 1; background: radial-gradient(70% 80% at 68% 18%, rgba(122,103,68,.22) 0%, rgba(72,60,40,.10) 45%, transparent 75%); }
-	.frame--photo:before { background: linear-gradient(180deg, transparent 58%, rgba(19,18,16,.78) 100%); }
-	.frame img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
-	.frame .lbl, .frame__ph { position: relative; z-index: 2; }
-	.frame--photo .lbl { color: var(--ivory); }
-	.frame__ph { font-family: var(--mono); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--grey-dim); }
+	.prod__head { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; }
+	.prod__head .sec__lead { margin-bottom: 0; }
+	.prod__nav { display: flex; gap: 6px; flex: 0 0 auto; padding-bottom: 4px; }
+	.prod__track {
+		display: flex;
+		gap: 16px;
+		margin: 26px calc(-1 * var(--pad)) 34px;
+		padding: 0 var(--pad);
+		overflow-x: auto;
+		scroll-snap-type: x mandatory;
+		scroll-padding-left: var(--pad);
+		scrollbar-width: none;
+		-webkit-overflow-scrolling: touch;
+	}
+	.prod__track::-webkit-scrollbar { display: none; }
+	.stage { flex: 0 0 calc((100% - 48px) / 4); margin: 0; scroll-snap-align: start; }
+	.stage__photo {
+		display: block;
+		width: 100%;
+		margin: 0;
+		padding: 0;
+		border: 1px solid var(--line);
+		cursor: pointer;
+		position: relative;
+		aspect-ratio: 3 / 4;
+		overflow: hidden;
+		background: #000;
+	}
+	.stage__photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+	.stage__photo:before {
+		content: '';
+		position: absolute;
+		inset: 0;
+		pointer-events: none;
+		background: linear-gradient(180deg, transparent 62%, rgba(19,18,16,.5) 100%);
+	}
+	.stage__cap { display: flex; gap: 10px; align-items: baseline; margin: 10px 0 0; font-size: 13.5px; line-height: 1.3; color: var(--ivory); }
+	.stage__num { font-family: var(--mono); font-size: 10.5px; letter-spacing: .1em; color: var(--grey-dim); flex: 0 0 auto; }
 	.facts { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
 	.facts li { display: flex; gap: 16px; align-items: baseline; color: var(--ivory); font-size: 14.5px; line-height: 1.5; }
 	.facts b { flex: 0 0 150px; }
 
+	@media (max-width: 860px) {
+		.stage { flex-basis: calc((100% - 32px) / 3); }
+	}
 	@media (max-width: 620px) {
-		.frames { grid-template-columns: 1fr 1fr; max-width: none; }
+		.prod__nav { display: none; }
+		.stage { flex-basis: 62%; }
 	}
 </style>

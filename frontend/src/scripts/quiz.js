@@ -2,11 +2,12 @@
 // Adaptations vs. the preview: capture each step's answer into `answers`, replace
 // step-counter increments with setStep() so every transition reports window.amGoal,
 // and dispatch am:lead with the collected fields instead of showing a static stub.
-// The stage went through two replacements after the plan's original SVG
-// assembly scene: a brightness-ramp photo scene, then the current texture
-// zoom-out ("от ткани к дивану", user's pick 27.08) — the step machine itself
-// is unchanged throughout, only the CSS driven by data-lit="1".."4" on
-// #qzScene (and this file's caption/lexicon strings) changed.
+// The stage went through three replacements after the plan's original SVG
+// assembly scene: a brightness-ramp photo scene, a texture zoom-out ("от
+// ткани к дивану", 27.08), and since 08.09 four workshop photos crossfading
+// frame → filling → upholstery → finished sofa (the client's idea) — the step
+// machine itself is unchanged throughout, only the CSS driven by
+// data-lit="1".."4" on #qzScene (and this file's caption strings) changed.
 
 if (typeof window.amGoal !== 'function') {
 	window.amGoal = function (name) {
@@ -16,7 +17,7 @@ if (typeof window.amGoal !== 'function') {
 
 (function () {
 	var s = 1, total = 4;
-	var caps = ['фактура', 'фактура', 'форма', 'форма'];
+	var caps = ['каркас', 'наполнение', 'обивка', 'готовый диван'];
 	var answers = { business: '', scale: '', city: '', name: '', phone: '' };
 	var steps = document.querySelectorAll('.step');
 	var bars = document.querySelectorAll('.prg i');
@@ -94,7 +95,7 @@ if (typeof window.amGoal !== 'function') {
 		answers.phone = phone;
 		body.style.display = 'none';
 		res.classList.add('on');
-		cap.textContent = 'Финал · свет';
+		cap.textContent = 'Финал · диван собран';
 		bars.forEach(function (b) { b.classList.add('on'); });
 		window.amGoal('quiz_submit');
 		document.dispatchEvent(new CustomEvent('am:lead', {
