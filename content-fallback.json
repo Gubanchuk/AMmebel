@@ -5,11 +5,11 @@
 		"address": "Краснодар, СТ Калина, ул. Сливовая 337",
 		"priceNote": "Оптовый прайс по моделям высылаем после заявки — отдельно опт и розница.",
 		"heroModels": [
-			8,
+			2,
+			3,
 			4,
-			6,
-			11,
-			9
+			5,
+			6
 		],
 		"quizModel": 1
 	},
@@ -58,101 +58,101 @@
 			"sort": 1
 		},
 		{
-			"title": "П-образный диван, светлый букле",
+			"title": "Модульный диван с кушеткой, шоколадный велюр",
 			"size": "",
 			"priceFrom": null,
 			"priceTo": null,
-			"photo": "/models/model-02.webp",
+			"photo": "/models/hero-01.webp",
 			"visible": true,
 			"sort": 2
 		},
 		{
-			"title": "Прямой диван, вельвет крем",
+			"title": "Угловой модульный диван, серый",
 			"size": "",
 			"priceFrom": null,
 			"priceTo": null,
-			"photo": "/models/model-03.webp",
+			"photo": "/models/hero-02.webp",
 			"visible": true,
 			"sort": 3
 		},
 		{
-			"title": "Угловой диван на золотых ножках",
+			"title": "Низкий модульный диван с оттоманкой, молочный",
 			"size": "",
 			"priceFrom": null,
 			"priceTo": null,
-			"photo": "/models/model-04.webp",
+			"photo": "/models/hero-03.webp",
 			"visible": true,
 			"sort": 4
 		},
 		{
-			"title": "Диван на низком основании, молочный",
+			"title": "Угловой диван с кушеткой, серый",
 			"size": "",
 			"priceFrom": null,
 			"priceTo": null,
-			"photo": "/models/model-05.webp",
+			"photo": "/models/hero-04.webp",
 			"visible": true,
 			"sort": 5
 		},
 		{
-			"title": "Компактный диван, графитовый букле",
+			"title": "Прямой диван с широкими подлокотниками, молочный",
 			"size": "",
 			"priceFrom": null,
 			"priceTo": null,
-			"photo": "/models/model-06.webp",
+			"photo": "/models/hero-05.webp",
 			"visible": true,
 			"sort": 6
+		},
+		{
+			"title": "Бескаркасный диван с креслом, оливковый и молочный",
+			"size": "",
+			"priceFrom": null,
+			"priceTo": null,
+			"photo": "/models/pop-01.webp",
+			"visible": true,
+			"sort": 7
 		},
 		{
 			"title": "Угловой диван с пуфом, серый вельвет",
 			"size": "",
 			"priceFrom": null,
 			"priceTo": null,
-			"photo": "/models/model-07.webp",
-			"visible": true,
-			"sort": 7
-		},
-		{
-			"title": "Модульный диван, крем и оливковый",
-			"size": "",
-			"priceFrom": null,
-			"priceTo": null,
-			"photo": "/models/model-08.webp",
+			"photo": "/models/pop-02.webp",
 			"visible": true,
 			"sort": 8
 		},
 		{
-			"title": "Бескаркасные диваны, оливковый и молочный",
+			"title": "Угловой модульный диван, светло-серый",
 			"size": "",
 			"priceFrom": null,
 			"priceTo": null,
-			"photo": "/models/model-09.webp",
+			"photo": "/models/pop-03.webp",
 			"visible": true,
 			"sort": 9
 		},
 		{
-			"title": "Прямой диван, терракотовый",
+			"title": "Кровать с высоким стёганым изголовьем, бордовый велюр",
 			"size": "",
 			"priceFrom": null,
 			"priceTo": null,
-			"photo": "/models/model-10.webp",
+			"photo": "/models/pop-04.webp",
 			"visible": true,
 			"sort": 10
 		},
 		{
-			"title": "Угловой диван на ножках, тёмно-синий велюр",
+			"title": "Парящая кровать с мягким изголовьем, бежевая",
 			"size": "",
 			"priceFrom": null,
 			"priceTo": null,
-			"photo": "/models/model-11.webp",
+			"photo": "/models/pop-05.webp",
 			"visible": true,
 			"sort": 11
 		},
 		{
-			"title": "Угловой диван, шоколадный вельвет",
+			"title": "Кровать-подиум с подсветкой, терракотовый велюр",
 			"size": "",
 			"priceFrom": null,
 			"priceTo": null,
-			"photo": "/models/model-12.webp",
+			"photo": "/models/pop-06.webp",
 			"visible": true,
 			"sort": 12
 		}

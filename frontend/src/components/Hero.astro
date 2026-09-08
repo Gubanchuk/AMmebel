@@ -8,6 +8,10 @@
 // kept (full cycle since 2018, sample discount). The "100+ models" and
 // "showroom" lines were dropped on the client call. The Quiz keeps the
 // right column; on mobile the order is photo → text → CTA → quiz.
+// 08.09: photos and their order (1-5) are the client's own pick sent in MAX;
+// the headline moved from "sofas" to "upholstered furniture" because the
+// showcase now carries beds as well. Captions are working titles until the
+// client sends model names.
 // Carousel behavior lives in ../scripts/hero.js.
 import Quiz from './Quiz.astro';
 import content from '../../../content-fallback.json';
@@ -43,7 +47,7 @@ const pad = (n: number) => (n < 10 ? `0${n}` : String(n));
 							/>
 						</figure>
 					))}
-					<h1 class="hc__title">Диваны, на&nbsp;которых зарабатывают</h1>
+					<h1 class="hc__title">Мягкая мебель, на&nbsp;которой зарабатывают</h1>
 				</div>
 				<div class="hc__bar">
 					<p class="hc__cap" aria-live="polite">
@@ -64,7 +68,7 @@ const pad = (n: number) => (n < 10 ? `0${n}` : String(n));
 				</div>
 			</div>
 
-			<p class="demo__lead">Фабрика авторской мягкой мебели, Краснодар. Отгружаем салонам, маркетплейсам и проектам по всей России.</p>
+			<p class="demo__lead">Диваны и кровати от фабрики авторской мягкой мебели, Краснодар. Отгружаем салонам, маркетплейсам и проектам по всей России.</p>
 			<ul class="usp">
 				<li><b>ЦЕХ</b><span>Раскрой, каркас, обивка и упаковка — под одной крышей с 2018 года</span></li>
 				<li><b>ОБРАЗЕЦ</b><span>Выставочный образец — скидка до −30% на первый заказ</span></li>

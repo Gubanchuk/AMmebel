@@ -1,7 +1,9 @@
 ---
-// Production (page block 05). Cex photos are not ready yet (client: "по цеху фото
-// будут готовы до конца недели") — frames stay as warm-glow placeholders per the
-// original plan step; мощность/рекламации now have real client-confirmed values.
+// Production (page block 05). Since 08.09 the frames carry the client's real
+// workshop photos (sent in MAX, portrait 3:4): cutting table and sewing. More
+// stages are promised ("ещё фото вечером пришлю"); a frame without a photo
+// falls back to the warm-glow placeholder from the original plan step, so
+// adding a stage is one more entry in `frames`. Photos live in public/ceh/.
 const facts = [
 	{ label: 'Мощность', value: 'Более 50 изделий в месяц — каждое по индивидуальным размерам клиента' },
 	{
@@ -9,19 +11,28 @@ const facts = [
 		value: 'Рекламаций нет: производство полного цикла под собственным контролем, проверенные поставщики комплектующих, качественный каркас и пены',
 	},
 ];
-const frames = ['Раскройный стол', 'Сборка каркаса', 'Обивка крупным планом', 'Склад с упаковкой'];
+interface Frame {
+	label: string;
+	photo?: string;
+	alt?: string;
+}
+const frames: Frame[] = [
+	{ label: 'Раскрой', photo: '/ceh/ceh-01.webp', alt: 'Закройщица размечает ткань по лекалам на раскройном столе' },
+	{ label: 'Пошив', photo: '/ceh/ceh-02.webp', alt: 'Швеи собирают чехлы подушек на промышленных машинах' },
+];
 ---
 
 <section class="sec production" id="production">
 	<div class="wrap">
 		<h2>Производство</h2>
 		<p class="sec__lead">Полный цикл под одной крышей в Краснодаре с 2018 года: раскрой, сборка каркаса, обивка и упаковка.</p>
-		<div class="frames">
+		<div class="frames" style={`--n:${Math.min(frames.length, 4)}`}>
 			{frames.map((f) => (
-				<div class="frame">
-					<span class="lbl">{f}</span>
-					<span class="frame__ph">фото на подходе</span>
-				</div>
+				<figure class:list={['frame', { 'frame--photo': Boolean(f.photo) }]}>
+					{f.photo && <img src={f.photo} alt={f.alt ?? f.label} loading="lazy" width="720" height="960" />}
+					<figcaption class="lbl">{f.label}</figcaption>
+					{!f.photo && <span class="frame__ph">фото на подходе</span>}
+				</figure>
 			))}
 		</div>
 		<ul class="facts">
@@ -36,12 +47,19 @@ const frames = ['Раскройный стол', 'Сборка каркаса', 
 </section>
 
 <style>
-	.frames { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1px; background: var(--line-soft); border: 1px solid var(--line-soft); margin: 0 0 30px; }
-	.frame { position: relative; background: linear-gradient(160deg, #1B1916, #221E19); aspect-ratio: 4 / 3; display: flex; flex-direction: column; justify-content: flex-end; gap: 6px; padding: 14px; }
-	.frame:before { content: ''; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(70% 80% at 68% 18%, rgba(122,103,68,.22) 0%, rgba(72,60,40,.10) 45%, transparent 75%); }
-	.frame .lbl, .frame__ph { position: relative; }
+	.frames { display: grid; grid-template-columns: repeat(var(--n, 2), minmax(0, 1fr)); max-width: calc(var(--n, 2) * 340px); gap: 1px; background: var(--line-soft); border: 1px solid var(--line-soft); margin: 0 0 30px; }
+	.frame { position: relative; margin: 0; background: linear-gradient(160deg, #1B1916, #221E19); aspect-ratio: 3 / 4; display: flex; flex-direction: column; justify-content: flex-end; gap: 6px; padding: 14px; overflow: hidden; }
+	.frame:before { content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 1; background: radial-gradient(70% 80% at 68% 18%, rgba(122,103,68,.22) 0%, rgba(72,60,40,.10) 45%, transparent 75%); }
+	.frame--photo:before { background: linear-gradient(180deg, transparent 58%, rgba(19,18,16,.78) 100%); }
+	.frame img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+	.frame .lbl, .frame__ph { position: relative; z-index: 2; }
+	.frame--photo .lbl { color: var(--ivory); }
 	.frame__ph { font-family: var(--mono); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--grey-dim); }
 	.facts { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
 	.facts li { display: flex; gap: 16px; align-items: baseline; color: var(--ivory); font-size: 14.5px; line-height: 1.5; }
 	.facts b { flex: 0 0 150px; }
+
+	@media (max-width: 620px) {
+		.frames { grid-template-columns: 1fr 1fr; max-width: none; }
+	}
 </style>
