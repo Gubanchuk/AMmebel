@@ -20,7 +20,9 @@ if (typeof window.amGoal !== 'function') {
 	var caps = ['каркас', 'наполнение', 'обивка', 'готовый диван'];
 	var answers = { business: '', scale: '', city: '', name: '', phone: '' };
 	var steps = document.querySelectorAll('.step');
-	var bars = document.querySelectorAll('.prg i');
+	// Scoped to the quiz: the hero carousel uses the same .prg bars, and a
+	// page-wide query painted its five bars with the quiz step (bug 09.09).
+	var bars = document.querySelectorAll('#qz .prg i');
 	var scene = document.getElementById('qzScene');
 	var back = document.getElementById('qback');
 	var next = document.getElementById('qnext');
