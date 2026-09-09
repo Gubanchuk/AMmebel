@@ -52,7 +52,7 @@ const pad = (n: number) => (n < 10 ? `0${n}` : String(n));
 				<div class="hc__bar">
 					<p class="hc__cap" aria-live="polite">
 						<span class="hc__num" id="heroNum">{pad(1)} / {pad(slides.length)}</span>
-						<span id="heroName">{slides[0]?.title}</span>
+						<span class="hc__name" id="heroName">{slides[0]?.title}</span>
 					</p>
 					<div class="hc__nav">
 						<button class="arrow" type="button" id="heroPrev" aria-label="Предыдущая модель">
@@ -71,7 +71,7 @@ const pad = (n: number) => (n < 10 ? `0${n}` : String(n));
 			<p class="demo__lead">Диваны и кровати от фабрики авторской мягкой мебели, Краснодар. Отгружаем салонам, маркетплейсам и проектам по всей России.</p>
 			<ul class="usp">
 				<li><b>ЦЕХ</b><span>Раскрой, каркас, обивка и упаковка — под одной крышей с 2018 года</span></li>
-				<li><b>ОБРАЗЕЦ</b><span>Выставочный образец — скидка до −30% на первый заказ</span></li>
+				<li><b>ОБРАЗЕЦ</b><span>Выставочный образец — скидка до 30% на первый заказ</span></li>
 			</ul>
 			<div class="demo__nav">
 				<a class="cta" href="#price">Получить прайс</a>
@@ -89,12 +89,18 @@ const pad = (n: number) => (n < 10 ? `0${n}` : String(n));
 <style>
 	.demo { border-top: 1px solid var(--line-soft); border-bottom: 1px solid var(--line-soft); position: relative; overflow: hidden; }
 	.demo:before { content: ''; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(70% 80% at 68% 18%, rgba(122,103,68,.30) 0%, rgba(72,60,40,.13) 45%, transparent 75%); }
-	.demo .wrap { position: relative; display: grid; grid-template-columns: minmax(0,1fr) minmax(0,.95fr); gap: clamp(26px,4vw,56px); padding-top: clamp(28px,4vw,44px); padding-bottom: clamp(40px,6vw,72px); align-items: start; }
+	.demo .wrap { position: relative; display: grid; grid-template-columns: minmax(0,1fr) minmax(0,.95fr); gap: clamp(26px,4vw,56px); padding-top: clamp(28px,4vw,44px); padding-bottom: clamp(40px,6vw,72px); align-items: stretch; }
 	.demo__main { min-width: 0; }
 
 	/* carousel */
-	.hc { border: 1px solid var(--line); background: var(--panel); margin: 0 0 26px; }
+	.hc { border: 1px solid var(--line); background: var(--panel); margin: 0 0 18px; }
 	.hc__frame { position: relative; aspect-ratio: 1 / 1; overflow: hidden; background: #000; touch-action: pan-y; }
+	/* phone held landscape (≈844×390): a square frame is 760px tall and nothing
+	   but the photo fits on screen — give it an explicit height instead (an
+	   aspect-ratio + max-height pair would shrink the width too). */
+	@media (orientation: landscape) and (max-height: 560px) {
+		.hc__frame { aspect-ratio: auto; height: calc(100vh - 170px); height: calc(100svh - 170px); }
+	}
 	.hc__slide { position: absolute; inset: 0; margin: 0; opacity: 0; transition: opacity var(--t) ease; }
 	.hc__slide.on { opacity: 1; }
 	.hc__slide img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 55%; display: block; }
@@ -105,7 +111,7 @@ const pad = (n: number) => (n < 10 ? `0${n}` : String(n));
 		pointer-events: none;
 		background:
 			radial-gradient(70% 80% at 68% 18%, rgba(122,103,68,.22) 0%, rgba(72,60,40,.10) 45%, transparent 75%),
-			linear-gradient(180deg, transparent 48%, rgba(19,18,16,.86) 100%);
+			linear-gradient(180deg, transparent 40%, rgba(19,18,16,.45) 64%, rgba(19,18,16,.9) 100%);
 	}
 	.hc__title {
 		position: absolute;
@@ -119,22 +125,33 @@ const pad = (n: number) => (n < 10 ? `0${n}` : String(n));
 		font-size: clamp(27px,3.6vw,38px);
 		line-height: 1.06;
 		color: var(--ivory);
-		text-shadow: 0 2px 22px rgba(0,0,0,.45);
+		text-shadow: 0 1px 2px rgba(0,0,0,.6), 0 2px 22px rgba(0,0,0,.45);
 	}
 	.hc__bar { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 12px 14px 10px 18px; border-top: 1px solid var(--line); }
 	.hc__cap { margin: 0; font-size: 13px; line-height: 1.35; color: var(--grey); display: flex; align-items: baseline; gap: 12px; min-width: 0; }
 	.hc__num { font-family: var(--mono); font-size: 10.5px; letter-spacing: .1em; color: var(--grey-dim); flex: 0 0 auto; }
+	/* two lines reserved and clamped, so the bar (and everything below it) keeps
+	   one height while captions of different length rotate */
+	.hc__name { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 2.7em; }
 	.hc__nav { display: flex; gap: 6px; flex: 0 0 auto; }
 	.hc__prg { padding: 0 18px 14px; }
 
-	.demo__lead { color: var(--grey); font-size: 15.5px; max-width: 46ch; margin: 0 0 20px; }
-	.usp { list-style: none; margin: 0 0 26px; padding: 0; display: grid; gap: 11px; }
+	.demo__lead { color: var(--grey); font-size: 15.5px; max-width: 46ch; margin: 0 0 14px; }
+	.usp { list-style: none; margin: 0 0 18px; padding: 0; display: grid; gap: 11px; }
 	.usp li { display: flex; gap: 12px; font-size: 14.5px; align-items: baseline; color: var(--ivory); }
 	.usp b { font-family: var(--mono); font-size: 11px; color: var(--grey-dim); flex: 0 0 auto; font-weight: 500; }
 	.demo__nav { display: flex; gap: 12px 22px; align-items: center; flex-wrap: wrap; }
 
 	@media (max-width: 860px) {
 		.demo .wrap { grid-template-columns: 1fr; }
+	}
+	/* stacked layout on tablets: a full-width square is ~700px tall and the CTA
+	   lands below the fold on iPad portrait — go 4:3 there (phones keep the square) */
+	@media (min-width: 621px) and (max-width: 860px) {
+		.hc__frame { aspect-ratio: 4 / 3; }
+	}
+	@media (max-width: 400px) {
+		.hc__cap { font-size: 12.5px; }
 	}
 	@media (prefers-reduced-motion: reduce) {
 		.hc__slide { transition: none; }

@@ -5,23 +5,26 @@ a{color:var(--ivory)}
 :focus-visible{outline:2px solid var(--ivory);outline-offset:3px}
 
 .wrap{max-width:1080px;margin:0 auto;padding-left:var(--pad);padding-right:var(--pad)}
-.lbl{font-family:var(--mono);font-size:10px;letter-spacing:.11em;text-transform:uppercase;color:var(--grey-dim)}
+.lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--grey-dim)}
 
 /* кнопки системы */
 .cta{display:inline-flex;align-items:center;justify-content:center;background:var(--ivory);color:var(--bg);padding:18px 38px;font-weight:600;font-size:12px;letter-spacing:.1em;text-transform:uppercase;border:1px solid var(--ivory);cursor:pointer;position:relative;transition:background var(--t) ease,color var(--t) ease;text-decoration:none;font-family:var(--sans)}
 .cta:hover{background:transparent;color:var(--ivory)}
 .cta:after{content:'';position:absolute;left:50%;bottom:-7px;height:1px;width:0;background:linear-gradient(90deg,transparent,var(--glow),transparent);transition:width var(--t) ease,left var(--t) ease}
 .cta:hover:after{width:100%;left:0}
-.ray{color:var(--ivory);font-size:13.5px;display:inline-flex;align-items:center;gap:14px;cursor:pointer;text-decoration:none}
+/* padding + negative margin: a ≥40px tap target without moving the visible line */
+.ray{color:var(--ivory);font-size:13.5px;display:inline-flex;align-items:center;gap:14px;cursor:pointer;text-decoration:none;padding:10px 0;margin:-10px 0}
 /* the line is a fixed 86px box scaled from its right end, so hover never moves the label (a width animation slid the label out from under the cursor and flickered) */
 .ray i{display:inline-block;width:86px;height:1px;font-style:normal;background:linear-gradient(90deg,rgba(242,239,233,.15),var(--ivory));transform:scaleX(.5);transform-origin:right center;transition:transform var(--t) ease}
 .ray:hover i{transform:scaleX(1)}
-.ghost{display:inline-flex;align-items:center;background:transparent;border:1px solid var(--line);color:var(--grey-dim);font-family:var(--sans);font-size:11px;letter-spacing:.1em;text-transform:uppercase;padding:12px 20px;cursor:pointer;transition:border-color var(--t) ease,color var(--t) ease}
+.ghost{display:inline-flex;align-items:center;background:transparent;border:1px solid var(--line-ui);color:var(--grey-dim);font-family:var(--sans);font-size:11px;letter-spacing:.1em;text-transform:uppercase;padding:12px 20px;cursor:pointer;transition:border-color var(--t) ease,color var(--t) ease}
 .ghost:hover{border-color:#524D42;color:#DAD5C9}
-.ghost:disabled{opacity:.35;cursor:not-allowed}
+.ghost:disabled{opacity:.5;cursor:not-allowed}
 .arrow{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;padding:0;background:transparent;border:1px solid var(--line);color:var(--grey);cursor:pointer;transition:border-color var(--t) ease,color var(--t) ease}
 .arrow svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
 .arrow:hover{border-color:#524D42;color:var(--ivory)}
+.arrow:disabled{opacity:.35;cursor:not-allowed}
+.arrow:disabled:hover{border-color:var(--line);color:var(--grey)}
 .chip{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.08em;color:var(--grey);border:1px solid var(--line);padding:7px 14px;margin-right:8px;transition:border-color var(--t) ease}
 .chip:hover{border-color:#4a4438}
 
@@ -33,10 +36,11 @@ a{color:var(--ivory)}
 .opt.sel{background:#241F19;border-color:#4A4438;color:var(--ivory)}
 .opt.sel:before{background:linear-gradient(180deg,rgba(242,239,233,.2),var(--ivory),rgba(242,239,233,.2))}
 .fld{margin-bottom:16px;position:relative}
-.fld label{display:block;font-family:var(--mono);font-size:9px;letter-spacing:.14em;color:var(--grey-dim);text-transform:uppercase;margin-bottom:8px}
-.fld input{width:100%;background:transparent;border:0;border-bottom:1px solid var(--line);color:var(--ivory);font-family:var(--sans);font-size:15px;padding:8px 2px;outline:none}
-.fld input::placeholder{color:#524D42}
-.fld:after{content:'';position:absolute;left:0;bottom:0;height:1px;width:0;background:linear-gradient(90deg,var(--ivory),rgba(242,239,233,.2));transition:width var(--t) ease}
+.fld label{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--grey-dim);text-transform:uppercase;margin-bottom:8px}
+.fld input{width:100%;background:transparent;border:0;border-bottom:1px solid var(--line-ui);color:var(--ivory);font-family:var(--sans);font-size:15px;padding:8px 2px;outline:none}
+.fld input::placeholder{color:var(--grey-dim)}
+.fld input[aria-invalid="true"]{border-bottom-color:var(--ivory)}
+.fld:after{content:'';position:absolute;left:0;bottom:0;height:2px;width:0;background:linear-gradient(90deg,var(--ivory),rgba(242,239,233,.2));transition:width var(--t) ease}
 .fld:focus-within:after{width:100%}
 
 /* прогресс квиза */
@@ -46,9 +50,12 @@ a{color:var(--ivory)}
 
 /* секции */
 .sec{padding-top:clamp(40px,6vw,72px);padding-bottom:clamp(40px,6vw,72px);scroll-margin-top:88px}
-.sec h2{font-family:var(--serif);font-weight:400;font-size:clamp(24px,3.8vw,36px);line-height:1.12;margin:0 0 10px;color:var(--ivory);max-width:26ch}
-.sec__lead{color:var(--grey);max-width:60ch;margin:0 0 30px;font-size:15.5px}
+.sec h2{font-family:var(--serif);font-weight:400;font-size:clamp(24px,3.8vw,36px);line-height:1.12;margin:0 0 10px;color:var(--ivory);max-width:26ch;text-wrap:balance}
+.sec__lead{color:var(--grey);max-width:56ch;margin:0 0 30px;font-size:15.5px}
 
+@media (max-width:620px){
+  .fld input{font-size:16px} /* iOS Safari zooms into inputs below 16px */
+}
 @media (max-width:470px){
   .cta{width:100%;padding:16px 20px}
 }

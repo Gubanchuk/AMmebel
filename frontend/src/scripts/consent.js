@@ -88,9 +88,21 @@ window.amConsent = {
 		var barHeight = bar.hidden ? 0 : bar.getBoundingClientRect().height;
 		var availableHeight = window.innerHeight - headerHeight - barHeight;
 		var rect = target.getBoundingClientRect();
-		var delta = rect.height <= availableHeight
-			? rect.top - headerHeight
-			: rect.bottom - (window.innerHeight - barHeight);
+		var delta;
+		if (rect.height <= availableHeight) {
+			delta = rect.top - headerHeight;
+		} else {
+			// Too tall for the gap (phones): aim at the form card itself, not the
+			// whole section — bottom-aligning the section pushed the heading and
+			// lead under the header, the reader landed mid-sentence. Card top
+			// under the header when the card fits above the bar (the consent row
+			// and the button stay visible), else the card's bottom to the bar.
+			var card = target.querySelector('.pf');
+			var box = card ? card.getBoundingClientRect() : rect;
+			delta = box.height <= availableHeight
+				? box.top - headerHeight
+				: box.bottom - (window.innerHeight - barHeight);
+		}
 		// Global constraint: prefers-reduced-motion disables all animation, this
 		// custom scroll included — the site's own html{scroll-behavior:smooth}
 		// already respects it (base.css), this manual scrollBy has to match.
@@ -98,7 +110,7 @@ window.amConsent = {
 		window.scrollBy({ top: delta, behavior: reduceMotion ? 'auto' : 'smooth' });
 	}
 
-	document.querySelectorAll('a[href="#price"]').forEach(function (link) {
+	document.querySelectorAll('a[href="#price"], a[href="/#price"]').forEach(function (link) {
 		link.addEventListener('click', function (e) {
 			e.preventDefault();
 			scrollToPriceClear();

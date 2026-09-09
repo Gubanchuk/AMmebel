@@ -21,19 +21,19 @@ const needs = [
 			<div class="pf__grid">
 				<div class="fld">
 					<label for="pf-company">Компания / ИНН</label>
-					<input id="pf-company" name="company_inn" required placeholder="ООО «Ромашка» или ИНН" />
+					<input id="pf-company" name="company_inn" required placeholder="ООО «Ромашка» или ИНН" autocomplete="organization" />
 				</div>
 				<div class="fld">
 					<label for="pf-name">Имя</label>
-					<input id="pf-name" name="name" required placeholder="Как к вам обращаться" />
+					<input id="pf-name" name="name" required placeholder="Как к вам обращаться" autocomplete="name" />
 				</div>
 				<div class="fld">
 					<label for="pf-phone">Телефон</label>
-					<input id="pf-phone" name="phone" type="tel" required placeholder="+7 …" />
+					<input id="pf-phone" name="phone" type="tel" required placeholder="+7 …" autocomplete="tel" inputmode="tel" />
 				</div>
 				<div class="fld">
 					<label for="pf-city">Город</label>
-					<input id="pf-city" name="city" required placeholder="Краснодар" />
+					<input id="pf-city" name="city" required placeholder="Краснодар" autocomplete="address-level2" />
 				</div>
 				<div class="fld">
 					<label for="pf-need">Что нужно</label>
@@ -65,7 +65,7 @@ const needs = [
 			</div>
 		</form>
 
-		<div class="pf__done" id="pfDone" hidden>
+		<div class="pf__done" id="pfDone" role="status" tabindex="-1" hidden>
 			<h3>Заявка отправлена</h3>
 			<p>Менеджер свяжется с вами и пришлёт оптовое предложение по телефону или почте.</p>
 		</div>
@@ -90,6 +90,7 @@ const needs = [
 		outline: none;
 	}
 	.fld select option { background: var(--panel); color: var(--ivory); }
+	.fld select[aria-invalid="true"], .pf__consent input[aria-invalid="true"] { border-color: var(--ivory); }
 
 	.pf__hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
 
@@ -100,7 +101,7 @@ const needs = [
 		width: 18px;
 		height: 18px;
 		flex: 0 0 18px;
-		border: 1px solid var(--line);
+		border: 1px solid var(--line-ui);
 		background: transparent;
 		margin-top: 2px;
 		cursor: pointer;
@@ -119,7 +120,10 @@ const needs = [
 		border-width: 0 2px 2px 0;
 		transform: rotate(45deg);
 	}
-	.pf__consent span { color: var(--grey); font-size: 13.5px; line-height: 1.5; }
+	.pf__consent span { color: var(--grey); font-size: 14px; line-height: 1.5; }
+	@media (max-width: 620px) {
+		.fld select { font-size: 16px; } /* iOS Safari zooms into controls below 16px */
+	}
 	.pf__consent a { color: var(--ivory); text-decoration: underline; text-underline-offset: 2px; }
 
 	.pf__actions { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }

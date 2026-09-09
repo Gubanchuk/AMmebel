@@ -5,7 +5,8 @@
   --line-soft:#26231E;
   --ivory:#F2EFE9;
   --grey:#B5B0A5;
-  --grey-dim:#7D7768;
+  --grey-dim:#868172; /* 4.5:1 on --panel, 4.8:1 on --bg — #7D7768 was 3.9:1 */
+  --line-ui:#696660; /* control borders (checkbox, input underline, ghost buttons): 3:1 on --panel */
   --glow:rgba(242,239,233,.55);
   --serif:'Prata',serif;
   --sans:'Onest','Segoe UI',system-ui,sans-serif;

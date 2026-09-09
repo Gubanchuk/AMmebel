@@ -15,7 +15,7 @@
 // hover/focus via a transform, never a layout-affecting property. The phone
 // number has no home in the compact header bar in this variant.
 //
-// Mobile (≤620px) drops the inline nav to keep one row with no wrap at
+// Mobile (≤700px; raised from 620 on 09.09 — the plate overflowed the row at 621–687px) drops the inline nav to keep one row with no wrap at
 // 390px, but the user browsing the live deploy on a phone had no way to
 // reach any section — this adds a "МЕНЮ" toggle that opens a fullscreen
 // overlay with the same section links at a large caps size, plus the phone
@@ -36,9 +36,9 @@ const telHref = `tel:${settings.phone.replace(/[^\d+]/g, '')}`;
 			<Logo size="sm" />
 		</a>
 		<nav class="hdr__nav" aria-label="Разделы страницы">
-			<a href="#models">Модели</a>
-			<a href="#conditions">Условия</a>
-			<a href="#production">Производство</a>
+			<a href="/#models">Модели</a>
+			<a href="/#conditions">Условия</a>
+			<a href="/#production">Производство</a>
 		</nav>
 		<div class="hdr__right">
 			<button
@@ -48,7 +48,7 @@ const telHref = `tel:${settings.phone.replace(/[^\d+]/g, '')}`;
 				aria-expanded="false"
 				aria-controls="hdrMenu"
 			>Меню</button>
-			<a class="cta hdr__price" href="#price">
+			<a class="cta hdr__price" href="/#price">
 				<span class="hdr__price-full">Получить прайс</span>
 				<span class="hdr__price-short">Прайс</span>
 			</a>
@@ -61,13 +61,13 @@ const telHref = `tel:${settings.phone.replace(/[^\d+]/g, '')}`;
 		<button type="button" class="hdr-menu__close" id="hdrMenuClose">Закрыть</button>
 	</div>
 	<nav class="hdr-menu__nav wrap" aria-label="Разделы страницы">
-		<a href="#models">Модели</a>
-		<a href="#conditions">Условия</a>
-		<a href="#production">Производство</a>
+		<a href="/#models">Модели</a>
+		<a href="/#conditions">Условия</a>
+		<a href="/#production">Производство</a>
 	</nav>
 	<div class="hdr-menu__foot wrap">
 		<a class="hdr-menu__tel" href={telHref} id="hdrMenuTel">{settings.phone}</a>
-		<a class="cta hdr-menu__price" href="#price">Получить прайс</a>
+		<a class="cta hdr-menu__price" href="/#price">Получить прайс</a>
 	</div>
 </div>
 
@@ -120,7 +120,8 @@ const telHref = `tel:${settings.phone.replace(/[^\d+]/g, '')}`;
 		display: none;
 		background: none;
 		border: 0;
-		padding: 0;
+		padding: 14px 10px; /* ≥40px tap target; margin pulls the box back so layout is unchanged */
+		margin: -14px -10px;
 		cursor: pointer;
 		font-family: var(--sans);
 		font-size: 11px;
@@ -142,7 +143,7 @@ const telHref = `tel:${settings.phone.replace(/[^\d+]/g, '')}`;
 	.hdr__price { flex: 0 0 auto; padding: 12px 26px; font-size: 11px; }
 	.hdr__price-short { display: none; }
 
-	@media (max-width: 620px) {
+	@media (max-width: 700px) {
 		.hdr { height: 64px; }
 		.hdr__logo { --logo-sm: 42px; }
 		.hdr__nav { display: none; }
@@ -180,13 +181,17 @@ const telHref = `tel:${settings.phone.replace(/[^\d+]/g, '')}`;
 		transition: opacity var(--t) ease;
 		overflow-y: auto;
 	}
+	/* the UA's [hidden]{display:none} loses to the display:flex above — restate it,
+	   otherwise the closed overlay stays in the tab order (six invisible stops) */
+	.hdr-menu[hidden] { display: none; }
 	.hdr-menu.on { opacity: 1; pointer-events: auto; }
 
 	.hdr-menu__top { display: flex; justify-content: flex-end; align-items: center; height: 64px; flex: 0 0 auto; border-bottom: 1px solid var(--line); }
 	.hdr-menu__close {
 		background: none;
 		border: 0;
-		padding: 0;
+		padding: 14px 10px;
+		margin: -14px -10px;
 		cursor: pointer;
 		font-family: var(--sans);
 		font-size: 11px;
@@ -244,8 +249,13 @@ const telHref = `tel:${settings.phone.replace(/[^\d+]/g, '')}`;
 
 	/* The toggle that opens this overlay only exists ≤620px, but pin this
 	   too as a safety net in case the viewport is resized wider while open. */
-	@media (min-width: 621px) {
+	@media (min-width: 701px) {
 		.hdr-menu { display: none !important; }
+	}
+	/* repeated here because the earlier reduced-motion block sits above the
+	   .hdr-menu transition rule and loses to it in the cascade */
+	@media (prefers-reduced-motion: reduce) {
+		.hdr-menu { transition: none; }
 	}
 </style>
 

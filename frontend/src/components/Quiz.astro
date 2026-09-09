@@ -33,14 +33,14 @@
 			<img src="/ceh/poshiv.webp" alt="Пошив обивки на промышленных машинах" loading="lazy" width="720" height="960" />
 			<img src="/models/model-01.webp" alt="Готовый угловой диван в молочном букле" loading="lazy" width="960" height="960" />
 		</div>
-		<p class="qz__cap" id="qcap">Шаг 1 из 4 · каркас</p>
+		<p class="qz__cap" id="qcap" aria-live="polite">Шаг 1 из 4 · каркас</p>
 	</div>
 	<div class="prg"><i class="on"></i><i></i><i></i><i></i></div>
 
 	<div class="qz__body" id="qbody">
 		<div class="step" data-s="1">
 			<p class="qz__meta">Вопрос 1 из 4</p>
-			<p class="qz__q">Что вы продаёте сейчас?</p>
+			<p class="qz__q" tabindex="-1">Что вы продаёте сейчас?</p>
 			<button class="opt" type="button">Мебель в своём салоне или шоуруме</button>
 			<button class="opt" type="button">Мебель на маркетплейсах или в интернет-магазине</button>
 			<button class="opt" type="button">Комплектую объекты: отели, апарты, рестораны</button>
@@ -48,7 +48,7 @@
 		</div>
 		<div class="step" data-s="2" hidden>
 			<p class="qz__meta">Вопрос 2 из 4</p>
-			<p class="qz__q">Какой у вас масштаб?</p>
+			<p class="qz__q" tabindex="-1">Какой у вас масштаб?</p>
 			<button class="opt" type="button">Одна точка или площадка</button>
 			<button class="opt" type="button">От двух до пяти</button>
 			<button class="opt" type="button">Больше пяти или сеть</button>
@@ -56,14 +56,14 @@
 		</div>
 		<div class="step" data-s="3" hidden>
 			<p class="qz__meta">Вопрос 3 из 4</p>
-			<p class="qz__q">В каком городе работаете?</p>
-			<div class="fld"><label for="q3">Город</label><input id="q3" placeholder="Ростов-на-Дону"></div>
+			<p class="qz__q" tabindex="-1">В каком городе работаете?</p>
+			<div class="fld"><label for="q3">Город</label><input id="q3" placeholder="Ростов-на-Дону" autocomplete="address-level2"></div>
 		</div>
 		<div class="step" data-s="4" hidden>
 			<p class="qz__meta">Последний шаг</p>
-			<p class="qz__q">Куда направить оптовое предложение?</p>
-			<div class="fld"><label for="q4a">Имя</label><input id="q4a" placeholder="Как к вам обращаться"></div>
-			<div class="fld"><label for="q4b">Телефон или мессенджер</label><input id="q4b" placeholder="+7 …"></div>
+			<p class="qz__q" tabindex="-1">Куда направить оптовое предложение?</p>
+			<div class="fld"><label for="q4a">Имя</label><input id="q4a" placeholder="Как к вам обращаться" autocomplete="name"></div>
+			<div class="fld"><label for="q4b">Телефон или мессенджер</label><input id="q4b" type="tel" placeholder="+7 …" autocomplete="tel" inputmode="tel"></div>
 			<label class="qz__consent">
 				<input type="checkbox" id="qzConsent">
 				<span>Даю <a href="/soglasie">согласие на обработку персональных данных</a> и ознакомлен с <a href="/politika">политикой обработки персональных данных</a></span>
@@ -83,9 +83,13 @@
 </div>
 
 <style>
-	.qz { background: var(--panel); border: 1px solid var(--line); position: relative; }
+	.qz { background: var(--panel); border: 1px solid var(--line); position: relative; display: flex; flex-direction: column; }
+	.qz__body { flex: 1 1 auto; } /* the panel stretches to the left column's height; spare space goes below the buttons */
 	.qz__stage { border-bottom: 1px solid var(--line); padding: 18px 20px 8px; background: linear-gradient(180deg,#161411,#1B1916); }
 	.qz__scene { position: relative; aspect-ratio: 4 / 3; overflow: hidden; background: #000; }
+	@media (orientation: landscape) and (max-height: 560px) {
+		.qz__scene { aspect-ratio: auto; height: 60vh; height: 60svh; }
+	}
 	.qz__scene img {
 		position: absolute;
 		inset: 0;
@@ -101,7 +105,7 @@
 	.qz__scene[data-lit="2"] img:nth-child(2),
 	.qz__scene[data-lit="3"] img:nth-child(3),
 	.qz__scene[data-lit="4"] img:nth-child(4) { opacity: 1; }
-	.qz__cap { font-family: var(--mono); font-size: 9.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--grey-dim); text-align: center; padding: 8px 0 12px; margin: 0; }
+	.qz__cap { font-family: var(--mono); font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--grey-dim); text-align: center; padding: 8px 0 12px; margin: 0; }
 	.qz__body { padding: 22px 20px 26px; }
 	.qz__meta { font-family: var(--mono); font-size: 10px; letter-spacing: .11em; text-transform: uppercase; color: var(--grey-dim); margin: 0 0 10px; }
 	.qz__q { font-weight: 600; font-size: clamp(17px,2.1vw,21px); margin: 0 0 16px; line-height: 1.25; color: var(--ivory); }
@@ -118,7 +122,7 @@
 		width: 18px;
 		height: 18px;
 		flex: 0 0 18px;
-		border: 1px solid var(--line);
+		border: 1px solid var(--line-ui);
 		background: transparent;
 		margin-top: 2px;
 		cursor: pointer;
@@ -126,6 +130,7 @@
 		transition: border-color var(--t) ease, background var(--t) ease;
 	}
 	.qz__consent input:checked { background: var(--ivory); border-color: var(--ivory); }
+	.qz__consent input[aria-invalid="true"] { border-color: var(--ivory); }
 	.qz__consent input:checked:after {
 		content: '';
 		position: absolute;
@@ -137,7 +142,7 @@
 		border-width: 0 2px 2px 0;
 		transform: rotate(45deg);
 	}
-	.qz__consent span { color: var(--grey); font-size: 12.5px; line-height: 1.5; }
+	.qz__consent span { color: var(--grey); font-size: 13.5px; line-height: 1.5; }
 	.qz__consent a { color: var(--ivory); text-decoration: underline; text-underline-offset: 2px; }
 	.qz__err { color: var(--ivory); font-size: 12px; margin: 0 0 10px; border-left: 2px solid var(--ivory); padding-left: 10px; }
 

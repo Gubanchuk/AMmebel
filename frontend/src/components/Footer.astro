@@ -13,7 +13,7 @@ const legal = {
 	inn: '2373027390',
 	kpp: '237301001',
 	ogrn: '1252300034843',
-	address: '353217, Краснодарский край, Динской район, с/п Южно-Кубанское, пос. Южный, ул. Войсковая, д. 1 Б, пом. 12',
+	address: '353217, Краснодарский край, Динской район, с/п Южно-Кубанское, пос. Южный, ул. Войсковая, д. 1 Б, пом. 12',
 };
 const telHref = `tel:${settings.phone.replace(/[^\d+]/g, '')}`;
 const year = new Date().getFullYear();
@@ -49,17 +49,22 @@ const year = new Date().getFullYear();
 
 <style>
 	.foot { border-top: 1px solid var(--line-soft); padding-top: 40px; padding-bottom: 32px; }
-	.foot__grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 28px; margin-bottom: 30px; }
+	.foot__grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 28px; margin-bottom: 30px; }
+	@media (max-width: 990px) { .foot__grid { grid-template-columns: repeat(2, 1fr); } }
+	@media (max-width: 480px) { .foot__grid { grid-template-columns: 1fr; } }
 	.foot__grid p { margin: 4px 0 0; color: var(--grey); font-size: 13.5px; line-height: 1.5; }
 	.foot__grid .lbl { margin: 0; }
 	.foot__grid a { text-decoration: none; }
+	.foot__tel, .foot__mail { display: inline-block; padding: 11px 0; margin: -11px 0; } /* ≥40px tap target, layout unchanged */
 	.foot__tel { font-family: var(--mono); color: var(--ivory); transition: color var(--t) ease, text-shadow var(--t) ease; }
 	.foot__tel:hover { text-shadow: 0 0 12px var(--glow); }
 	.foot__mail { color: var(--grey); transition: color var(--t) ease; }
 	.foot__mail:hover { color: var(--ivory); }
 	.foot__sub { font-size: 12px; }
 	.foot__grid .ray { font-size: 13px; margin-top: 8px; }
-	.foot__legal { font-family: var(--mono); font-size: 10px; letter-spacing: .08em; color: var(--grey-dim); margin: 0; }
+	.foot__grid .ray { align-items: flex-start; } /* two-line document links: keep the line on the first line */
+	.foot__grid .ray i { margin-top: .75em; }
+	.foot__legal { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; color: var(--grey-dim); margin: 0; }
 
 	@media (prefers-reduced-motion: reduce) {
 		.foot__tel,

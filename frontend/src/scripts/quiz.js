@@ -61,9 +61,15 @@ if (typeof window.amGoal !== 'function') {
 		syncNextState();
 	}
 
-	function setStep(n) {
+	// moveFocus: after a user-driven step change, put focus on the new question
+	// so screen readers announce it (never on the initial paint at load).
+	function setStep(n, moveFocus) {
 		s = n;
 		paint();
+		if (moveFocus) {
+			var q = steps[s - 1] && steps[s - 1].querySelector('.qz__q');
+			if (q) { q.focus({ preventScroll: true }); }
+		}
 		window.amGoal('quiz_step_' + s);
 	}
 
@@ -72,23 +78,39 @@ if (typeof window.amGoal !== 'function') {
 		return match ? match.length : 0;
 	}
 
+	function markInvalid(el) {
+		[nameInput, phoneInput, consentInput].forEach(function (x) {
+			if (!x) return;
+			x.removeAttribute('aria-invalid');
+			x.removeAttribute('aria-describedby');
+		});
+		if (el) {
+			el.setAttribute('aria-invalid', 'true');
+			el.setAttribute('aria-describedby', 'qzError');
+		}
+	}
+
 	function finish() {
 		var name = nameInput ? nameInput.value.trim() : '';
 		var phone = phoneInput ? phoneInput.value.trim() : '';
 
 		if (!name) {
 			setError('Укажите имя.');
+			markInvalid(nameInput);
 			return;
 		}
 		if (digitsCount(phone) < 10) {
 			setError('Проверьте номер телефона — нужно не меньше 10 цифр.');
+			markInvalid(phoneInput);
 			return;
 		}
 		if (!consentInput || !consentInput.checked) {
 			setError('Отметьте согласие на обработку персональных данных.');
+			markInvalid(consentInput);
 			return;
 		}
 		setError(null);
+		markInvalid(null);
 
 		answers.city = cityInput ? cityInput.value.trim() : '';
 		answers.name = name;
@@ -115,15 +137,15 @@ if (typeof window.amGoal !== 'function') {
 			var stepNum = stepEl ? Number(stepEl.dataset.s) : s;
 			if (stepNum === 1) { answers.business = o.textContent.trim(); }
 			else if (stepNum === 2) { answers.scale = o.textContent.trim(); }
-			if (s < total) { setStep(s + 1); }
+			if (s < total) { setStep(s + 1, true); }
 		});
 	});
 
 	next.addEventListener('click', function () {
-		if (s < total) { setStep(s + 1); }
+		if (s < total) { setStep(s + 1, true); }
 		else { finish(); }
 	});
-	back.addEventListener('click', function () { if (s > 1) { setStep(s - 1); } });
+	back.addEventListener('click', function () { if (s > 1) { setStep(s - 1, true); } });
 	if (consentInput) { consentInput.addEventListener('change', syncNextState); }
 
 	setStep(1);

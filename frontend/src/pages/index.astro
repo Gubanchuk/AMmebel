@@ -17,19 +17,21 @@ import CookieBar from '../components/CookieBar.astro';
 		<meta charset="utf-8" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<meta name="generator" content={Astro.generator} />
 		<meta name="description" content="Фабрика мягкой мебели в Краснодаре. Минимальный заказ — от 1 изделия, срок производства 25–30 рабочих дней." />
 		<title>Авторская Мебель — мягкая мебель оптом от фабрики</title>
 	</head>
 	<body>
 		<Header />
-		<Hero />
-		<Conditions />
-		<Showcase />
-		<Needs />
-		<Production />
-		<PriceForm />
+		<main>
+			<Hero />
+			<Conditions />
+			<Showcase />
+			<Needs />
+			<Production />
+			<PriceForm />
+		</main>
 		<Footer />
 		<CookieBar />
 	</body>

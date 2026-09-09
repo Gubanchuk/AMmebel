@@ -68,6 +68,9 @@
 	overlay.addEventListener('click', close);
 
 	document.addEventListener('keydown', function (e) {
-		if (e.key === 'Escape' && !overlay.hidden) { close(); }
+		if (overlay.hidden) return;
+		if (e.key === 'Escape') { close(); return; }
+		// aria-modal dialog with a single focusable control: keep Tab on it
+		if (e.key === 'Tab') { e.preventDefault(); closeBtn.focus(); }
 	});
 })();

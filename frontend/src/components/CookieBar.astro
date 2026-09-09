@@ -27,12 +27,17 @@
 	/* Compact stacked layout: text on its own line (1-2 lines), buttons below it
 	   in a single row (never stacked vertically) — keeps total bar height well
 	   under the viewport so it doesn't bury content sitting near the bottom. */
-	@media (max-width: 620px) {
+	@media (max-width: 740px) {
 		.cookie__row { padding-top: 12px; padding-bottom: 12px; gap: 10px; }
-		.cookie__text { flex: 1 1 100%; font-size: 12px; line-height: 1.4; }
+		.cookie__text { flex: 1 1 100%; font-size: 12.5px; line-height: 1.4; }
 		.cookie__actions { flex: 1 1 100%; flex-wrap: nowrap; }
 		.cookie__actions .cta,
-		.cookie__actions .ghost { flex: 1 1 0; padding: 10px 14px; font-size: 10.5px; white-space: nowrap; }
+		.cookie__actions .ghost { flex: 1 1 0; padding: 13px 14px; font-size: 10.5px; white-space: nowrap; }
+	}
+	/* phone held landscape: keep text and buttons on one row so the bar is not a fifth of the screen */
+	@media (max-height: 500px) and (min-width: 741px) {
+		.cookie__row { flex-wrap: nowrap; padding-top: 8px; padding-bottom: 8px; }
+		.cookie__text { font-size: 12px; }
 	}
 </style>
 
