@@ -3,8 +3,10 @@
 // the client's designated lead-handling contact, not the docx's registration
 // phone). Legal requisites from the company-card docx — since 04.09 the footer
 // is their only home (the Documents section was cut with the client's "shorter"
-// feedback of 31.08). Factual address is settings.address (production), the
-// registration address is legal.address. /politika and /soglasie: task 7.
+// feedback of 31.08). Factual address is settings.address (production) —
+// since 09.09 Волгоградская 121/1, set by the client (it matches the
+// company card), replacing the planned Сливовая one. The registration
+// address is legal.address. /politika and /soglasie: task 7.
 import content from '../../../content-fallback.json';
 
 const { settings } = content;
@@ -34,7 +36,7 @@ const year = new Date().getFullYear();
 				<p><a class="foot__mail" href={`mailto:${settings.email}`}>{settings.email}</a></p>
 			</div>
 			<div>
-				<p class="lbl">Адрес</p>
+				<p class="lbl">Адрес производства</p>
 				<p>{settings.address}</p>
 			</div>
 			<div>

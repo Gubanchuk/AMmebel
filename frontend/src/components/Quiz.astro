@@ -5,8 +5,10 @@
 // «незаполнены картинки, какая идея» → «каркас, наполнение, полуобивка,
 // целый диван»). Step 3 currently shows the sewing photo; the client has
 // not yet sent a half-upholstered frame — swap the src when it arrives.
-// Step 4 is model-01 (settings.quizModel), the one product photo not used by
-// hero or showcase. Zoom/light state is still data-lit="1".."4" on
+// Step 4 (since 09.09) is the client's finished order shot in the factory
+// photo zone, sent for exactly this step («именно с фотозоны, не в
+// интерьер»); the same photo closes the Production strip. It replaced
+// model-01, which left the page. Zoom/light state is still data-lit="1".."4" on
 // .qz__scene set by quiz.js's paint(); only the CSS it drives changed.
 //
 // Previous scene, kept for history — "fabric to sofa" (variant B), chosen by the user 27.08 from
@@ -31,7 +33,7 @@
 			<img src="/ceh/karkasy.webp" alt="Собранные каркасы дивана с эластичными ремнями" loading="eager" fetchpriority="high" width="720" height="960" />
 			<img src="/ceh/pena.webp" alt="Формовка пеной — заготовка будущего дивана" loading="lazy" width="720" height="960" />
 			<img src="/ceh/poshiv.webp" alt="Пошив обивки на промышленных машинах" loading="lazy" width="720" height="960" />
-			<img src="/models/model-01.webp" alt="Готовый угловой диван в молочном букле" loading="lazy" width="960" height="960" />
+			<img src="/ceh/gotovo.webp" alt="Готовый модульный диван в фотозоне фабрики" loading="lazy" width="720" height="960" />
 		</div>
 		<p class="qz__cap" id="qcap" aria-live="polite">Шаг 1 из 4 · каркас</p>
 	</div>
@@ -101,6 +103,9 @@
 		opacity: 0;
 		transition: opacity var(--t) ease;
 	}
+	/* The photo-zone shot is portrait with the sofa in its upper half and bare
+	   floor below; the 4:3 window sits higher so the sofa is not cut at the top. */
+	.qz__scene img:nth-child(4) { object-position: 50% 40%; }
 	.qz__scene[data-lit="1"] img:nth-child(1),
 	.qz__scene[data-lit="2"] img:nth-child(2),
 	.qz__scene[data-lit="3"] img:nth-child(3),

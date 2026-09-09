@@ -2,9 +2,12 @@
 // Showcase (page block 03) — since 04.09 a horizontal snap carousel of six
 // models instead of the 12-card grid (client feedback 31.08: the page must not
 // scroll long; six photos, none repeated from the hero). Hero picks come from
-// settings.heroModels and the quiz scene is settings.quizModel, so no photo
-// shown above the fold repeats here. Cards are portrait 4:5 because the
-// product shots are portrait.
+// settings.heroModels, so no photo shown above the fold repeats here (the
+// quiz scene is workshop photos since 09.09, not a model). Cards are
+// portrait 4:5 because the product shots are portrait.
+// 09.09: card titles are the client's model names; the «six of a hundred»
+// lead was cut on the client's call — no such range exists, the full range
+// goes out with the price list.
 //
 // Since 08.09 the track loops (user: "по кругу, чтобы не возвращаться
 // назад"): the last CLONES cards are repeated before the first real card and
@@ -27,7 +30,7 @@ interface Model {
 	sort: number;
 }
 
-const shownAbove = new Set([...(content.settings.heroModels as number[]), content.settings.quizModel as number]);
+const shownAbove = new Set(content.settings.heroModels as number[]);
 const models = (content.models as Model[])
 	.filter((m) => m.visible && !shownAbove.has(m.sort))
 	.sort((a, b) => a.sort - b.sort)
@@ -45,7 +48,7 @@ const track = [
 		<div class="models__head">
 			<div>
 				<h2>Популярные модели</h2>
-				<p class="sec__lead">Шесть моделей из ста с лишним. Полный ряд вышлем вместе с оптовым прайсом.</p>
+				<p class="sec__lead">Полный модельный ряд вышлем вместе с оптовым прайсом.</p>
 			</div>
 			<div class="models__nav">
 				<button class="arrow" type="button" id="modelsPrev" aria-label="Прокрутить модели назад">

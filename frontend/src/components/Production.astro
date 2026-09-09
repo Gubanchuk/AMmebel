@@ -2,9 +2,12 @@
 // Production (page block 05). Since 08.09 a horizontal snap strip of the
 // client's real workshop photos in process order (captions are the client's
 // own from MAX, normalised): kiln-dried timber → frame cutting → frame
-// assembly → finished frames → foam forming → fabric cutting → sewing. More
-// stages are promised ("осталось несколько фото, отправлю завтра") — adding
-// one is one more entry in `stages`. Photos live in public/ceh/ and open in
+// assembly → finished frames → foam forming → fabric cutting → sewing →
+// finished order in the factory photo zone → packed goods before shipping
+// (the last two arrived 09.09). An upholstery shot is still promised
+// («фото обивки будет завтра») and belongs between sewing and the finished
+// order — adding a stage is one more entry in `stages`. Photos live in
+// public/ceh/ and open in
 // the Showcase lightbox (../scripts/lightbox.js binds every
 // [data-lightbox-open] on the page). The strip does not loop: it is a
 // sequence, not a catalogue.
@@ -28,6 +31,8 @@ const stages: Stage[] = [
 	{ label: 'Формовка пеной', photo: '/ceh/pena.webp', alt: 'Мастер формует пенополиуретан на заготовке будущего дивана' },
 	{ label: 'Раскрой', photo: '/ceh/raskroy.webp', alt: 'Закройщица размечает ткань по лекалам на раскройном столе' },
 	{ label: 'Пошив', photo: '/ceh/poshiv.webp', alt: 'Швеи собирают чехлы подушек на промышленных машинах' },
+	{ label: 'Готовый заказ', photo: '/ceh/gotovo.webp', alt: 'Готовый модульный диван терракотового и чёрного цвета в фотозоне фабрики' },
+	{ label: 'Упаковка перед отгрузкой', photo: '/ceh/upakovka.webp', alt: 'Мебель в картоне и стретч-плёнке на складе перед отгрузкой' },
 ];
 const pad = (n: number) => (n < 10 ? `0${n}` : String(n));
 ---
