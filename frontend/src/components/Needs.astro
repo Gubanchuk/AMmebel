@@ -3,6 +3,9 @@
 // (clients/sf-sofa/research/b2b-opt-site-2026-07/SUMMARY.md). The 4th card's
 // commission figure (20%) is the client's own confirmed answer, replacing the
 // research's BOCA-reference placeholder (1–3%) with real data.
+// 10.09: the factory issues no certificates — card 03 promises only the supply
+// contract now, on the client's voice note. The lead was rewritten because the
+// client read the old one twice and did not get it.
 const items = [
 	{
 		n: '01',
@@ -17,7 +20,7 @@ const items = [
 	{
 		n: '03',
 		title: 'Закрыть объект',
-		body: 'Комплектуете отель, апартаменты или ресторан. Считаем смету на тираж, даём сертификаты и договор поставки со сроками на партию.',
+		body: 'Комплектуете отель, апартаменты или ресторан. Считаем смету на тираж и составляем договор поставки со сроками на всю партию.',
 	},
 	{
 		n: '04',
@@ -30,7 +33,7 @@ const items = [
 <section class="sec needs" id="needs">
 	<div class="wrap">
 		<h2>Работаем под четыре разные задачи</h2>
-		<p class="sec__lead">Один сайт, развилка по тому, что вам нужно в этой сделке — не по типу компании.</p>
+		<p class="sec__lead">Выберите свою — под каждую даём свои условия, материалы и сроки.</p>
 		<div class="needs__grid">
 			{items.map((it) => (
 				<div class="needs__card">
