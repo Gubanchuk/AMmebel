@@ -242,13 +242,43 @@ def build_token_user(role_id):
     return static
 
 
+def editor_user(role_id):
+    """Вход клиента в админку. Почта и пароль берутся из .env.
+
+    Пока клиент не дал рабочую почту, учётка заведена на почту Андрея;
+    сменить её можно прямо в админке, пароль при этом не сбрасывается.
+    """
+    email = ENV.get("EDITOR_EMAIL", "").lower()
+    password = ENV.get("EDITOR_PASSWORD", "")
+    if not email or not password:
+        print("редактор: EDITOR_EMAIL и EDITOR_PASSWORD не заданы в .env, пропускаю")
+        return
+    users = call("GET", "/users?limit=-1&fields=id,email")["data"]
+    if any((u.get("email") or "").lower() == email for u in users):
+        print(f"редактор {email}: уже есть")
+        return
+    call(
+        "POST",
+        "/users",
+        {
+            "first_name": "Контент-редактор",
+            "email": email,
+            "password": password,
+            "role": role_id,
+            "status": "active",
+            "language": "ru-RU",
+        },
+    )
+    print(f"редактор {email}: создан")
+
+
 def main():
     login()
     photo_field()
 
     # Клиент: правит контент, заявки только смотрит.
     editor_policy = make_policy("Контент-редактор", app_access=True, icon="edit")
-    make_role(
+    editor_role = make_role(
         "Контент-редактор",
         editor_policy,
         "Правит цены, тексты и фото. Заявки только читает",
@@ -270,6 +300,7 @@ def main():
     grant(build_policy, "directus_files", ["read"])
 
     seed()
+    editor_user(editor_role)
     static = build_token_user(build_role)
     print(f"\nтокен для сборки фронта: {static}")
     print("готово")
