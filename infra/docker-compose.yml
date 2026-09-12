@@ -34,6 +34,9 @@ services:
       ADMIN_PASSWORD: ${ADMIN_PASSWORD}
       PUBLIC_URL: ${PUBLIC_URL}
       TELEMETRY: "false"
+    # Портов нет намеренно: при internal:true docker их всё равно не публикует.
+    # Доступ к админке — через SSH-туннель на IP контейнера, до появления
+    # обратного прокси (шаг В7). Хост видит контейнер, контейнер интернет — нет.
     volumes:
       - directus-uploads:/directus/uploads
     networks:
