@@ -35,8 +35,8 @@ services:
       PUBLIC_URL: ${PUBLIC_URL}
       TELEMETRY: "false"
     # Портов нет намеренно: при internal:true docker их всё равно не публикует.
-    # Доступ к админке — через SSH-туннель на IP контейнера, до появления
-    # обратного прокси (шаг В7). Хост видит контейнер, контейнер интернет — нет.
+    # Снаружи админка доступна только через proxy (admin.am-fabrika.ru).
+    # Хост видит контейнер, контейнер интернет — нет.
     volumes:
       - directus-uploads:/directus/uploads
     networks:
@@ -54,11 +54,55 @@ services:
       - ./nginx:/etc/nginx/conf.d:ro
       - certbot-certs:/etc/letsencrypt:ro
       - certbot-webroot:/var/www/certbot:ro
+      # Выпуски сайта, которые собирает builder; nginx только читает.
+      - ../site:/srv/site:ro
     networks:
       # Две сети: наружу за сертификатами и к посетителям, внутрь — к Directus.
       # Сам Directus остаётся только во внутренней и в интернет не ходит.
       - am-internal
       - am-edge
+
+  # Сборка сайта на сервере. Directus после каждой правки контента зовёт его
+  # по внутренней сети, он собирает сайт и подменяет выпуск в ../site.
+  # Код сайта лежит в ../site-src, выкладывается скриптом deploy-site.sh.
+  builder:
+    image: node:22-alpine
+    restart: unless-stopped
+    init: true
+    user: node
+    depends_on:
+      - directus
+    command: ["node", "/builder/server.mjs"]
+    environment:
+      DIRECTUS_URL: http://directus:8055
+      DIRECTUS_TOKEN: ${FRONTEND_TOKEN}
+      REBUILD_TOKEN: ${REBUILD_TOKEN}
+      ASTRO_TELEMETRY_DISABLED: "1"
+    volumes:
+      - ./builder:/builder:ro
+      - ../site-src:/app
+      - ../site:/site
+    networks:
+      # Только внутренняя сеть: к Directus ходит, в интернет — нет.
+      - am-internal
+
+  # Установка npm-пакетов для сборки. Запускает deploy-site.sh, когда меняется
+  # package-lock.json. Интернет есть, внутренней сети нет: сторонний код из npm
+  # никогда не получает сразу и выход наружу, и доступ к базе.
+  builder-deps:
+    image: node:22-alpine
+    user: node
+    working_dir: /app/frontend
+    command:
+      - sh
+      - -c
+      - npm ci --no-audit --no-fund && sha256sum package-lock.json | cut -d ' ' -f 1 > node_modules/.package-lock-hash
+    volumes:
+      - ../site-src:/app
+    networks:
+      - am-edge
+    profiles:
+      - tools
 
   certbot:
     image: certbot/certbot
