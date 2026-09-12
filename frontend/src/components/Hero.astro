@@ -2,7 +2,7 @@
 // Hero (page block 01) — reworked 04.09 after the client feedback of 31.08
 // ("opens like a newspaper article"): photo first, two or three sentences,
 // price CTA. Left column is a square crossfade carousel of five models
-// (settings.heroModels in content-fallback.json, by sort id — Showcase
+// (settings.heroModels, by sort id — Showcase
 // excludes the same ids so the two sets never repeat a photo) with the
 // headline set over the photo, then the lead and the two facts the client
 // kept (full cycle since 2018, sample discount). The "100+ models" and
@@ -16,17 +16,16 @@
 // 10.09: slide 5 got its name from the client — «Di Marco».
 // Carousel behavior lives in ../scripts/hero.js.
 import Quiz from './Quiz.astro';
-import content from '../../../content-fallback.json';
+import type { Model, Settings } from '../lib/content';
 
-interface Model {
-	title: string;
-	photo: string;
-	visible: boolean;
-	sort: number;
+interface Props {
+	settings: Settings;
+	models: Model[];
 }
 
-const heroIds = content.settings.heroModels as number[];
-const bySort = new Map((content.models as Model[]).map((m) => [m.sort, m]));
+const { settings, models } = Astro.props;
+const heroIds = settings.heroModels;
+const bySort = new Map(models.map((m) => [m.sort, m]));
 const slides = heroIds
 	.map((id) => bySort.get(id))
 	.filter((m): m is Model => Boolean(m && m.visible));

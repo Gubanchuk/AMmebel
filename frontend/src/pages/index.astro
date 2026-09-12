@@ -10,6 +10,9 @@ import Production from '../components/Production.astro';
 import PriceForm from '../components/PriceForm.astro';
 import Footer from '../components/Footer.astro';
 import CookieBar from '../components/CookieBar.astro';
+import { getContent } from '../lib/content';
+
+const { settings, conditions, models } = getContent();
 ---
 
 <html lang="ru">
@@ -23,16 +26,16 @@ import CookieBar from '../components/CookieBar.astro';
 		<title>Авторская Мебель — мягкая мебель оптом от фабрики</title>
 	</head>
 	<body>
-		<Header />
+		<Header settings={settings} />
 		<main>
-			<Hero />
-			<Conditions />
-			<Showcase />
+			<Hero settings={settings} models={models} />
+			<Conditions conditions={conditions} />
+			<Showcase settings={settings} models={models} />
 			<Needs />
 			<Production />
 			<PriceForm />
 		</main>
-		<Footer />
+		<Footer settings={settings} />
 		<CookieBar />
 	</body>
 </html>

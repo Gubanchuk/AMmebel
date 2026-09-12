@@ -24,9 +24,13 @@
 // (proven: hidden attribute + .on class + forced layout flush before the
 // opacity transition, TRANSITION_MS matching --t).
 import Logo from './Logo.astro';
-import content from '../../../content-fallback.json';
+import type { Settings } from '../lib/content';
 
-const { settings } = content;
+interface Props {
+	settings: Settings;
+}
+
+const { settings } = Astro.props;
 const telHref = `tel:${settings.phone.replace(/[^\d+]/g, '')}`;
 ---
 

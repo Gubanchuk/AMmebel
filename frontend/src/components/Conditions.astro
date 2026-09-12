@@ -1,9 +1,13 @@
 ---
-// Conditions table (page block 02) — imports content-fallback.json directly per
-// Ruling R4 (task 10 will switch this to props sourced from Directus).
-import content from '../../../content-fallback.json';
+// Conditions table (page block 02). Rows come from getContent() via props —
+// Directus at build time, content-fallback.json when it is unavailable.
+import type { Condition } from '../lib/content';
 
-const { conditions } = content;
+interface Props {
+	conditions: Condition[];
+}
+
+const { conditions } = Astro.props;
 ---
 
 <section class="sec cond" id="conditions">
@@ -12,7 +16,7 @@ const { conditions } = content;
 		<div class="cond__scroll">
 			<table class="cond__table">
 				<tbody>
-					{conditions.map((row: { name: string; value: string }) => (
+					{conditions.map((row) => (
 						<tr>
 							<th>{row.name}</th>
 							<td>{row.value}</td>

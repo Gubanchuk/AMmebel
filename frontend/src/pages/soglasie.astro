@@ -12,7 +12,9 @@ import '../styles/base.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import CookieBar from '../components/CookieBar.astro';
+import { getContent } from '../lib/content';
 
+const { settings } = getContent();
 const sections = [
 	'Субъект персональных данных (ФИО, адрес, реквизиты документа, удостоверяющего личность)',
 	'Оператор персональных данных (наименование, адрес)',
@@ -37,7 +39,7 @@ const sections = [
 		<title>Согласие на обработку персональных данных — АМ</title>
 	</head>
 	<body>
-		<Header />
+		<Header settings={settings} />
 
 		<section class="sec legal">
 			<div class="wrap">
@@ -51,7 +53,7 @@ const sections = [
 			</div>
 		</section>
 
-		<Footer />
+		<Footer settings={settings} />
 		<CookieBar />
 	</body>
 </html>

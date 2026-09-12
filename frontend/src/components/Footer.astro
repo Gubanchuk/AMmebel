@@ -1,5 +1,5 @@
 ---
-// Footer (page block 12). settings from content-fallback.json (phone/email —
+// Footer (page block 12). settings from getContent() via props (phone/email —
 // the client's designated lead-handling contact, not the docx's registration
 // phone). Legal requisites from the company-card docx — since 04.09 the footer
 // is their only home (the Documents section was cut with the client's "shorter"
@@ -7,9 +7,13 @@
 // since 09.09 Волгоградская 121/1, set by the client (it matches the
 // company card), replacing the planned Сливовая one. The registration
 // address is legal.address. /politika and /soglasie: task 7.
-import content from '../../../content-fallback.json';
+import type { Settings } from '../lib/content';
 
-const { settings } = content;
+interface Props {
+	settings: Settings;
+}
+
+const { settings } = Astro.props;
 const legal = {
 	name: 'ООО «Авторская мебель»',
 	inn: '2373027390',

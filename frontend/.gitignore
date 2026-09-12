@@ -2,6 +2,9 @@
 dist/
 # generated types
 .astro/
+# content pulled from Directus before the build (scripts/fetch-content.mjs)
+src/generated/
+public/cms/
 
 # dependencies
 node_modules/

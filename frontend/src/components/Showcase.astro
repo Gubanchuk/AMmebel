@@ -18,20 +18,16 @@
 // and out of the tab order. Prices stay in the data shape (Directus, task 9)
 // and are not rendered. Photos open in the fullscreen lightbox
 // (../scripts/lightbox.js reads the clicked card's own img).
-import content from '../../../content-fallback.json';
+import type { Model, Settings } from '../lib/content';
 
-interface Model {
-	title: string;
-	size: string;
-	priceFrom: number | null;
-	priceTo: number | null;
-	photo: string;
-	visible: boolean;
-	sort: number;
+interface Props {
+	settings: Settings;
+	models: Model[];
 }
 
-const shownAbove = new Set(content.settings.heroModels as number[]);
-const models = (content.models as Model[])
+const { settings, models: allModels } = Astro.props;
+const shownAbove = new Set(settings.heroModels);
+const models = allModels
 	.filter((m) => m.visible && !shownAbove.has(m.sort))
 	.sort((a, b) => a.sort - b.sort)
 	.slice(0, 6);
