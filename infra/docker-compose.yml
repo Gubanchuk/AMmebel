@@ -42,12 +42,45 @@ services:
     networks:
       - am-internal
 
+  proxy:
+    image: nginx:alpine
+    restart: unless-stopped
+    depends_on:
+      - directus
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx:/etc/nginx/conf.d:ro
+      - certbot-certs:/etc/letsencrypt:ro
+      - certbot-webroot:/var/www/certbot:ro
+    networks:
+      # Две сети: наружу за сертификатами и к посетителям, внутрь — к Directus.
+      # Сам Directus остаётся только во внутренней и в интернет не ходит.
+      - am-internal
+      - am-edge
+
+  certbot:
+    image: certbot/certbot
+    volumes:
+      - certbot-certs:/etc/letsencrypt
+      - certbot-webroot:/var/www/certbot
+    networks:
+      - am-edge
+    # Запускается вручную и по расписанию, постоянно висеть ему незачем.
+    profiles:
+      - tools
+
 volumes:
   pgdata:
   directus-uploads:
+  certbot-certs:
+  certbot-webroot:
 
 networks:
   # Внутренняя сеть без выхода в интернет: контейнеры видят друг друга,
   # наружу не ходят. Доступ к админке — только через обратный прокси (шаг В7).
   am-internal:
     internal: true
+  # Обычная сеть с выходом наружу — только для прокси и выпуска сертификатов.
+  am-edge:
