@@ -8,7 +8,10 @@
 //
 // Any failure (no credentials, Directus down, a photo that will not download)
 // removes both outputs, and src/lib/content.ts falls back to
-// content-fallback.json. The script prints a warning and never fails the build.
+// content-fallback.json. The script prints a warning and does not fail the
+// build — unless CONTENT_REQUIRED=1, set by the server build: a live site must
+// never be republished from the fallback file over the client's edits, so
+// there a failure exits non-zero and the previous release stays online.
 //
 //   DIRECTUS_URL=http://localhost:8055 DIRECTUS_TOKEN=... node scripts/fetch-content.mjs
 
@@ -30,6 +33,7 @@ const PHOTO_TRANSFORM = 'format=webp&quality=80&width=1600&withoutEnlargement=tr
 
 const baseUrl = (process.env.DIRECTUS_URL || '').replace(/\/+$/, '');
 const token = process.env.DIRECTUS_TOKEN || '';
+const required = process.env.CONTENT_REQUIRED === '1';
 
 function request(pathAndQuery, timeoutMs) {
 	return fetch(`${baseUrl}${pathAndQuery}`, {
@@ -121,9 +125,18 @@ function describe(error) {
 	return `${error.message}${cause}`;
 }
 
+function unavailable(reason) {
+	if (required) {
+		console.error(`[content] ${reason}; CONTENT_REQUIRED=1, stopping the build`);
+		process.exitCode = 1;
+	} else {
+		console.warn(`[content] ${reason}; building from content-fallback.json`);
+	}
+}
+
 await clean();
 if (!baseUrl || !token) {
-	console.warn('[content] DIRECTUS_URL or DIRECTUS_TOKEN is not set, building from content-fallback.json');
+	unavailable('DIRECTUS_URL or DIRECTUS_TOKEN is not set');
 } else {
 	try {
 		const content = await fromDirectus();
@@ -135,6 +148,6 @@ if (!baseUrl || !token) {
 		);
 	} catch (error) {
 		await clean();
-		console.warn(`[content] Directus unavailable, building from content-fallback.json: ${describe(error)}`);
+		unavailable(`Directus unavailable: ${describe(error)}`);
 	}
 }
