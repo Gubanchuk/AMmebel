@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "broken-image",
+        "value": "*",
+        "files": [
+          "src/components/Showcase.astro"
+        ],
+        "createdAt": "2026-09-12T23:03:14.429Z",
+        "reason": "Claude: lightbox img src is empty by design and set by scripts/lightbox.js on open (since commit 0cc8f00)"
+      }
+    ]
+  }
+}
