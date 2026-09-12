@@ -61,7 +61,7 @@ def collection_exists(name):
         return False
 
 
-def make_collection(name, note, icon, singleton=False, hidden=False):
+def make_collection(name, note, icon, singleton=False, hidden=False, sortable=True):
     if collection_exists(name):
         print(f"коллекция {name}: уже есть")
         return
@@ -76,7 +76,7 @@ def make_collection(name, note, icon, singleton=False, hidden=False):
                 "icon": icon,
                 "singleton": singleton,
                 "hidden": hidden,
-                "sort_field": "sort" if not singleton else None,
+                "sort_field": "sort" if sortable and not singleton else None,
             },
         },
     )
@@ -183,7 +183,11 @@ def main():
     sort_field("faq")
 
     # --- заявки: сюда пишет lead-service, руками не заполняется ---
-    make_collection("leads", "Заявки с сайта. Только чтение", "inbox")
+    make_collection("leads", "Заявки с сайта. Только чтение", "inbox", sortable=False)
+    # У заявок нет поля sort. Первая версия скрипта всё равно прописала его
+    # как поле сортировки, и Directus отвечал 403 на любой список заявок —
+    # даже администратору. Сброс чинит уже созданную коллекцию.
+    call("PATCH", "/collections/leads", {"meta": {"sort_field": None}})
     make_field(
         "leads",
         "created_at",
