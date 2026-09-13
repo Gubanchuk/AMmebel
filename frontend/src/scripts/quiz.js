@@ -1,13 +1,16 @@
 // Assembly quiz (hero block 01) — ported from am-site-preview.html's .demo script.
 // Adaptations vs. the preview: capture each step's answer into `answers`, replace
 // step-counter increments with setStep() so every transition reports window.amGoal,
-// and dispatch am:lead with the collected fields instead of showing a static stub.
+// and send the collected fields to /api/lead instead of showing a static stub
+// (sending helpers live in form.js; the final state appears only after a 201).
 // The stage went through three replacements after the plan's original SVG
 // assembly scene: a brightness-ramp photo scene, a texture zoom-out ("от
 // ткани к дивану", 27.08), and since 08.09 four workshop photos crossfading
 // frame → filling → upholstery → finished sofa (the client's idea) — the step
 // machine itself is unchanged throughout, only the CSS driven by
 // data-lit="1".."4" on #qzScene (and this file's caption strings) changed.
+
+import { postLead, restoreFocus, showSendFailure } from './form.js';
 
 if (typeof window.amGoal !== 'function') {
 	window.amGoal = function (name) {
@@ -34,6 +37,7 @@ if (typeof window.amGoal !== 'function') {
 	var phoneInput = document.getElementById('q4b');
 	var consentInput = document.getElementById('qzConsent');
 	var errorEl = document.getElementById('qzError');
+	var sending = false;
 
 	function setError(message) {
 		if (!errorEl) return;
@@ -47,9 +51,10 @@ if (typeof window.amGoal !== 'function') {
 	}
 
 	// Consent only gates the finish action (last step) — earlier steps advance
-	// via the same shared button without needing it checked.
+	// via the same shared button without needing it checked. While the lead is
+	// being sent the button stays disabled.
 	function syncNextState() {
-		next.disabled = (s === total) && !(consentInput && consentInput.checked);
+		next.disabled = sending || ((s === total) && !(consentInput && consentInput.checked));
 	}
 
 	function paint() {
@@ -92,7 +97,22 @@ if (typeof window.amGoal !== 'function') {
 		}
 	}
 
+	function setSending(on) {
+		sending = on;
+		if (on) {
+			next.setAttribute('aria-busy', 'true');
+			next.textContent = 'Отправляем…';
+			back.disabled = true;
+		} else {
+			next.removeAttribute('aria-busy');
+			next.textContent = 'Получить прайс';
+			back.disabled = (s === 1);
+		}
+		syncNextState();
+	}
+
 	function finish() {
+		if (sending) return;
 		var name = nameInput ? nameInput.value.trim() : '';
 		var phone = phoneInput ? phoneInput.value.trim() : '';
 
@@ -117,18 +137,28 @@ if (typeof window.amGoal !== 'function') {
 		answers.city = cityInput ? cityInput.value.trim() : '';
 		answers.name = name;
 		answers.phone = phone;
-		body.style.display = 'none';
-		res.classList.add('on');
-		cap.textContent = 'Финал · диван собран';
-		bars.forEach(function (b) { b.classList.add('on'); });
-		window.amGoal('quiz_submit');
-		document.dispatchEvent(new CustomEvent('am:lead', {
-			detail: {
-				type: 'quiz',
-				fields: answers,
-				consent: { version: '2026-08-25' },
-			},
-		}));
+		var detail = {
+			type: 'quiz',
+			fields: answers,
+			consent: { version: '2026-08-25' },
+		};
+
+		setSending(true);
+		postLead(detail).then(function (stored) {
+			setSending(false);
+			if (!stored) {
+				// Entered answers stay in place; the visitor can call or retry.
+				if (errorEl) { showSendFailure(errorEl); }
+				restoreFocus(next);
+				return;
+			}
+			body.style.display = 'none';
+			res.classList.add('on');
+			cap.textContent = 'Финал · диван собран';
+			bars.forEach(function (b) { b.classList.add('on'); });
+			window.amGoal('quiz_submit');
+			document.dispatchEvent(new CustomEvent('am:lead', { detail: detail }));
+		});
 	}
 
 	document.querySelectorAll('.opt').forEach(function (o) {
