@@ -11,17 +11,21 @@ collections:
       collapse: open
       collection: conditions
       color: null
-      display_template: null
+      display_template: '{{name}}'
       group: null
       hidden: false
       icon: table_rows
       item_duplication_fields: null
-      note: 'Условия работы: строки таблицы'
+      note: Строки таблицы «Условия сотрудничества» на сайте
       preview_url: null
       singleton: false
       sort: null
       sort_field: sort
-      translations: null
+      translations:
+        - language: ru-RU
+          plural: Условия
+          singular: Условие
+          translation: Условия сотрудничества
       unarchive_value: null
       versioning: false
     schema:
@@ -37,39 +41,45 @@ collections:
       color: null
       display_template: null
       group: null
-      hidden: false
+      hidden: true
       icon: help
       item_duplication_fields: null
-      note: Частые вопросы
+      note: Сейчас на сайте не показываются
       preview_url: null
       singleton: false
       sort: null
       sort_field: sort
-      translations: null
+      translations:
+        - language: ru-RU
+          translation: Частые вопросы
       unarchive_value: null
       versioning: false
     schema:
       name: faq
   - collection: leads
     meta:
-      accountability: all
+      accountability: activity
       archive_app_filter: true
       archive_field: null
       archive_value: null
       collapse: open
       collection: leads
       color: null
-      display_template: null
+      display_template: '{{name}} · {{phone}}'
       group: null
       hidden: false
       icon: inbox
       item_duplication_fields: null
-      note: Заявки с сайта. Только чтение
+      note: Заявки с сайта. Только просмотр
       preview_url: null
       singleton: false
       sort: null
       sort_field: null
-      translations: null
+      translations:
+        - language: ru-RU
+          plural: Заявки
+          singular: Заявка
+          translation: Заявки
       unarchive_value: null
       versioning: false
     schema:
@@ -83,17 +93,21 @@ collections:
       collapse: open
       collection: models
       color: null
-      display_template: null
+      display_template: '{{title}}'
       group: null
       hidden: false
       icon: weekend
       item_duplication_fields: null
-      note: Модели в витрине «Популярные модели»
+      note: Фото и названия в карусели наверху и в «Популярных моделях»
       preview_url: null
       singleton: false
       sort: null
       sort_field: sort
-      translations: null
+      translations:
+        - language: ru-RU
+          plural: Модели
+          singular: Модель
+          translation: Модели
       unarchive_value: null
       versioning: false
     schema:
@@ -112,12 +126,14 @@ collections:
       hidden: false
       icon: settings
       item_duplication_fields: null
-      note: Контакты и общие надписи сайта
+      note: Телефон, почта и адрес внизу страницы сайта
       preview_url: null
       singleton: true
       sort: null
       sort_field: null
-      translations: null
+      translations:
+        - language: ru-RU
+          translation: Контакты
       unarchive_value: null
       versioning: false
     schema:
@@ -175,14 +191,16 @@ fields:
       group: null
       hidden: false
       interface: input
-      note: Название условия
+      note: Левая колонка таблицы
       options: null
       readonly: false
       required: true
       searchable: true
       sort: 2
       special: null
-      translations: null
+      translations:
+        - language: ru-RU
+          translation: Условие
       validation: null
       validation_message: null
       width: half
@@ -215,14 +233,16 @@ fields:
       group: null
       hidden: false
       interface: input-multiline
-      note: Значение
+      note: Правая колонка таблицы
       options: null
       readonly: false
       required: true
       searchable: true
       sort: 3
       special: null
-      translations: null
+      translations:
+        - language: ru-RU
+          translation: Текст
       validation: null
       validation_message: null
       width: full
@@ -262,7 +282,9 @@ fields:
       searchable: true
       sort: 4
       special: null
-      translations: null
+      translations:
+        - language: ru-RU
+          translation: Порядок
       validation: null
       validation_message: null
       width: full
@@ -342,7 +364,9 @@ fields:
       searchable: true
       sort: 2
       special: null
-      translations: null
+      translations:
+        - language: ru-RU
+          translation: Вопрос
       validation: null
       validation_message: null
       width: half
@@ -382,7 +406,9 @@ fields:
       searchable: true
       sort: 3
       special: null
-      translations: null
+      translations:
+        - language: ru-RU
+          translation: Ответ
       validation: null
       validation_message: null
       width: full
@@ -422,7 +448,9 @@ fields:
       searchable: true
       sort: 4
       special: null
-      translations: null
+      translations:
+        - language: ru-RU
+          translation: Порядок
       validation: null
       validation_message: null
       width: full
@@ -502,7 +530,9 @@ fields:
       searchable: true
       sort: 2
       special: null
-      translations: null
+      translations:
+        - language: ru-RU
+          translation: Когда пришла
       validation: null
       validation_message: null
       width: half
@@ -535,7 +565,7 @@ fields:
       group: null
       hidden: false
       interface: select-dropdown
-      note: 'Откуда пришла: quiz — из квиза, price — из формы прайса'
+      note: Форма прайса или квиз
       options:
         choices:
           - text: Квиз
@@ -547,7 +577,9 @@ fields:
       searchable: true
       sort: 3
       special: null
-      translations: null
+      translations:
+        - language: ru-RU
+          translation: Откуда
       validation: null
       validation_message: null
       width: half
@@ -587,7 +619,9 @@ fields:
       searchable: true
       sort: 4
       special: null
-      translations: null
+      translations:
+        - language: ru-RU
+          translation: Компания / ИНН
       validation: null
       validation_message: null
       width: half
@@ -627,7 +661,9 @@ fields:
       searchable: true
       sort: 5
       special: null
-      translations: null
+      translations:
+        - language: ru-RU
+          translation: Имя
       validation: null
       validation_message: null
       width: half
@@ -667,7 +703,9 @@ fields:
       searchable: true
       sort: 6
       special: null
-      translations: null
+      translations:
+        - language: ru-RU
+          translation: Телефон
       validation: null
       validation_message: null
       width: half
@@ -707,7 +745,9 @@ fields:
       searchable: true
       sort: 7
       special: null
-      translations: null
+      translations:
+        - language: ru-RU
+          translation: Город
       validation: null
       validation_message: null
       width: half
@@ -740,14 +780,16 @@ fields:
       group: null
       hidden: false
       interface: input
-      note: 'Что нужно: выбранный вариант'
+      note: 'Форма: выбранный вариант. Квиз: что продаёт'
       options: null
       readonly: true
       required: false
       searchable: true
       sort: 8
       special: null
-      translations: null
+      translations:
+        - language: ru-RU
+          translation: Что нужно
       validation: null
       validation_message: null
       width: half
@@ -780,14 +822,16 @@ fields:
       group: null
       hidden: false
       interface: input
-      note: 'Что нужно: уточнение текстом'
+      note: 'Форма: уточнение текстом. Квиз: масштаб'
       options: null
       readonly: true
       required: false
       searchable: true
       sort: 9
       special: null
-      translations: null
+      translations:
+        - language: ru-RU
+          translation: Уточнение
       validation: null
       validation_message: null
       width: half
@@ -820,14 +864,16 @@ fields:
       group: null
       hidden: false
       interface: input
-      note: Страница, с которой отправлена заявка
+      note: Адрес страницы, с которой отправлена заявка
       options: null
       readonly: true
       required: false
       searchable: true
       sort: 10
       special: null
-      translations: null
+      translations:
+        - language: ru-RU
+          translation: Страница
       validation: null
       validation_message: null
       width: half
@@ -868,7 +914,9 @@ fields:
       sort: 11
       special:
         - cast-json
-      translations: null
+      translations:
+        - language: ru-RU
+          translation: Рекламные метки
       validation: null
       validation_message: null
       width: full
@@ -901,14 +949,16 @@ fields:
       group: null
       hidden: false
       interface: input
-      note: Адрес отправителя. Нужен как доказательство согласия
+      note: Нужен как доказательство согласия
       options: null
       readonly: true
       required: false
       searchable: true
       sort: 12
       special: null
-      translations: null
+      translations:
+        - language: ru-RU
+          translation: IP-адрес
       validation: null
       validation_message: null
       width: half
@@ -941,14 +991,16 @@ fields:
       group: null
       hidden: false
       interface: input
-      note: Версия текста согласия, действовавшая в момент отправки
+      note: Какой текст согласия действовал при отправке
       options: null
       readonly: true
       required: false
       searchable: true
       sort: 13
       special: null
-      translations: null
+      translations:
+        - language: ru-RU
+          translation: Версия согласия
       validation: null
       validation_message: null
       width: half
@@ -988,7 +1040,9 @@ fields:
       searchable: true
       sort: 14
       special: null
-      translations: null
+      translations:
+        - language: ru-RU
+          translation: Когда дано согласие
       validation: null
       validation_message: null
       width: half
@@ -1035,7 +1089,9 @@ fields:
       searchable: true
       sort: 15
       special: null
-      translations: null
+      translations:
+        - language: ru-RU
+          translation: Письмо менеджеру
       validation: null
       validation_message: null
       width: half
@@ -1108,14 +1164,16 @@ fields:
       group: null
       hidden: false
       interface: input
-      note: Название модели
+      note: Подпись к фото на сайте
       options: null
       readonly: false
       required: true
       searchable: true
       sort: 2
       special: null
-      translations: null
+      translations:
+        - language: ru-RU
+          translation: Название
       validation: null
       validation_message: null
       width: half
@@ -1148,14 +1206,16 @@ fields:
       group: null
       hidden: false
       interface: input
-      note: Габариты, как показывать на карточке
+      note: Показывается под названием. Можно оставить пустым
       options: null
       readonly: false
       required: false
       searchable: true
       sort: 3
       special: null
-      translations: null
+      translations:
+        - language: ru-RU
+          translation: Габариты
       validation: null
       validation_message: null
       width: half
@@ -1186,16 +1246,18 @@ fields:
       display_options: null
       field: price_from
       group: null
-      hidden: false
+      hidden: true
       interface: input
-      note: Цена «от», рублей. Пусто — цена не показывается
+      note: На сайте цены сейчас не показываются
       options: null
       readonly: false
       required: false
       searchable: true
       sort: 4
       special: null
-      translations: null
+      translations:
+        - language: ru-RU
+          translation: Цена от
       validation: null
       validation_message: null
       width: half
@@ -1226,16 +1288,18 @@ fields:
       display_options: null
       field: price_to
       group: null
-      hidden: false
+      hidden: true
       interface: input
-      note: Цена «до», рублей. Пусто — показывается только «от»
+      note: На сайте цены сейчас не показываются
       options: null
       readonly: false
       required: false
       searchable: true
       sort: 5
       special: null
-      translations: null
+      translations:
+        - language: ru-RU
+          translation: Цена до
       validation: null
       validation_message: null
       width: half
@@ -1268,14 +1332,16 @@ fields:
       group: null
       hidden: false
       interface: boolean
-      note: Показывать на сайте
+      note: Снимите галочку, чтобы скрыть модель, не удаляя её
       options: null
       readonly: false
       required: false
       searchable: true
       sort: 6
       special: null
-      translations: null
+      translations:
+        - language: ru-RU
+          translation: Показывать на сайте
       validation: null
       validation_message: null
       width: half
@@ -1315,7 +1381,9 @@ fields:
       searchable: true
       sort: 7
       special: null
-      translations: null
+      translations:
+        - language: ru-RU
+          translation: Порядок
       validation: null
       validation_message: null
       width: full
@@ -1342,13 +1410,14 @@ fields:
     meta:
       collection: models
       conditions: null
-      display: null
-      display_options: null
+      display: image
+      display_options:
+        circle: false
       field: photo
       group: null
       hidden: false
       interface: file-image
-      note: Фото модели. Загружается прямо здесь
+      note: Без фото модель на сайт не попадает
       options: null
       readonly: false
       required: false
@@ -1356,7 +1425,9 @@ fields:
       sort: 8
       special:
         - file
-      translations: null
+      translations:
+        - language: ru-RU
+          translation: Фото
       validation: null
       validation_message: null
       width: full
@@ -1429,14 +1500,16 @@ fields:
       group: null
       hidden: false
       interface: input
-      note: Телефон в шапке и футере
+      note: В меню на телефоне и внизу страницы
       options: null
       readonly: false
       required: true
       searchable: true
       sort: 2
       special: null
-      translations: null
+      translations:
+        - language: ru-RU
+          translation: Телефон
       validation: null
       validation_message: null
       width: half
@@ -1469,14 +1542,16 @@ fields:
       group: null
       hidden: false
       interface: input
-      note: Почта для заявок
+      note: Внизу страницы
       options: null
       readonly: false
       required: true
       searchable: true
       sort: 3
       special: null
-      translations: null
+      translations:
+        - language: ru-RU
+          translation: Почта
       validation: null
       validation_message: null
       width: half
@@ -1509,14 +1584,16 @@ fields:
       group: null
       hidden: false
       interface: input
-      note: Адрес производства
+      note: Внизу страницы
       options: null
       readonly: false
       required: true
       searchable: true
       sort: 4
       special: null
-      translations: null
+      translations:
+        - language: ru-RU
+          translation: Адрес производства
       validation: null
       validation_message: null
       width: half
@@ -1547,16 +1624,18 @@ fields:
       display_options: null
       field: price_note
       group: null
-      hidden: false
+      hidden: true
       interface: input-multiline
-      note: Приписка про прайс рядом с формой
+      note: На сайте сейчас не выводится
       options: null
       readonly: false
       required: false
       searchable: true
       sort: 5
       special: null
-      translations: null
+      translations:
+        - language: ru-RU
+          translation: Приписка про прайс
       validation: null
       validation_message: null
       width: full

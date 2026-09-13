@@ -188,6 +188,10 @@ def main():
     # как поле сортировки, и Directus отвечал 403 на любой список заявок —
     # даже администратору. Сброс чинит уже созданную коллекцию.
     call("PATCH", "/collections/leads", {"meta": {"sort_field": None}})
+    # У заявок журналируются только действия, без снимков записи: иначе после
+    # удаления заявки её полная копия осталась бы в directus_revisions, а
+    # персональные данные должны уничтожаться целиком (приказ РКН № 179).
+    call("PATCH", "/collections/leads", {"meta": {"accountability": "activity"}})
     make_field(
         "leads",
         "created_at",
