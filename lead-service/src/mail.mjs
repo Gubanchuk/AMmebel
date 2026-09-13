@@ -106,7 +106,7 @@ export function formatLeadEmail(lead) {
 		rows.push(
 			['Откуда', 'квиз на первом экране'],
 			['Имя', lead.name],
-			['Телефон или мессенджер', lead.phone],
+			['Телефон', lead.phone],
 			['Город', lead.city],
 			['Что продаёт', lead.need],
 			['Масштаб', lead.need_extra],

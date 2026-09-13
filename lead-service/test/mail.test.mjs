@@ -215,7 +215,7 @@ test('manager e-mail: subject without personal data, all fields in the text', ()
 
 	const quiz = formatLeadEmail(QUIZ_LEAD);
 	assert.equal(quiz.subject, 'Заявка №2 с сайта am-fabrika.ru (квиз)');
-	assert.match(quiz.text, /^Телефон или мессенджер: 89180000001$/m);
+	assert.match(quiz.text, /^Телефон: 89180000001$/m);
 	assert.match(quiz.text, /^Город: —$/m);
 	assert.match(quiz.text, /^Что продаёт: Мебель в своём салоне или шоуруме$/m);
 	assert.match(quiz.text, /^Масштаб: От двух до пяти$/m);
