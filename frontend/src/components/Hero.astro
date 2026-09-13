@@ -16,7 +16,7 @@
 // 10.09: slide 5 got its name from the client — «Di Marco».
 // Carousel behavior lives in ../scripts/hero.js.
 import Quiz from './Quiz.astro';
-import type { Model, Settings } from '../lib/content';
+import { srcsetFor, type Model, type Settings } from '../lib/content';
 
 interface Props {
 	settings: Settings;
@@ -30,24 +30,29 @@ const slides = heroIds
 	.map((id) => bySort.get(id))
 	.filter((m): m is Model => Boolean(m && m.visible));
 const pad = (n: number) => (n < 10 ? `0${n}` : String(n));
+// Rendered width of the square frame (see the grid below): full column minus
+// the page padding up to 860px, then about 44% of the viewport, capped by the
+// 1080px .wrap.
+const SLIDE_SIZES = '(max-width: 860px) 90vw, (max-width: 1080px) 45vw, 476px';
 ---
 <section class="demo">
 	<div class="wrap">
 		<div class="demo__main">
 			<div class="hc" id="heroCar" aria-roledescription="карусель" aria-label="Модели фабрики">
 				<div class="hc__frame" id="heroFrame">
-					{slides.map((m, i) => (
-						<figure class:list={['hc__slide', { on: i === 0 }]} aria-hidden={i === 0 ? 'false' : 'true'}>
-							<img
-								src={m.photo}
-								alt={m.title}
-								width="960"
-								height="960"
-								loading={i === 0 ? 'eager' : 'lazy'}
-								fetchpriority={i === 0 ? 'high' : 'auto'}
-							/>
-						</figure>
-					))}
+					{slides.map((m, i) => {
+						const srcset = srcsetFor(m.photo, m.photoSrcset);
+						const sizes = srcset && SLIDE_SIZES;
+						return (
+							<figure class:list={['hc__slide', { on: i === 0 }]} aria-hidden={i === 0 ? 'false' : 'true'}>
+								{i === 0 ? (
+									<img src={m.photo} srcset={srcset} sizes={sizes} alt={m.title} width="960" height="960" loading="eager" fetchpriority="high" />
+								) : (
+									<img data-src={m.photo} data-srcset={srcset} sizes={sizes} alt={m.title} width="960" height="960" decoding="async" />
+								)}
+							</figure>
+						);
+					})}
 					<h1 class="hc__title">Мягкая мебель, на&nbsp;которой зарабатывают</h1>
 				</div>
 				<div class="hc__bar">
@@ -85,6 +90,65 @@ const pad = (n: number) => (n < 10 ? `0${n}` : String(n));
 
 <script>
 	import '../scripts/hero.js';
+
+	// Deferred photos of the hero carousel and of the quiz scene (Quiz.astro).
+	// Slides stacked behind the visible one sit inside the viewport at opacity
+	// 0, so loading="lazy" does not hold them back: until 13.09 all five hero
+	// photos and all four quiz photos downloaded with the first screen and
+	// competed with the one on show. Now only the first of each has a src; the
+	// rest carry data-src/data-srcset and are requested here one step ahead of
+	// the slide that needs them.
+	(function () {
+		function promote(img) {
+			if (!img || !img.dataset.src) return;
+			if (img.dataset.srcset) img.srcset = img.dataset.srcset;
+			img.src = img.dataset.src;
+			img.removeAttribute('data-srcset');
+			img.removeAttribute('data-src');
+		}
+
+		// Hero: after page load the next slide, then always the one after the
+		// current; the first touch of the carousel loads the rest, because the
+		// arrows and swipes can go either way.
+		var car = document.getElementById('heroCar');
+		var frame = document.getElementById('heroFrame');
+		if (car && frame) {
+			var slides = Array.prototype.slice.call(frame.querySelectorAll('.hc__slide'));
+			var imgs = slides.map(function (s) { return s.querySelector('img'); });
+			var ahead = function () {
+				for (var i = 0; i < slides.length; i++) {
+					if (slides[i].classList.contains('on')) { promote(imgs[(i + 1) % imgs.length]); return; }
+				}
+			};
+			var all = function () { imgs.forEach(promote); };
+			if (document.readyState === 'complete') ahead();
+			else window.addEventListener('load', ahead, { once: true });
+			new MutationObserver(ahead).observe(frame, { subtree: true, attributes: true, attributeFilter: ['class'] });
+			['pointerover', 'pointerdown', 'focusin', 'keydown'].forEach(function (type) {
+				car.addEventListener(type, all, { once: true });
+			});
+		}
+
+		// Quiz: the next step's photo once the scene is on screen, then one step
+		// ahead of data-lit, which quiz.js sets on every step change.
+		var scene = document.getElementById('qzScene');
+		if (scene) {
+			var steps = Array.prototype.slice.call(scene.querySelectorAll('img'));
+			var next = function () { promote(steps[Number(scene.getAttribute('data-lit')) || 1]); };
+			new MutationObserver(next).observe(scene, { attributes: true, attributeFilter: ['data-lit'] });
+			if ('IntersectionObserver' in window) {
+				var seen = new IntersectionObserver(function (entries) {
+					if (entries.some(function (e) { return e.isIntersecting; })) {
+						seen.disconnect();
+						next();
+					}
+				});
+				seen.observe(scene);
+			} else {
+				next();
+			}
+		}
+	})();
 </script>
 
 <style>
@@ -105,6 +169,8 @@ const pad = (n: number) => (n < 10 ? `0${n}` : String(n));
 	.hc__slide { position: absolute; inset: 0; margin: 0; opacity: 0; transition: opacity var(--t) ease; }
 	.hc__slide.on { opacity: 1; }
 	.hc__slide img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 55%; display: block; }
+	/* a deferred slide not requested yet would render its alt text */
+	.hc__slide img:not([src]) { visibility: hidden; }
 	.hc__frame:after {
 		content: '';
 		position: absolute;

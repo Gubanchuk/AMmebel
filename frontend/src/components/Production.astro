@@ -11,6 +11,10 @@
 // the Showcase lightbox (../scripts/lightbox.js binds every
 // [data-lightbox-open] on the page). The strip does not loop: it is a
 // sequence, not a catalogue.
+import { srcsetFor } from '../lib/content';
+
+// Rendered stage width per the .stage flex-basis rules below.
+const STAGE_SIZES = '(max-width: 620px) 56vw, (max-width: 860px) 30vw, (max-width: 1080px) 23vw, 232px';
 const facts = [
 	{ label: 'Мощность', value: 'Более 50 изделий в месяц — каждое по индивидуальным размерам клиента' },
 	{
@@ -57,7 +61,16 @@ const pad = (n: number) => (n < 10 ? `0${n}` : String(n));
 			{stages.map((s, i) => (
 				<figure class="stage">
 					<button class="stage__photo" type="button" data-lightbox-open aria-label={`Открыть фото: ${s.label}`}>
-						<img src={s.photo} alt={s.alt} loading="lazy" width="720" height="960" />
+						<img
+							src={s.photo}
+							srcset={srcsetFor(s.photo)}
+							sizes={srcsetFor(s.photo) && STAGE_SIZES}
+							alt={s.alt}
+							loading="lazy"
+							decoding="async"
+							width="720"
+							height="960"
+						/>
 					</button>
 					<figcaption class="stage__cap"><span class="stage__num">{pad(i + 1)}</span>{s.label}</figcaption>
 				</figure>

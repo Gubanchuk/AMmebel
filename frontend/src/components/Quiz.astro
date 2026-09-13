@@ -25,15 +25,32 @@
 // is driven by data-lit="1".."4" on .qz__scene, set by quiz.js's paint() —
 // same attribute/mechanism as the two earlier scenes, only the CSS the
 // attribute drives has changed. Behavior lives in ../scripts/quiz.js.
+//
+// Photos: only step 1 has a src; steps 2–4 carry data-src/data-srcset and
+// are requested one step ahead by the script in Hero.astro (13.09, load
+// speed). Keep the four imgs as direct children of the scene — the CSS
+// picks the lit one by nth-child.
+import { srcsetFor } from '../lib/content';
+
+// scene width: the quiz column (or the full column up to 860px) minus the
+// stage padding and borders
+const SCENE_SIZES = '(max-width: 860px) calc(90vw - 42px), (max-width: 1080px) calc(42vw - 42px), 410px';
+const scene = [
+	{ photo: '/ceh/karkasy.webp', alt: 'Собранные каркасы дивана с эластичными ремнями' },
+	{ photo: '/ceh/pena.webp', alt: 'Формовка пеной — заготовка будущего дивана' },
+	{ photo: '/ceh/poshiv.webp', alt: 'Пошив обивки на промышленных машинах' },
+	{ photo: '/ceh/gotovo.webp', alt: 'Готовый модульный диван в фотозоне фабрики' },
+].map((s) => ({ ...s, srcset: srcsetFor(s.photo) }));
 ---
 
 <div class="qz" id="qz">
 	<div class="qz__stage">
 		<div class="qz__scene" id="qzScene" data-lit="1">
-			<img src="/ceh/karkasy.webp" alt="Собранные каркасы дивана с эластичными ремнями" loading="eager" fetchpriority="high" width="720" height="960" />
-			<img src="/ceh/pena.webp" alt="Формовка пеной — заготовка будущего дивана" loading="lazy" width="720" height="960" />
-			<img src="/ceh/poshiv.webp" alt="Пошив обивки на промышленных машинах" loading="lazy" width="720" height="960" />
-			<img src="/ceh/gotovo.webp" alt="Готовый модульный диван в фотозоне фабрики" loading="lazy" width="720" height="960" />
+			{scene.map((s, i) => i === 0 ? (
+				<img src={s.photo} srcset={s.srcset} sizes={s.srcset && SCENE_SIZES} alt={s.alt} loading="lazy" decoding="async" width="720" height="960" />
+			) : (
+				<img data-src={s.photo} data-srcset={s.srcset} sizes={s.srcset && SCENE_SIZES} alt={s.alt} decoding="async" width="720" height="960" />
+			))}
 		</div>
 		<p class="qz__cap" id="qcap" aria-live="polite">Шаг 1 из 4 · каркас</p>
 	</div>

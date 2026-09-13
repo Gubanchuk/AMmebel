@@ -8,6 +8,7 @@
 // Field names follow the fallback's camelCase shape; the fetch script maps
 // Directus snake_case onto it (Ruling R4).
 import fallback from '../../../content-fallback.json';
+import localVariants from '../../scripts/image-variants.json';
 
 export interface Settings {
 	phone: string;
@@ -28,6 +29,8 @@ export interface Model {
 	priceFrom: number | null;
 	priceTo: number | null;
 	photo: string;
+	/** Smaller copies of a Directus photo, written by fetch-content.mjs. */
+	photoSrcset?: string;
 	visible: boolean;
 	sort: number;
 }
@@ -54,4 +57,14 @@ const generated = Object.values(
 
 export function getContent(): Content {
 	return generated ?? (fallback as Content);
+}
+
+// srcset for a photo. Directus photos bring their own (Model.photoSrcset);
+// photos kept in public/ (workshop, fallback models) are listed in
+// scripts/image-variants.json by scripts/make-image-variants.mjs. A photo
+// with no smaller copies gets undefined, and its <img> falls back to src.
+const variants: Record<string, string> = localVariants;
+
+export function srcsetFor(photo: string, own?: string): string | undefined {
+	return own ?? variants[photo];
 }

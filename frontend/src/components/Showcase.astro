@@ -18,7 +18,7 @@
 // and out of the tab order. Prices stay in the data shape (Directus, task 9)
 // and are not rendered. Photos open in the fullscreen lightbox
 // (../scripts/lightbox.js reads the clicked card's own img).
-import type { Model, Settings } from '../lib/content';
+import { srcsetFor, type Model, type Settings } from '../lib/content';
 
 interface Props {
 	settings: Settings;
@@ -32,6 +32,8 @@ const models = allModels
 	.sort((a, b) => a.sort - b.sort)
 	.slice(0, 6);
 const CLONES = models.length > 3 ? 3 : 0;
+// Rendered card width per the .model flex-basis rules below.
+const CARD_SIZES = '(max-width: 620px) 67vw, (max-width: 860px) 45vw, (max-width: 1080px) 30vw, 312px';
 const track = [
 	...models.slice(models.length - CLONES).map((m) => ({ m, clone: true })),
 	...models.map((m) => ({ m, clone: false })),
@@ -65,7 +67,16 @@ const track = [
 						tabindex={clone ? -1 : undefined}
 						aria-label={`Открыть фото: ${m.title}`}
 					>
-						<img src={m.photo} alt={m.title} loading="lazy" width="640" height="800" />
+						<img
+							src={m.photo}
+							srcset={srcsetFor(m.photo, m.photoSrcset)}
+							sizes={srcsetFor(m.photo, m.photoSrcset) && CARD_SIZES}
+							alt={m.title}
+							loading="lazy"
+							decoding="async"
+							width="640"
+							height="800"
+						/>
 					</button>
 					<div class="model__body">
 						<h3 class="model__title">{m.title}</h3>
@@ -96,6 +107,29 @@ const track = [
 </script>
 <script>
 	import '../scripts/lightbox.js';
+
+	// lightbox.js opens with the clicked card's currentSrc, which since srcset
+	// is a copy sized for the card and looks soft fullscreen. Once the
+	// full-size photo (the card img's src) is decoded, swap it in; until then
+	// the card copy, already in cache, stays on screen. Runs after
+	// lightbox.js's own click handler, which is bound first by the import.
+	(function () {
+		var overlay = document.getElementById('lightbox');
+		var big = document.getElementById('lightboxImg');
+		if (!overlay || !big) return;
+		document.querySelectorAll('[data-lightbox-open]').forEach(function (btn) {
+			btn.addEventListener('click', function () {
+				var pic = btn.querySelector('img');
+				if (!pic || !pic.srcset || pic.src === big.src) return;
+				var shown = big.src;
+				var full = new Image();
+				full.src = pic.src;
+				full.decode().then(function () {
+					if (!overlay.hidden && big.src === shown) big.src = full.src;
+				}, function () {});
+			});
+		});
+	})();
 
 	// Looping snap track. Arrow buttons scroll by one card; on touch widths
 	// the buttons are hidden and the track is swiped natively. Whenever a

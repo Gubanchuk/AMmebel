@@ -1,0 +1,22 @@
+{
+	"/ceh/brus.webp": "/ceh/brus-480.webp 480w, /ceh/brus-800.webp 800w, /ceh/brus.webp 960w",
+	"/ceh/gotovo.webp": "/ceh/gotovo-480.webp 480w, /ceh/gotovo-800.webp 800w, /ceh/gotovo.webp 963w",
+	"/ceh/karkasy.webp": "/ceh/karkasy-480.webp 480w, /ceh/karkasy-800.webp 800w, /ceh/karkasy.webp 960w",
+	"/ceh/pena.webp": "/ceh/pena-480.webp 480w, /ceh/pena-800.webp 800w, /ceh/pena.webp 960w",
+	"/ceh/poshiv.webp": "/ceh/poshiv-480.webp 480w, /ceh/poshiv-800.webp 800w, /ceh/poshiv.webp 960w",
+	"/ceh/raskroy.webp": "/ceh/raskroy-480.webp 480w, /ceh/raskroy-800.webp 800w, /ceh/raskroy.webp 963w",
+	"/ceh/raspil.webp": "/ceh/raspil-480.webp 480w, /ceh/raspil-800.webp 800w, /ceh/raspil.webp 960w",
+	"/ceh/sborka.webp": "/ceh/sborka-480.webp 480w, /ceh/sborka-800.webp 800w, /ceh/sborka.webp 960w",
+	"/ceh/upakovka.webp": "/ceh/upakovka-480.webp 480w, /ceh/upakovka-800.webp 800w, /ceh/upakovka.webp 960w",
+	"/models/hero-01.webp": "/models/hero-01-480.webp 480w, /models/hero-01-800.webp 800w, /models/hero-01-1024.webp 1024w, /models/hero-01.webp 1280w",
+	"/models/hero-02.webp": "/models/hero-02-480.webp 480w, /models/hero-02-800.webp 800w, /models/hero-02-1024.webp 1024w, /models/hero-02.webp 1280w",
+	"/models/hero-03.webp": "/models/hero-03-480.webp 480w, /models/hero-03-800.webp 800w, /models/hero-03.webp 949w",
+	"/models/hero-04.webp": "/models/hero-04-480.webp 480w, /models/hero-04-800.webp 800w, /models/hero-04.webp 963w",
+	"/models/hero-05.webp": "/models/hero-05-480.webp 480w, /models/hero-05-800.webp 800w, /models/hero-05.webp 963w",
+	"/models/pop-01.webp": "/models/pop-01-480.webp 480w, /models/pop-01-800.webp 800w, /models/pop-01.webp 963w",
+	"/models/pop-02.webp": "/models/pop-02-480.webp 480w, /models/pop-02-800.webp 800w, /models/pop-02.webp 1007w",
+	"/models/pop-03.webp": "/models/pop-03-480.webp 480w, /models/pop-03-800.webp 800w, /models/pop-03.webp 963w",
+	"/models/pop-04.webp": "/models/pop-04-480.webp 480w, /models/pop-04.webp 886w",
+	"/models/pop-05.webp": "/models/pop-05-480.webp 480w, /models/pop-05-800.webp 800w, /models/pop-05.webp 963w",
+	"/models/pop-06.webp": "/models/pop-06-480.webp 480w, /models/pop-06-800.webp 800w, /models/pop-06.webp 1008w"
+}

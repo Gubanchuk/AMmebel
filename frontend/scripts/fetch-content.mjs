@@ -27,9 +27,14 @@ const FALLBACK = path.join(root, '../content-fallback.json');
 const REQUEST_TIMEOUT_MS = 5000;
 const PHOTO_TIMEOUT_MS = 30000;
 // Directus resizes and re-encodes on its side, so a phone JPEG uploaded in the
-// admin panel still lands on the site as a web-sized WebP. 1600px covers the
-// fullscreen lightbox; smaller originals are not upscaled.
-const PHOTO_TRANSFORM = 'format=webp&quality=80&width=1600&withoutEnlargement=true';
+// admin panel still lands on the site as a web-sized WebP. The 1600px copy
+// (smaller originals are not upscaled) is the <img src> and what the
+// fullscreen lightbox shows. Narrower copies go into srcset, so a phone
+// downloads a photo sized for its card, not the full file. Widths within 10%
+// of the full copy are skipped: they would save almost nothing.
+const PHOTO_TRANSFORM = 'format=webp&quality=80&withoutEnlargement=true';
+const FULL_WIDTH = 1600;
+const VARIANT_WIDTHS = [480, 800, 1024];
 
 const baseUrl = (process.env.DIRECTUS_URL || '').replace(/\/+$/, '');
 const token = process.env.DIRECTUS_TOKEN || '';
@@ -48,16 +53,35 @@ async function api(pathAndQuery) {
 	return (await r.json()).data;
 }
 
+const photoStats = { files: 0, bytes: 0 };
+
+async function downloadCopy(file, width, name) {
+	const r = await request(`/assets/${file.id}?${PHOTO_TRANSFORM}&width=${width}`, PHOTO_TIMEOUT_MS);
+	if (!r.ok) throw new Error(`photo ${file.id} (${width}px) -> HTTP ${r.status}`);
+	const body = Buffer.from(await r.arrayBuffer());
+	await writeFile(path.join(PHOTO_DIR, name), body);
+	photoStats.files++;
+	photoStats.bytes += body.length;
+}
+
 // File name carries the file's last change time: replacing a photo in the
 // admin panel keeps its id, and a new name keeps browsers from showing the
-// cached old image.
+// cached old image. Without a known width (Directus did not read the image)
+// the photo gets the full copy only and no srcset.
 async function downloadPhoto(file) {
 	const changed = Date.parse(file.modified_on || file.uploaded_on) || 0;
-	const name = `${file.id}-${changed.toString(36)}.webp`;
-	const r = await request(`/assets/${file.id}?${PHOTO_TRANSFORM}`, PHOTO_TIMEOUT_MS);
-	if (!r.ok) throw new Error(`photo ${file.id} -> HTTP ${r.status}`);
-	await writeFile(path.join(PHOTO_DIR, name), Buffer.from(await r.arrayBuffer()));
-	return `/cms/${name}`;
+	const base = `${file.id}-${changed.toString(36)}`;
+	const full = file.width ? Math.min(file.width, FULL_WIDTH) : 0;
+	const widths = VARIANT_WIDTHS.filter((w) => w < full * 0.9);
+	await Promise.all([
+		downloadCopy(file, FULL_WIDTH, `${base}.webp`),
+		...widths.map((w) => downloadCopy(file, w, `${base}-${w}.webp`)),
+	]);
+	const photo = `/cms/${base}.webp`;
+	const photoSrcset = full
+		? [...widths.map((w) => `/cms/${base}-${w}.webp ${w}w`), `${photo} ${full}w`].join(', ')
+		: undefined;
+	return { photo, photoSrcset };
 }
 
 async function fromDirectus() {
@@ -65,7 +89,7 @@ async function fromDirectus() {
 		api('/items/settings?fields=phone,email,address,price_note'),
 		api('/items/conditions?fields=name,value,sort&sort=sort&limit=-1'),
 		api(
-			'/items/models?fields=title,size,price_from,price_to,visible,sort,photo.id,photo.modified_on,photo.uploaded_on' +
+			'/items/models?fields=title,size,price_from,price_to,visible,sort,photo.id,photo.modified_on,photo.uploaded_on,photo.width' +
 				'&filter[visible][_eq]=true&sort=sort&limit=-1',
 		),
 		api('/items/faq?fields=q,a,sort&sort=sort&limit=-1'),
@@ -87,12 +111,14 @@ async function fromDirectus() {
 			console.warn(`[content] model "${m.title}" (sort ${m.sort}) has no photo, skipped`);
 			continue;
 		}
+		const { photo, photoSrcset } = await downloadPhoto(m.photo);
 		mapped.push({
 			title: m.title,
 			size: m.size || '',
 			priceFrom: m.price_from ?? null,
 			priceTo: m.price_to ?? null,
-			photo: await downloadPhoto(m.photo),
+			photo,
+			photoSrcset,
 			visible: true,
 			sort: m.sort,
 		});
@@ -144,7 +170,8 @@ if (!baseUrl || !token) {
 		await writeFile(OUT_JSON, `${JSON.stringify(content, null, '\t')}\n`);
 		console.log(
 			`[content] from Directus: ${content.conditions.length} conditions, ` +
-				`${content.models.length} models, ${content.faq.length} faq`,
+				`${content.models.length} models, ${content.faq.length} faq; ` +
+				`${photoStats.files} photo files, ${Math.round(photoStats.bytes / 1024)} KB`,
 		);
 	} catch (error) {
 		await clean();
