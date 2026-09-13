@@ -18,6 +18,8 @@
 // and out of the tab order. Prices stay in the data shape (Directus, task 9)
 // and are not rendered. Photos open in the fullscreen lightbox
 // (../scripts/lightbox.js reads the clicked card's own img).
+// The inline parking script below is allowed by a hash in astro.config.mjs
+// (security.csp): any change to its text needs a new hash there.
 import { srcsetFor, type Model, type Settings } from '../lib/content';
 
 interface Props {
@@ -93,13 +95,17 @@ const track = [
 	</div>
 </section>
 
-<script define:vars={{ clones: CLONES }}>
+<script is:inline>
 	// Park the track on the first real card before first paint so the clones
 	// at the head are never seen on load (the module script below does the
-	// same again once it runs — this only covers the gap until then).
+	// same again once it runs — this only covers the gap until then). The
+	// clone count comes from data-clones rather than define:vars: a static
+	// script gets a Content-Security-Policy hash at build time, one with
+	// injected variables does not.
 	(function () {
 		var track = document.getElementById('modelsTrack');
 		var card = track && track.querySelector('.model');
+		var clones = track ? Number(track.dataset.clones) || 0 : 0;
 		if (!card || !clones) return;
 		var gap = parseFloat(getComputedStyle(track).columnGap) || 0;
 		track.scrollLeft = clones * (card.getBoundingClientRect().width + gap);
