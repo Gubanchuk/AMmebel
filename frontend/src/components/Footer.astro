@@ -6,7 +6,8 @@
 // feedback of 31.08). Factual address is settings.address (production) —
 // since 09.09 Волгоградская 121/1, set by the client (it matches the
 // company card), replacing the planned Сливовая one. The registration
-// address is legal.address. /politika and /soglasie: task 7.
+// address is legal.address. Document links and their labels follow
+// clients/sf-sofa/legal/07-teksty-dlya-sajta.md §3.
 import type { Settings } from '../lib/content';
 
 interface Props {
@@ -47,6 +48,7 @@ const year = new Date().getFullYear();
 				<p class="lbl">Документы</p>
 				<p><a class="ray" href="/politika"><i></i>Политика персональных данных</a></p>
 				<p><a class="ray" href="/soglasie"><i></i>Согласие на обработку данных</a></p>
+				<p><a class="ray" href="/soglasie-cookie"><i></i>Согласие на cookie</a></p>
 			</div>
 		</div>
 		<p class="foot__legal">АВТОРСКАЯ МЕБЕЛЬ · ОПТ-САЙТ · {year}</p>
@@ -70,6 +72,10 @@ const year = new Date().getFullYear();
 	.foot__grid .ray { font-size: 13px; margin-top: 8px; }
 	.foot__grid .ray { align-items: flex-start; } /* two-line document links: keep the line on the first line */
 	.foot__grid .ray i { margin-top: .75em; }
+	/* four-column layout: the line is a shrinkable flex item, so labels of different
+	   length squeezed it by different amounts and the three lines sat at different x.
+	   A fixed, shorter line keeps them aligned and each label within two lines. */
+	@media (min-width: 991px) { .foot__grid .ray i { flex: 0 0 48px; width: 48px; } }
 	.foot__legal { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; color: var(--grey-dim); margin: 0; }
 
 	@media (prefers-reduced-motion: reduce) {

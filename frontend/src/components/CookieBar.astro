@@ -1,18 +1,21 @@
 ---
 // CookieBar (page block 11, mounted site-wide — index + legal pages). Behavior
 // and the window.amConsent API live in ../scripts/consent.js. Hidden by default
-// in markup to avoid a flash before JS decides; consent.js un-hides it only if
-// no prior choice is stored.
+// in markup to avoid a flash before JS decides; consent.js un-hides it when no
+// choice is stored, when the stored choice was made under a different consent
+// version (../scripts/consent-version.js), or when it is older than 365 days.
+// Text and button labels: clients/sf-sofa/legal/07-teksty-dlya-sajta.md §2 —
+// "Разрешить" names what the visitor agrees to.
 ---
 
 <div class="cookie" id="cookieBar" hidden>
 	<div class="wrap cookie__row">
 		<p class="cookie__text">
-			Используем cookie для аналитики — подробнее в <a href="/politika">политике</a>.
+			Разрешить cookie Яндекс Метрики для статистики сайта? <a href="/soglasie-cookie">Подробнее</a>
 		</p>
 		<div class="cookie__actions">
 			<button class="ghost" type="button" id="cookieDecline">Отклонить</button>
-			<button class="cta" type="button" id="cookieAccept">Принять</button>
+			<button class="cta" type="button" id="cookieAccept">Разрешить</button>
 		</div>
 	</div>
 </div>
