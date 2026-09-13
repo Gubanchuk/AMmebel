@@ -5,9 +5,11 @@
 //
 // Order of checks on POST /api/lead: intake switched off (503, the body is not
 // even read) -> rate limit (429) -> content type (415) -> body size (413) ->
-// JSON (400) -> honeypot (422) -> consent (422) -> fields (400) -> INSERT.
+// JSON (400) -> honeypot (422) -> consent (422) -> published consent version
+// (422) -> fields (400) -> INSERT.
 
 import http from 'node:http';
+import { CONSENT_VERSIONS } from './consent-versions.mjs';
 import { log as defaultLog } from './log.mjs';
 import { createRateLimiter } from './rate-limit.mjs';
 import { consentVersion, isHoneypotFilled, isObject, validateLead } from './validate.mjs';
@@ -72,6 +74,7 @@ export function createHandler({
 	repo,
 	onStored = () => {},
 	rateLimiter = createRateLimiter({ limit: 5, windowMs: 10 * 60 * 1000 }),
+	consentVersions = CONSENT_VERSIONS,
 	log = defaultLog,
 }) {
 	return async function handle(req, res) {
@@ -136,6 +139,12 @@ export function createHandler({
 		if (!version) {
 			log('lead rejected: no consent');
 			return send(res, 422, { error: 'consent_required' });
+		}
+		// Only a published version: the stored consent_version must lead back to
+		// the exact text the visitor agreed to.
+		if (!consentVersions.includes(version)) {
+			log('lead rejected: unknown consent version');
+			return send(res, 422, { error: 'consent_version_unknown' });
 		}
 
 		const result = validateLead(body);

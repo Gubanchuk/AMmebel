@@ -24,7 +24,7 @@ test('valid price lead is stored with ip and consent version, 201 {id}', async (
 		source_page: '/',
 		utm: { utm_source: 'yandex', utm_campaign: 'opt' },
 		ip: '203.0.113.7',
-		consent_version: '2026-08-25',
+		consent_version: '2026-09-13',
 		email_status: 'queued',
 	});
 	assert.deepEqual(app.stored, [1]);

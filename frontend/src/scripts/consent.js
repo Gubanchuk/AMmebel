@@ -1,17 +1,35 @@
 // Cookie consent (page block 11, site-wide via CookieBar). Exposes
 // window.amConsent.analyticsAllowed() for the Metrika loader (task 15) and
 // dispatches am:consent-analytics when the visitor accepts. Choice persists in
-// localStorage.amConsent; every localStorage call is guarded so a disabled or
-// unavailable storage (private mode, browser setting) never throws.
+// localStorage.amConsent as {analytics, v, ts}; every localStorage call is
+// guarded so a disabled or unavailable storage (private mode, browser setting)
+// never throws.
+//
+// A stored choice counts only while it was made for the current consent text
+// version and is under a year old: cookie consent lasts one year
+// (clients/sf-sofa/legal/07-teksty-dlya-sajta.md, section 5). Otherwise — no
+// record, a record from before versioning, another version, an expired or
+// unreadable ts — the bar is shown again and analytics stays off until the
+// visitor answers anew.
+
+import { CONSENT_VERSION } from './consent-version.js';
 
 var CONSENT_KEY = 'amConsent';
+var CONSENT_MAX_AGE_MS = 365 * 24 * 60 * 60 * 1000;
+// A ts further ahead of the device clock than this is not trusted: after the
+// clock is corrected it would keep an old choice alive for years.
+var CLOCK_SKEW_MS = 24 * 60 * 60 * 1000;
 
 function readConsent() {
 	try {
 		var raw = window.localStorage.getItem(CONSENT_KEY);
 		if (!raw) return null;
 		var parsed = JSON.parse(raw);
-		return parsed && typeof parsed.analytics === 'boolean' ? parsed : null;
+		if (!parsed || typeof parsed.analytics !== 'boolean') return null;
+		if (parsed.v !== CONSENT_VERSION) return null;
+		var age = Date.now() - Date.parse(parsed.ts);
+		if (!(age <= CONSENT_MAX_AGE_MS && age >= -CLOCK_SKEW_MS)) return null;
+		return parsed;
 	} catch (e) {
 		return null;
 	}
@@ -21,7 +39,7 @@ function writeConsent(analytics) {
 	try {
 		window.localStorage.setItem(
 			CONSENT_KEY,
-			JSON.stringify({ analytics: analytics, ts: new Date().toISOString() })
+			JSON.stringify({ analytics: analytics, v: CONSENT_VERSION, ts: new Date().toISOString() })
 		);
 	} catch (e) {
 		// Storage unavailable — consent stays session-only, bar will reappear next visit.

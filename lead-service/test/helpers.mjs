@@ -67,7 +67,7 @@ export function priceLead(overrides = {}) {
 	return {
 		type: 'price',
 		fields: priceFields(),
-		consent: { version: '2026-08-25' },
+		consent: { version: '2026-09-13' },
 		source_page: '/',
 		...overrides,
 	};
@@ -83,7 +83,7 @@ export function quizLead(overrides = {}) {
 			name: 'Мария',
 			phone: '89180000001',
 		},
-		consent: { version: '2026-08-25' },
+		consent: { version: '2026-09-13' },
 		source_page: '/',
 		...overrides,
 	};

@@ -54,7 +54,7 @@ test('lead is stored in PostgreSQL and passes through the outbox queries', { ski
 				rows: [stored],
 			} = await pool.query('SELECT ip, consent_version, consent_at, created_at, email_status FROM leads WHERE id = $1', [id]);
 			assert.equal(stored.ip, '192.0.2.10');
-			assert.equal(stored.consent_version, '2026-08-25');
+			assert.equal(stored.consent_version, '2026-09-13');
 			assert.ok(stored.consent_at instanceof Date);
 			assert.equal(stored.consent_at.getTime(), stored.created_at.getTime());
 			assert.equal(stored.email_status, 'sent');

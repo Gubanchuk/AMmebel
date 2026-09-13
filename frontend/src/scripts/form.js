@@ -8,6 +8,8 @@
 // network error or a timeout keeps the entered data and offers the manager's
 // phone instead.
 
+import { CONSENT_VERSION } from './consent-version.js';
+
 if (typeof window.amGoal !== 'function') {
 	window.amGoal = function (name) {
 		console.debug('[goal]', name);
@@ -234,7 +236,7 @@ export function restoreFocus(button) {
 		var detail = {
 			type: 'price',
 			fields: fields,
-			consent: { version: '2026-08-25' },
+			consent: { version: CONSENT_VERSION },
 		};
 
 		setSending(true);

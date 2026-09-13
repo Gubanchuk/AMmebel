@@ -10,6 +10,7 @@
 // machine itself is unchanged throughout, only the CSS driven by
 // data-lit="1".."4" on #qzScene (and this file's caption strings) changed.
 
+import { CONSENT_VERSION } from './consent-version.js';
 import { postLead, restoreFocus, showSendFailure } from './form.js';
 
 if (typeof window.amGoal !== 'function') {
@@ -140,7 +141,7 @@ if (typeof window.amGoal !== 'function') {
 		var detail = {
 			type: 'quiz',
 			fields: answers,
-			consent: { version: '2026-08-25' },
+			consent: { version: CONSENT_VERSION },
 		};
 
 		setSending(true);
