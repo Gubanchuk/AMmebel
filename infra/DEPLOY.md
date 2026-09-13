@@ -59,7 +59,7 @@ docker compose exec -T proxy nginx -t && docker compose exec -T proxy nginx -s r
 
 После пересоздания `directus` nginx перечитывать обязательно — иначе он держит старый адрес контейнера.
 
-**Схема, права и flow в Directus** задаются скриптами, не кликами: `setup-collections.py`, `setup-access.py`, `setup-flows.py`, `upload-photos.py`. Все повторно запускаемые. Запуск на сервере: `python3 <скрипт> http://<IP directus>:8055`, IP — `docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' infra-directus-1`. Снимок схемы после изменений:
+**Схема, права, flow и вид админки в Directus** задаются скриптами, не кликами: `setup-collections.py`, `setup-access.py`, `setup-flows.py`, `setup-ui.py` (русские названия, подсказки, списки по умолчанию), `upload-photos.py`. Все повторно запускаемые. Запуск на сервере: `python3 <скрипт> http://<IP directus>:8055`, IP — `docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' infra-directus-1`. Снимок схемы после изменений:
 
 ```
 docker compose exec -T directus npx directus schema snapshot --yes /tmp/schema.yaml
@@ -114,6 +114,7 @@ docker compose --profile tools run --rm certbot certonly --webroot -w /var/www/c
 - Контейнеры: `no-new-privileges`, лимиты памяти, у `directus`, `builder`, `builder-deps`, `lead-service` сброшены все capabilities; у `lead-service` файловая система только для чтения; ротация логов 10 МБ × 3. Версии Directus и nginx закреплены.
 - Directus: cookie входа только по https; ограничение 150 запросов в секунду с адреса; в библиотеку файлов — только jpeg, png, webp, avif; пароль не короче 10 символов; публичная регистрация и MCP выключены. Роли: администратор; «Контент-редактор» (контент, заявки только чтение); «Сборка сайта» (токен только на чтение контента, к заявкам — 403).
 - nginx: HSTS, TLS 1.2/1.3 (1.0 и 1.1 отклоняются), HTTP/3, версия сервера скрыта, 5 попыток входа в админку в минуту с адреса, неизвестные имена не обслуживаются, `Permissions-Policy` и `Cross-Origin-Opener-Policy` на сайте, сайт и админка закрыты от индексации (`X-Robots-Tag`).
+- Журналы: nginx пишет IP посетителя без последнего октета (`nginx/00-logging.conf`), в журнале ошибок nginx адрес полный; логи контейнеров ротируются по размеру, 10 МБ × 3. Directus удаляет журнал действий и историю правок через год, журналы flow — через 30 дней; у заявок хранится только журнал действий, без снимков записи.
 - DNS: записи CAA панель Timeweb не поддерживает (13.09.2026 в списке типов только A, AAAA, TXT, SRV, CNAME, MX).
 
 ## Обновление Directus
