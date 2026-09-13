@@ -64,6 +64,13 @@ services:
       RATE_LIMITER_DURATION: "1"
       # В библиотеку файлов — только фото. SVG и HTML со скриптами не пройдут.
       FILES_MIME_TYPE_ALLOW_LIST: image/jpeg,image/png,image/webp,image/avif
+      # Журнал действий и история правок удаляются через год, журналы flow —
+      # через 30 дней: дольше этого срока хранить адреса и действия людей незачем.
+      RETENTION_ENABLED: "true"
+      RETENTION_SCHEDULE: "0 4 * * *"
+      ACTIVITY_RETENTION: 365d
+      REVISIONS_RETENTION: 365d
+      FLOW_LOGS_RETENTION: 30d
     # Портов нет намеренно: при internal:true docker их всё равно не публикует.
     # Снаружи админка доступна только через proxy (admin.am-fabrika.ru).
     # Хост видит контейнер, контейнер интернет — нет.
