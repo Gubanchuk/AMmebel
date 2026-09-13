@@ -10,8 +10,8 @@ a{color:var(--ivory)}
 /* кнопки системы */
 .cta{display:inline-flex;align-items:center;justify-content:center;background:var(--ivory);color:var(--bg);padding:18px 38px;font-weight:600;font-size:12px;letter-spacing:.1em;text-transform:uppercase;border:1px solid var(--ivory);cursor:pointer;position:relative;transition:background var(--t) ease,color var(--t) ease;text-decoration:none;font-family:var(--sans)}
 .cta:hover{background:transparent;color:var(--ivory)}
-.cta:after{content:'';position:absolute;left:50%;bottom:-7px;height:1px;width:0;background:linear-gradient(90deg,transparent,var(--glow),transparent);transition:width var(--t) ease,left var(--t) ease}
-.cta:hover:after{width:100%;left:0}
+.cta:after{content:'';position:absolute;left:0;bottom:-7px;height:1px;width:100%;background:linear-gradient(90deg,transparent,var(--glow),transparent);transform:scaleX(0);transition:transform var(--t) ease}
+.cta:hover:after{transform:scaleX(1)}
 /* padding + negative margin: a ≥40px tap target without moving the visible line */
 .ray{color:var(--ivory);font-size:13.5px;display:inline-flex;align-items:center;gap:14px;cursor:pointer;text-decoration:none;padding:10px 0;margin:-10px 0}
 /* the line is a fixed 86px box scaled from its right end, so hover never moves the label (a width animation slid the label out from under the cursor and flickered) */
@@ -40,8 +40,8 @@ a{color:var(--ivory)}
 .fld input{width:100%;background:transparent;border:0;border-bottom:1px solid var(--line-ui);color:var(--ivory);font-family:var(--sans);font-size:15px;padding:8px 2px;outline:none}
 .fld input::placeholder{color:var(--grey-dim)}
 .fld input[aria-invalid="true"]{border-bottom-color:var(--ivory)}
-.fld:after{content:'';position:absolute;left:0;bottom:0;height:2px;width:0;background:linear-gradient(90deg,var(--ivory),rgba(242,239,233,.2));transition:width var(--t) ease}
-.fld:focus-within:after{width:100%}
+.fld:after{content:'';position:absolute;left:0;bottom:0;height:2px;width:100%;background:linear-gradient(90deg,var(--ivory),rgba(242,239,233,.2));transform:scaleX(0);transform-origin:left center;transition:transform var(--t) ease}
+.fld:focus-within:after{transform:scaleX(1)}
 
 /* прогресс квиза */
 .prg{display:flex;gap:6px;padding:0 20px 16px}
