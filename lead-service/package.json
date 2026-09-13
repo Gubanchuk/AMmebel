@@ -1,0 +1,18 @@
+{
+  "name": "am-lead-service",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Lead intake for am-fabrika.ru: stores leads in PostgreSQL, mails the manager, notifies MAX",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node src/server.mjs",
+    "test": "node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "nodemailer": "9.1.1",
+    "pg": "8.23.0"
+  }
+}
