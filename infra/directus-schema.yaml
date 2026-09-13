@@ -24,7 +24,7 @@ collections:
       translations:
         - language: ru-RU
           plural: Условия
-          singular: Условие
+          singular: условия
           translation: Условия сотрудничества
       unarchive_value: null
       versioning: false
@@ -78,7 +78,7 @@ collections:
       translations:
         - language: ru-RU
           plural: Заявки
-          singular: Заявка
+          singular: заявки
           translation: Заявки
       unarchive_value: null
       versioning: false
@@ -98,7 +98,9 @@ collections:
       hidden: false
       icon: weekend
       item_duplication_fields: null
-      note: Фото и названия в карусели наверху и в «Популярных моделях»
+      note: >-
+        Фото и названия в карусели наверху и в «Популярных моделях». Одна модель
+        может встречаться дважды: одно фото для карусели, другое для витрины
       preview_url: null
       singleton: false
       sort: null
@@ -106,7 +108,7 @@ collections:
       translations:
         - language: ru-RU
           plural: Модели
-          singular: Модель
+          singular: модели
           translation: Модели
       unarchive_value: null
       versioning: false

@@ -37,18 +37,23 @@ COLLECTIONS = {
         "translation": "Контакты",
         "note": "Телефон, почта и адрес внизу страницы сайта",
     },
+    # singular стоит в родительном падеже: Directus подставляет его в заголовок
+    # формы — «Создание условия», «Создание модели».
     "conditions": {
         "translation": "Условия сотрудничества",
-        "singular": "Условие",
+        "singular": "условия",
         "plural": "Условия",
         "note": "Строки таблицы «Условия сотрудничества» на сайте",
         "display_template": "{{name}}",
     },
     "models": {
         "translation": "Модели",
-        "singular": "Модель",
+        "singular": "модели",
         "plural": "Модели",
-        "note": "Фото и названия в карусели наверху и в «Популярных моделях»",
+        "note": (
+            "Фото и названия в карусели наверху и в «Популярных моделях». Одна модель "
+            "может встречаться дважды: одно фото для карусели, другое для витрины"
+        ),
         "display_template": "{{title}}",
     },
     "faq": {
@@ -58,7 +63,7 @@ COLLECTIONS = {
     },
     "leads": {
         "translation": "Заявки",
-        "singular": "Заявка",
+        "singular": "заявки",
         "plural": "Заявки",
         "note": "Заявки с сайта. Только просмотр",
         "display_template": "{{name}} · {{phone}}",
@@ -115,10 +120,24 @@ FIELDS = {
 }
 
 # Списки по умолчанию для всех пользователей (глобальные пресеты).
+# Личные раскладки пользователя перекрывают общие: если редактор уже открывал
+# список, общий пресет он не увидит, пока его раскладку не удалить.
 PRESETS = {
-    "models": {"fields": ["photo", "title", "visible"], "sort": ["sort"]},
-    "conditions": {"fields": ["name", "value"], "sort": ["sort"]},
-    "leads": {"fields": ["created_at", "type", "name", "phone", "city", "need"], "sort": ["-created_at"]},
+    "models": {
+        "fields": ["photo", "title", "visible"],
+        "sort": ["sort"],
+        "widths": {"photo": 96, "title": 360, "visible": 180},
+    },
+    "conditions": {
+        "fields": ["name", "value"],
+        "sort": ["sort"],
+        "widths": {"name": 240, "value": 520},
+    },
+    "leads": {
+        "fields": ["created_at", "type", "name", "phone", "city", "need"],
+        "sort": ["-created_at"],
+        "widths": {},
+    },
 }
 
 
@@ -180,6 +199,7 @@ def main():
             "collection": collection,
             "layout": "tabular",
             "layout_query": {"tabular": {"fields": spec["fields"], "sort": spec["sort"], "page": 1}},
+            "layout_options": {"tabular": {"widths": spec["widths"]}},
         }
         if collection in by_collection:
             call("PATCH", f"/presets/{by_collection[collection]}", preset)
