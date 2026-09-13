@@ -1,7 +1,20 @@
+# Общее для всех сервисов: ротация логов (без неё json-логи Docker растут,
+# пока не забьют диск) и запрет повышать привилегии внутри контейнера.
+x-hardening: &hardening
+  logging:
+    driver: json-file
+    options:
+      max-size: "10m"
+      max-file: "3"
+  security_opt:
+    - no-new-privileges:true
+
 services:
   db:
+    <<: *hardening
     image: postgres:16-alpine
     restart: unless-stopped
+    mem_limit: 1g
     environment:
       POSTGRES_DB: ${DB_NAME}
       POSTGRES_USER: ${DB_USER}
@@ -17,8 +30,14 @@ services:
       - am-internal
 
   directus:
-    image: dockerhub.timeweb.cloud/directus/directus:11
+    <<: *hardening
+    # Версия закреплена: обновление Directus несёт миграции базы, его делаем
+    # руками после бэкапа, а не случайным docker compose pull.
+    image: dockerhub.timeweb.cloud/directus/directus:11.17.4
     restart: unless-stopped
+    mem_limit: 1g
+    cap_drop:
+      - ALL
     depends_on:
       db:
         condition: service_healthy
@@ -34,6 +53,17 @@ services:
       ADMIN_PASSWORD: ${ADMIN_PASSWORD}
       PUBLIC_URL: ${PUBLIC_URL}
       TELEMETRY: "false"
+      # Админка работает только по https — cookie входа без https не отдаются.
+      SESSION_COOKIE_SECURE: "true"
+      REFRESH_TOKEN_COOKIE_SECURE: "true"
+      # Ограничение частоты запросов к API с одного адреса. Порог с запасом:
+      # сама админка при открытии делает десятки запросов подряд.
+      RATE_LIMITER_ENABLED: "true"
+      RATE_LIMITER_STORE: memory
+      RATE_LIMITER_POINTS: "150"
+      RATE_LIMITER_DURATION: "1"
+      # В библиотеку файлов — только фото. SVG и HTML со скриптами не пройдут.
+      FILES_MIME_TYPE_ALLOW_LIST: image/jpeg,image/png,image/webp,image/avif
     # Портов нет намеренно: при internal:true docker их всё равно не публикует.
     # Снаружи админка доступна только через proxy (admin.am-fabrika.ru).
     # Хост видит контейнер, контейнер интернет — нет.
@@ -43,13 +73,18 @@ services:
       - am-internal
 
   proxy:
-    image: nginx:alpine
+    <<: *hardening
+    # Ветка закреплена: исправления внутри 1.31 приходят, смены ветки — нет.
+    image: nginx:1.31-alpine
     restart: unless-stopped
+    mem_limit: 256m
     depends_on:
       - directus
     ports:
       - "80:80"
       - "443:443"
+      # HTTP/3 (QUIC) идёт по UDP: быстрее на мобильной связи с потерями.
+      - "443:443/udp"
     volumes:
       - ./nginx:/etc/nginx/conf.d:ro
       - certbot-certs:/etc/letsencrypt:ro
@@ -66,10 +101,14 @@ services:
   # по внутренней сети, он собирает сайт и подменяет выпуск в ../site.
   # Код сайта лежит в ../site-src, выкладывается скриптом deploy-site.sh.
   builder:
+    <<: *hardening
     image: node:22-alpine
     restart: unless-stopped
     init: true
     user: node
+    mem_limit: 1g
+    cap_drop:
+      - ALL
     depends_on:
       - directus
     command: ["node", "/builder/server.mjs"]
@@ -86,12 +125,48 @@ services:
       # Только внутренняя сеть: к Directus ходит, в интернет — нет.
       - am-internal
 
+  # Приём заявок с сайта. Пишет в таблицу leads под ролью с минимальными
+  # правами (../lead-service/sql/grant.sql). До уведомления в Роскомнадзор
+  # LEADS_ENABLED=false: на POST /api/lead сервис отвечает 503 и к базе не
+  # подключается. Почта и MAX требуют выхода в интернет — сеть для этого
+  # добавляется, когда их подключают.
+  lead-service:
+    <<: *hardening
+    build: ../lead-service
+    image: am-lead-service:local
+    restart: unless-stopped
+    init: true
+    read_only: true
+    mem_limit: 256m
+    cap_drop:
+      - ALL
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      LEADS_ENABLED: ${LEADS_ENABLED:-false}
+      DATABASE_URL: postgres://lead_service:${LEAD_DB_PASSWORD}@db:5432/${DB_NAME}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASS: ${SMTP_PASS:-}
+      MAIL_FROM: ${MAIL_FROM:-}
+      MAIL_TO: ${MAIL_TO:-}
+      MAX_BOT_TOKEN: ${MAX_BOT_TOKEN:-}
+      MAX_CHAT_ID: ${MAX_CHAT_ID:-}
+    networks:
+      - am-internal
+
   # Установка npm-пакетов для сборки. Запускает deploy-site.sh, когда меняется
   # package-lock.json. Интернет есть, внутренней сети нет: сторонний код из npm
   # никогда не получает сразу и выход наружу, и доступ к базе.
   builder-deps:
+    <<: *hardening
     image: node:22-alpine
     user: node
+    mem_limit: 1g
+    cap_drop:
+      - ALL
     working_dir: /app/frontend
     command:
       - sh
@@ -105,6 +180,7 @@ services:
       - tools
 
   certbot:
+    <<: *hardening
     image: certbot/certbot
     volumes:
       - certbot-certs:/etc/letsencrypt
