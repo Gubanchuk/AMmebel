@@ -45,14 +45,19 @@ test('not configured: no notifier, one log line', () => {
 	assert.ok(!logs.join('\n').includes('token'));
 });
 
-test('sends the lead number to the MAX messages endpoint, nothing else', async (t) => {
+test('sends the lead number and a button to its admin card, nothing else', async (t) => {
 	const stub = await stubServer(t, (req, res) => {
 		res.writeHead(200, { 'content-type': 'application/json' });
 		res.end('{"message":{"body":{"mid":"1"}}}');
 	});
 	const { logs, log } = collectLogs();
 	const notify = createMaxNotifier({
-		env: { MAX_BOT_TOKEN: 'bot-token-123', MAX_CHAT_ID: '-100500', MAX_API_URL: stub.url },
+		env: {
+			MAX_BOT_TOKEN: 'bot-token-123',
+			MAX_CHAT_ID: '-100500',
+			MAX_API_URL: stub.url,
+			ADMIN_URL: 'https://admin.example.ru',
+		},
 		log,
 	});
 
@@ -63,8 +68,39 @@ test('sends the lead number to the MAX messages endpoint, nothing else', async (
 	assert.equal(request.url, '/messages?chat_id=-100500');
 	assert.equal(request.headers.authorization, 'bot-token-123');
 	assert.match(request.headers['content-type'], /^application\/json/);
-	assert.deepEqual(JSON.parse(request.body), { text: 'Новая заявка №42 с сайта — откройте админку' });
+	assert.deepEqual(JSON.parse(request.body), {
+		text: 'Новая заявка №42 с сайта',
+		attachments: [
+			{
+				type: 'inline_keyboard',
+				payload: {
+					buttons: [
+						[{ type: 'link', text: 'Открыть заявку', url: 'https://admin.example.ru/admin/content/leads/42' }],
+					],
+				},
+			},
+		],
+	});
 	assert.deepEqual(logs, ['lead 42 messenger notification sent']);
+});
+
+test('without a valid ADMIN_URL the message goes without the button', async (t) => {
+	const stub = await stubServer(t, (req, res) => {
+		res.writeHead(200, { 'content-type': 'application/json' });
+		res.end('{"message":{"body":{"mid":"1"}}}');
+	});
+	for (const adminUrl of [undefined, 'admin.example.ru']) {
+		const { log } = collectLogs();
+		const notify = createMaxNotifier({
+			env: { MAX_BOT_TOKEN: 'bot-token-123', MAX_CHAT_ID: '7', MAX_API_URL: stub.url, ADMIN_URL: adminUrl },
+			log,
+		});
+		assert.equal(await notify(3), true);
+	}
+	assert.equal(stub.requests.length, 2);
+	for (const request of stub.requests) {
+		assert.deepEqual(JSON.parse(request.body), { text: 'Новая заявка №3 с сайта' });
+	}
 });
 
 test('API error is logged by status and swallowed', async (t) => {
@@ -104,5 +140,5 @@ test('default request goes to platform-api2.max.ru with the token only in the he
 	assert.ok(!url.includes('secret'));
 	assert.equal(init.method, 'POST');
 	assert.equal(init.headers.authorization, 'secret');
-	assert.deepEqual(JSON.parse(init.body), { text: 'Новая заявка №9 с сайта — откройте админку' });
+	assert.deepEqual(JSON.parse(init.body), { text: 'Новая заявка №9 с сайта' });
 });

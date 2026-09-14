@@ -160,6 +160,8 @@ services:
       MAIL_TO: ${MAIL_TO:-}
       MAX_BOT_TOKEN: ${MAX_BOT_TOKEN:-}
       MAX_CHAT_ID: ${MAX_CHAT_ID:-}
+      # Кнопка «Открыть заявку» в сообщении MAX ведёт на карточку в админке.
+      ADMIN_URL: ${PUBLIC_URL}
       # platform-api2.max.ru подписан корнем Минцифры, которого Node не знает.
       NODE_EXTRA_CA_CERTS: /etc/ssl/extra/russian_trusted_root_ca.pem
     volumes:
