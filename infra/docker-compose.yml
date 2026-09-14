@@ -135,8 +135,7 @@ services:
   # Приём заявок с сайта. Пишет в таблицу leads под ролью с минимальными
   # правами (../lead-service/sql/grant.sql). До уведомления в Роскомнадзор
   # LEADS_ENABLED=false: на POST /api/lead сервис отвечает 503 и к базе не
-  # подключается. Почта и MAX требуют выхода в интернет — сеть для этого
-  # добавляется, когда их подключают.
+  # подключается. Для почты и MAX у него своя сеть с выходом наружу.
   lead-service:
     <<: *hardening
     build: ../lead-service
@@ -161,8 +160,15 @@ services:
       MAIL_TO: ${MAIL_TO:-}
       MAX_BOT_TOKEN: ${MAX_BOT_TOKEN:-}
       MAX_CHAT_ID: ${MAX_CHAT_ID:-}
+      # platform-api2.max.ru подписан корнем Минцифры, которого Node не знает.
+      NODE_EXTRA_CA_CERTS: /etc/ssl/extra/russian_trusted_root_ca.pem
+    volumes:
+      - ./certs/russian_trusted_root_ca.pem:/etc/ssl/extra/russian_trusted_root_ca.pem:ro
     networks:
       - am-internal
+      # Выход наружу для письма менеджеру и MAX. Кроме lead-service в этой
+      # сети никого нет.
+      - am-leads-out
 
   # Установка npm-пакетов для сборки. Запускает deploy-site.sh, когда меняется
   # package-lock.json. Интернет есть, внутренней сети нет: сторонний код из npm
@@ -211,3 +217,5 @@ networks:
     internal: true
   # Обычная сеть с выходом наружу — только для прокси и выпуска сертификатов.
   am-edge:
+  # Выход в интернет только для lead-service: почта и MAX.
+  am-leads-out:

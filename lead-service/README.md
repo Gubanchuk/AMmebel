@@ -37,7 +37,7 @@
 | `SMTP_HOST` `SMTP_PORT` `SMTP_USER` `SMTP_PASS` `MAIL_FROM` `MAIL_TO` | письмо менеджеру. Порт 465 — TLS сразу, другой — только через STARTTLS. Не задана хоть одна — почта выключена, в логе одна строка об этом |
 | `MAX_BOT_TOKEN` `MAX_CHAT_ID` | уведомление в чат MAX. Не заданы — не отправляется |
 | `MAX_API_URL` | по умолчанию `https://platform-api2.max.ru` |
-| `NODE_EXTRA_CA_CERTS` | путь к корневому сертификату Минцифры (Russian Trusted Root CA). `platform-api2.max.ru` подписан им, без файла Node соединение отвергнет |
+| `NODE_EXTRA_CA_CERTS` | путь к корневому сертификату Минцифры (Russian Trusted Root CA). `platform-api2.max.ru` подписан им, без файла Node соединение отвергнет. На сервере файл лежит в `infra/certs/`, compose монтирует его и задаёт переменную |
 | `PORT` | 8080 |
 | `RATE_LIMIT_MAX`, `RATE_LIMIT_WINDOW_SECONDS` | 5 и 600 |
 
