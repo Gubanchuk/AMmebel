@@ -52,6 +52,7 @@ const telHref = `tel:${settings.phone.replace(/[^\d+]/g, '')}`;
 				aria-expanded="false"
 				aria-controls="hdrMenu"
 			>Меню</button>
+			<a class="hdr__tel" href={telHref} id="hdrTel">{settings.phone}</a>
 			<a class="cta hdr__price" href="/#price">
 				<span class="hdr__price-full">Получить прайс</span>
 				<span class="hdr__price-short">Прайс</span>
@@ -130,6 +131,16 @@ const telHref = `tel:${settings.phone.replace(/[^\d+]/g, '')}`;
 
 	.hdr__right { display: flex; align-items: center; gap: 20px; flex: 0 0 auto; }
 
+	/* the phone joins the bar from 1024px, where logo, nav, phone and plate fit in
+	   one row; narrower screens reach it through the menu (≤700px) or the footer */
+	.hdr__tel { display: none; padding: 13px 0; font-family: var(--mono); font-size: 13px; line-height: 18px; letter-spacing: .02em; color: var(--ivory); text-decoration: none; white-space: nowrap; transition: text-shadow var(--t) ease; }
+	@media (min-width: 1024px) {
+		.hdr__tel { display: inline-block; }
+	}
+	@media (hover: hover) {
+		.hdr__tel:hover { text-shadow: 0 0 12px var(--glow); }
+	}
+
 	/* Hidden on desktop — the inline .hdr__nav covers navigation there. */
 	.hdr__menu-toggle {
 		display: none;
@@ -181,7 +192,8 @@ const telHref = `tel:${settings.phone.replace(/[^\d+]/g, '')}`;
 		.hdr-menu,
 		.hdr-menu__nav a:after,
 		.hdr-menu__close,
-		.hdr-menu__tel { transition: none; }
+		.hdr-menu__tel,
+		.hdr__tel { transition: none; }
 	}
 
 	/* ============ fullscreen mobile menu overlay ============ */
@@ -371,11 +383,12 @@ const telHref = `tel:${settings.phone.replace(/[^\d+]/g, '')}`;
 		// amGoal is defined once, globally, by quiz.js on the pages where the
 		// quiz mounts. The legal pages don't load quiz.js, so guard the call
 		// instead of assuming it exists — never redefine it here.
-		var tel = document.getElementById('hdrMenuTel');
-		if (tel) {
+		['hdrMenuTel', 'hdrTel'].forEach(function (id) {
+			var tel = document.getElementById(id);
+			if (!tel) return;
 			tel.addEventListener('click', function () {
 				if (typeof window.amGoal === 'function') { window.amGoal('phone_click'); }
 			});
-		}
+		});
 	})();
 </script>

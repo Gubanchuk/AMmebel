@@ -96,7 +96,7 @@ const scene = [
 	</div>
 
 	<div class="qz__res" id="qres">
-		<h3>Диван собран</h3>
+		<h3>Заявка принята</h3>
 		<p>Заявка ушла менеджеру — он свяжется с вами и направит предложение под ваш запрос.</p>
 	</div>
 </div>
@@ -135,7 +135,8 @@ const scene = [
 	/* «Назад» takes the row height, so both buttons share one top and bottom edge */
 	.qz__nav .ghost { padding-top: 0; padding-bottom: 0; }
 	.qz__res { display: none; padding: 30px 20px 34px; text-align: center; }
-	.qz__res.on { display: block; }
+	/* the panel keeps the left column's height, so the message sits in the middle of the freed space */
+	.qz__res.on { display: flex; flex-direction: column; justify-content: center; flex: 1 1 auto; }
 	.qz__res h3 { font-family: var(--serif); font-weight: 400; font-size: 22px; margin: 0 0 10px; color: var(--ivory); }
 	.qz__res p { color: var(--grey); font-size: 14px; max-width: 40ch; margin: 0 auto; }
 
