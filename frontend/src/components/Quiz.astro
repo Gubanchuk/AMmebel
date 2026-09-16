@@ -83,7 +83,7 @@ const scene = [
 			<p class="qz__q" tabindex="-1">Куда направить оптовое предложение?</p>
 			<div class="fld"><label for="q4a">Имя</label><input id="q4a" placeholder="Как к вам обращаться" autocomplete="name"></div>
 			<div class="fld"><label for="q4b">Телефон</label><input id="q4b" type="tel" placeholder="+7 …" autocomplete="tel" inputmode="tel"></div>
-			<label class="qz__consent">
+			<label class="consent qz__consent">
 				<input type="checkbox" id="qzConsent">
 				<span>Даю <a href="/soglasie">согласие на обработку персональных данных</a></span>
 			</label>
@@ -127,52 +127,26 @@ const scene = [
 	.qz__scene[data-lit="2"] img:nth-child(2),
 	.qz__scene[data-lit="3"] img:nth-child(3),
 	.qz__scene[data-lit="4"] img:nth-child(4) { opacity: 1; }
-	.qz__cap { font-family: var(--mono); font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--grey-dim); text-align: center; padding: 8px 0 12px; margin: 0; }
+	.qz__cap { font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--grey-dim); text-align: center; padding: 8px 0 12px; margin: 0; }
 	.qz__body { padding: 22px 20px 26px; }
-	.qz__meta { font-family: var(--mono); font-size: 10px; letter-spacing: .11em; text-transform: uppercase; color: var(--grey-dim); margin: 0 0 10px; }
+	.qz__meta { font-family: var(--mono); font-size: 11px; letter-spacing: .11em; text-transform: uppercase; color: var(--grey-dim); margin: 0 0 10px; }
 	.qz__q { font-weight: 600; font-size: clamp(17px,2.1vw,21px); margin: 0 0 16px; line-height: 1.25; color: var(--ivory); }
-	.qz__nav { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-top: 6px; }
+	.qz__nav { display: flex; gap: 12px; align-items: stretch; flex-wrap: wrap; margin-top: 6px; }
+	/* «Назад» takes the row height, so both buttons share one top and bottom edge */
+	.qz__nav .ghost { padding-top: 0; padding-bottom: 0; }
 	.qz__res { display: none; padding: 30px 20px 34px; text-align: center; }
 	.qz__res.on { display: block; }
 	.qz__res h3 { font-family: var(--serif); font-weight: 400; font-size: 22px; margin: 0 0 10px; color: var(--ivory); }
 	.qz__res p { color: var(--grey); font-size: 14px; max-width: 40ch; margin: 0 auto; }
 
-	.qz__consent { display: flex; gap: 12px; align-items: flex-start; cursor: pointer; margin: 4px 0 14px; }
-	.qz__consent input {
-		appearance: none;
-		-webkit-appearance: none;
-		width: 18px;
-		height: 18px;
-		flex: 0 0 18px;
-		border: 1px solid var(--line-ui);
-		background: transparent;
-		margin-top: 2px;
-		cursor: pointer;
-		position: relative;
-		transition: border-color var(--t) ease, background var(--t) ease;
-	}
-	.qz__consent input:checked { background: var(--ivory); border-color: var(--ivory); }
-	.qz__consent input[aria-invalid="true"] { border-color: var(--ivory); }
-	.qz__consent input:checked:after {
-		content: '';
-		position: absolute;
-		left: 5px;
-		top: 1px;
-		width: 5px;
-		height: 9px;
-		border: solid var(--bg);
-		border-width: 0 2px 2px 0;
-		transform: rotate(45deg);
-	}
-	.qz__consent span { color: var(--grey); font-size: 13.5px; line-height: 1.5; }
-	.qz__consent a { color: var(--ivory); text-decoration: underline; text-underline-offset: 2px; }
+	.qz__consent { margin: 4px 0 14px; }
+	.qz__consent span { font-size: 13.5px; }
 	.qz__err { color: var(--ivory); font-size: 12px; margin: 0 0 10px; border-left: 2px solid var(--ivory); padding-left: 10px; }
 
 	@media (max-width: 470px) {
 		.qz__nav .cta { width: auto; flex: 1 1 auto; }
 	}
 	@media (prefers-reduced-motion: reduce) {
-		.qz__consent input { transition: none; }
 		.qz__scene img { transition: none; }
 	}
 </style>

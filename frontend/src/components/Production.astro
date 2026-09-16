@@ -121,14 +121,18 @@ const pad = (n: number) => (n < 10 ? `0${n}` : String(n));
 	.prod__head { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; }
 	.prod__head .sec__lead { margin-bottom: 0; }
 	.prod__nav { display: flex; gap: 6px; flex: 0 0 auto; padding-bottom: 4px; }
+	/* the strip runs to the screen edges (it used to stop at the 1080px column and
+	   cut cards at an invisible line on wide screens); padding and scroll-padding
+	   keep the first card on the text column. --edge is absolute on purpose:
+	   a percentage in scroll-padding resolves against the strip itself. */
 	.prod__track {
 		display: flex;
 		gap: 16px;
-		margin: 26px calc(-1 * var(--pad)) 34px;
-		padding: 0 var(--pad);
+		margin: 28px calc(-1 * var(--edge)) 34px;
+		padding: 0 var(--edge);
 		overflow-x: auto;
 		scroll-snap-type: x mandatory;
-		scroll-padding-left: var(--pad);
+		scroll-padding-left: var(--edge);
 		scrollbar-width: none;
 		-webkit-overflow-scrolling: touch;
 	}
@@ -156,7 +160,7 @@ const pad = (n: number) => (n < 10 ? `0${n}` : String(n));
 		background: linear-gradient(180deg, transparent 62%, rgba(19,18,16,.5) 100%);
 	}
 	.stage__cap { display: flex; gap: 10px; align-items: baseline; margin: 10px 0 0; font-size: 14px; line-height: 1.3; color: var(--ivory); }
-	.stage__num { font-family: var(--mono); font-size: 10.5px; letter-spacing: .1em; color: var(--grey-dim); flex: 0 0 auto; }
+	.stage__num { font-family: var(--mono); font-size: 11px; letter-spacing: .1em; color: var(--grey-dim); flex: 0 0 auto; }
 	.facts { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
 	.facts li { display: flex; gap: 16px; align-items: baseline; color: var(--ivory); font-size: 14.5px; line-height: 1.5; }
 	.facts b { flex: 0 0 150px; }

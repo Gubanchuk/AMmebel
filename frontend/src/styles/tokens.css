@@ -12,6 +12,8 @@
   --sans:'Onest','Segoe UI',system-ui,sans-serif;
   --mono:'IBM Plex Mono',Consolas,monospace;
   --pad:clamp(18px,5vw,64px);
+  /* distance from the screen edge to the text column of .wrap (max-width 1080px) */
+  --edge:calc(max(0px,(100vw - 1080px) / 2) + var(--pad));
   --t:.45s;
 }
 

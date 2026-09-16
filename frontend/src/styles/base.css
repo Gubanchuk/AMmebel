@@ -5,28 +5,36 @@ a{color:var(--ivory)}
 :focus-visible{outline:2px solid var(--ivory);outline-offset:3px}
 
 .wrap{max-width:1080px;margin:0 auto;padding-left:var(--pad);padding-right:var(--pad)}
-.lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--grey-dim)}
+.lbl{font-family:var(--mono);font-size:11px;letter-spacing:.11em;text-transform:uppercase;color:var(--grey-dim)}
 
-/* кнопки системы */
-.cta{display:inline-flex;align-items:center;justify-content:center;background:var(--ivory);color:var(--bg);padding:18px 38px;font-weight:600;font-size:12px;letter-spacing:.1em;text-transform:uppercase;border:1px solid var(--ivory);cursor:pointer;position:relative;transition:background var(--t) ease,color var(--t) ease;text-decoration:none;font-family:var(--sans)}
-.cta:hover{background:transparent;color:var(--ivory)}
+/* кнопки системы
+   One text size (12px caps) for every full-size button; the header plate is the
+   only compact variant (11px). A fixed line-height keeps <a class="cta"> and
+   <button class="cta"> the same height — links used to inherit body's 1.6 and
+   came out 3px taller. Hover styles live under (hover:hover) so a tap on a
+   touch screen does not leave the button stuck in its outline state. */
+.cta{display:inline-flex;align-items:center;justify-content:center;background:var(--ivory);color:var(--bg);padding:18px 38px;font-weight:600;font-size:12px;line-height:16px;letter-spacing:.1em;text-transform:uppercase;border:1px solid var(--ivory);cursor:pointer;position:relative;transition:background var(--t) ease,color var(--t) ease,border-color var(--t) ease;text-decoration:none;font-family:var(--sans)}
 .cta:after{content:'';position:absolute;left:0;bottom:-7px;height:1px;width:100%;background:linear-gradient(90deg,transparent,var(--glow),transparent);transform:scaleX(0);transition:transform var(--t) ease}
-.cta:hover:after{transform:scaleX(1)}
-/* padding + negative margin: a ≥40px tap target without moving the visible line */
-.ray{color:var(--ivory);font-size:13.5px;display:inline-flex;align-items:center;gap:14px;cursor:pointer;text-decoration:none;padding:10px 0;margin:-10px 0}
-/* the line is a fixed 86px box scaled from its right end, so hover never moves the label (a width animation slid the label out from under the cursor and flickered) */
-.ray i{display:inline-block;width:86px;height:1px;font-style:normal;background:linear-gradient(90deg,rgba(242,239,233,.15),var(--ivory));transform:scaleX(.5);transform-origin:right center;transition:transform var(--t) ease}
-.ray:hover i{transform:scaleX(1)}
-.ghost{display:inline-flex;align-items:center;background:transparent;border:1px solid var(--line-ui);color:var(--grey-dim);font-family:var(--sans);font-size:11px;letter-spacing:.1em;text-transform:uppercase;padding:12px 20px;cursor:pointer;transition:border-color var(--t) ease,color var(--t) ease}
-.ghost:hover{border-color:#524D42;color:#DAD5C9}
-.ghost:disabled{opacity:.5;cursor:not-allowed}
-.arrow{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;padding:0;background:transparent;border:1px solid var(--line);color:var(--grey);cursor:pointer;transition:border-color var(--t) ease,color var(--t) ease}
+.cta:not(:disabled):active{background:#DAD5C9;border-color:#DAD5C9}
+/* only while a lead is being sent — the consent check no longer disables it */
+.cta:disabled{background:transparent;color:var(--grey);border-color:var(--line-ui);cursor:progress}
+/* ≥44px tap target without moving the visible line */
+.ray{color:var(--ivory);font-size:13.5px;display:inline-flex;align-items:center;gap:14px;cursor:pointer;text-decoration:none;padding:12px 0;margin:-12px 0}
+/* the line starts on the text column; hover lights it up instead of growing it,
+   so neither the line nor the label ever moves */
+.ray i{display:inline-block;flex:0 0 40px;width:40px;height:1px;font-style:normal;background:linear-gradient(90deg,rgba(242,239,233,.2),var(--ivory));transition:background var(--t) ease}
+.ghost{display:inline-flex;align-items:center;justify-content:center;background:transparent;border:1px solid var(--line-ui);color:var(--grey);font-family:var(--sans);font-size:12px;font-weight:500;line-height:16px;letter-spacing:.1em;text-transform:uppercase;padding:12px 20px;cursor:pointer;transition:border-color var(--t) ease,color var(--t) ease}
+.ghost:disabled{opacity:.45;cursor:not-allowed}
+.arrow{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;padding:0;background:transparent;border:1px solid var(--line);color:var(--grey);cursor:pointer;transition:border-color var(--t) ease,color var(--t) ease}
 .arrow svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
-.arrow:hover{border-color:#524D42;color:var(--ivory)}
 .arrow:disabled{opacity:.35;cursor:not-allowed}
-.arrow:disabled:hover{border-color:var(--line);color:var(--grey)}
-.chip{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.08em;color:var(--grey);border:1px solid var(--line);padding:7px 14px;margin-right:8px;transition:border-color var(--t) ease}
-.chip:hover{border-color:#4a4438}
+@media (hover:hover){
+  .cta:not(:disabled):hover{background:transparent;color:var(--ivory)}
+  .cta:not(:disabled):hover:after{transform:scaleX(1)}
+  .ray:hover i{background:var(--ivory)}
+  .ghost:not(:disabled):hover{border-color:#524D42;color:#DAD5C9}
+  .arrow:not(:disabled):hover{border-color:#524D42;color:var(--ivory)}
+}
 
 /* квиз: опции и поля */
 .opt{display:flex;width:100%;text-align:left;background:#1F1C18;border:1px solid var(--line);color:#DAD5C9;font-family:var(--sans);font-size:14.5px;padding:15px 17px;cursor:pointer;position:relative;margin-bottom:10px;transition:border-color var(--t) ease,background var(--t) ease}
@@ -36,10 +44,13 @@ a{color:var(--ivory)}
 .opt.sel{background:#241F19;border-color:#4A4438;color:var(--ivory)}
 .opt.sel:before{background:linear-gradient(180deg,rgba(242,239,233,.2),var(--ivory),rgba(242,239,233,.2))}
 .fld{margin-bottom:16px;position:relative}
-.fld label{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--grey-dim);text-transform:uppercase;margin-bottom:8px}
-.fld input{width:100%;background:transparent;border:0;border-bottom:1px solid var(--line-ui);color:var(--ivory);font-family:var(--sans);font-size:15px;padding:8px 2px;outline:none}
+.fld label{display:block;font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;color:var(--grey-dim);text-transform:uppercase;margin-bottom:4px;transition:color var(--t) ease}
+/* inputs and selects share one 44px box, so a row of fields lines up and every field is a full tap target */
+.fld input,.fld select{display:block;width:100%;height:44px;background:transparent;border:0;border-bottom:1px solid var(--line-ui);border-radius:0;color:var(--ivory);font-family:var(--sans);font-size:15px;padding:0 2px;outline:none}
 .fld input::placeholder{color:var(--grey-dim)}
-.fld input[aria-invalid="true"]{border-bottom-color:var(--ivory)}
+/* invalid: the label lights up and the underline turns dashed — distinct from the solid focus bar, not colour alone */
+.fld:has([aria-invalid="true"]) label{color:var(--ivory)}
+.fld input[aria-invalid="true"],.fld select[aria-invalid="true"]{border-bottom:1px dashed var(--ivory)}
 .fld:after{content:'';position:absolute;left:0;bottom:0;height:2px;width:100%;background:linear-gradient(90deg,var(--ivory),rgba(242,239,233,.2));transform:scaleX(0);transform-origin:left center;transition:transform var(--t) ease}
 .fld:focus-within:after{transform:scaleX(1)}
 
@@ -51,15 +62,24 @@ a{color:var(--ivory)}
 /* секции */
 .sec{padding-top:clamp(40px,6vw,72px);padding-bottom:clamp(40px,6vw,72px);scroll-margin-top:88px}
 .sec h2{font-family:var(--serif);font-weight:400;font-size:clamp(24px,3.8vw,36px);line-height:1.12;margin:0 0 10px;color:var(--ivory);max-width:26ch;text-wrap:balance}
-.sec__lead{color:var(--grey);max-width:56ch;margin:0 0 30px;font-size:15.5px}
+.sec__lead{color:var(--grey);max-width:56ch;margin:0 0 28px;font-size:15.5px}
+
+/* consent checkbox (price form and quiz) — the UA's 4px left margin pushed the box off the text column */
+.consent{display:flex;gap:12px;align-items:flex-start;cursor:pointer}
+.consent input{appearance:none;-webkit-appearance:none;width:18px;height:18px;flex:0 0 18px;margin:2px 0 0;border:1px solid var(--line-ui);background:transparent;cursor:pointer;position:relative;transition:border-color var(--t) ease,background var(--t) ease}
+.consent input:checked{background:var(--ivory);border-color:var(--ivory)}
+.consent input[aria-invalid="true"]{border-color:var(--ivory);outline:1px dashed var(--ivory);outline-offset:3px}
+.consent input:checked:after{content:'';position:absolute;left:5px;top:1px;width:5px;height:9px;border:solid var(--bg);border-width:0 2px 2px 0;transform:rotate(45deg)}
+.consent span{color:var(--grey);font-size:14px;line-height:1.5}
+.consent a{color:var(--ivory);text-decoration:underline;text-underline-offset:2px}
 
 @media (max-width:620px){
-  .fld input{font-size:16px} /* iOS Safari zooms into inputs below 16px */
+  .fld input,.fld select{font-size:16px} /* iOS Safari zooms into inputs below 16px */
 }
 @media (max-width:470px){
   .cta{width:100%;padding:16px 20px}
 }
 @media (prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
-  .cta,.ray i,.opt,.fld:after,.ghost,.chip,.cta:after,.opt:before,.arrow{transition:none}
+  .cta,.ray i,.opt,.fld:after,.fld label,.ghost,.cta:after,.opt:before,.arrow,.consent input{transition:none}
 }

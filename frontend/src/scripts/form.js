@@ -159,11 +159,12 @@ export function restoreFocus(button) {
 		});
 	}
 
-	// Consent checkbox gates the CTA — attribute in markup covers the initial
-	// state, this listener enforces it live (both required per brief step 2).
-	// While a lead is being sent the CTA stays disabled regardless.
+	// The CTA is disabled only while a lead is being sent. It used to stay
+	// disabled until consent was ticked, but a disabled button explains
+	// nothing: visitors pressed it and saw no reaction. Now a press without
+	// consent shows the consent message from the submit handler.
 	function syncSubmitState() {
-		submit.disabled = sending || !consent.checked;
+		submit.disabled = sending;
 	}
 
 	function setSending(on) {
@@ -184,7 +185,13 @@ export function restoreFocus(button) {
 	}
 
 	needSelect.addEventListener('change', updateExtraField);
-	consent.addEventListener('change', syncSubmitState);
+	// Ticking consent after the consent error clears that error right away.
+	consent.addEventListener('change', function () {
+		if (consent.checked && consent.getAttribute('aria-invalid') === 'true') {
+			setError(null);
+			markInvalid([]);
+		}
+	});
 	syncSubmitState();
 
 	form.addEventListener('submit', function (event) {

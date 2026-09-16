@@ -195,14 +195,18 @@ const track = [
 	.models__head { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; }
 	.models__head .sec__lead { margin-bottom: 0; }
 	.models__nav { display: flex; gap: 6px; flex: 0 0 auto; padding-bottom: 4px; }
+	/* the strip runs to the screen edges (it used to stop at the 1080px column and
+	   cut cards at an invisible line on wide screens); padding and scroll-padding
+	   keep the first card on the text column. --edge is absolute on purpose:
+	   a percentage in scroll-padding resolves against the strip itself. */
 	.models__track {
 		display: flex;
 		gap: 20px;
-		margin: 26px calc(-1 * var(--pad)) 0;
-		padding: 0 var(--pad);
+		margin: 28px calc(-1 * var(--edge)) 0;
+		padding: 0 var(--edge);
 		overflow-x: auto;
 		scroll-snap-type: x mandatory;
-		scroll-padding-left: var(--pad);
+		scroll-padding-left: var(--edge);
 		scrollbar-width: none;
 		-webkit-overflow-scrolling: touch;
 	}

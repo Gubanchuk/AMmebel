@@ -14,6 +14,8 @@
 // 0 0 200 114) — before, ~40% of the box height was empty margin and the mark
 // read small in the header (user: «лого мелкое»). The sm height is a CSS
 // variable so Header can shrink it on narrow screens without :global.
+// 17.09: x cropped to the plate (18…182) — the 6-unit side margins put the
+// mark 4px right of the text column in the header.
 interface Props {
 	size?: 'lg' | 'sm';
 	inverted?: boolean;
@@ -25,7 +27,7 @@ const classes = ['logo', `logo--${size}`, inverted && 'logo--inverted'].filter(B
 
 <svg
 	class={classes}
-	viewBox="12 18 176 78"
+	viewBox="18 18 164 78"
 	role="img"
 	aria-label="АМ — Авторская мебель"
 	xmlns="http://www.w3.org/2000/svg"

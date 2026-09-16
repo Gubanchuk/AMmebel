@@ -61,8 +61,19 @@ const telHref = `tel:${settings.phone.replace(/[^\d+]/g, '')}`;
 </header>
 
 <div class="hdr-menu" id="hdrMenu" role="dialog" aria-modal="true" aria-label="Меню" hidden>
-	<div class="hdr-menu__top wrap">
-		<button type="button" class="hdr-menu__close" id="hdrMenuClose">Закрыть</button>
+	<div class="hdr-menu__top">
+		<div class="wrap hdr__row">
+			<a class="hdr__logo" href="/" aria-label="Авторская Мебель — на главную">
+				<Logo size="sm" />
+			</a>
+			<div class="hdr__right">
+				<button type="button" class="hdr__menu-toggle hdr-menu__close" id="hdrMenuClose">Закрыть</button>
+				<a class="cta hdr__price" href="/#price">
+					<span class="hdr__price-full">Получить прайс</span>
+					<span class="hdr__price-short">Прайс</span>
+				</a>
+			</div>
+		</div>
 	</div>
 	<nav class="hdr-menu__nav wrap" aria-label="Разделы страницы">
 		<a href="/#models">Модели</a>
@@ -91,7 +102,7 @@ const telHref = `tel:${settings.phone.replace(/[^\d+]/g, '')}`;
 	.hdr__nav a {
 		position: relative;
 		display: inline-block;
-		padding-bottom: 7px;
+		padding: 23px 0; /* equal top and bottom: the label sits on the bar's centre line */
 		font-family: var(--sans);
 		font-size: 11px;
 		letter-spacing: .1em;
@@ -104,7 +115,7 @@ const telHref = `tel:${settings.phone.replace(/[^\d+]/g, '')}`;
 		content: '';
 		position: absolute;
 		left: 0;
-		bottom: 0;
+		bottom: 16px;
 		width: 100%;
 		height: 1px;
 		background: var(--ivory);
@@ -124,11 +135,12 @@ const telHref = `tel:${settings.phone.replace(/[^\d+]/g, '')}`;
 		display: none;
 		background: none;
 		border: 0;
-		padding: 14px 10px; /* ≥40px tap target; margin pulls the box back so layout is unchanged */
+		padding: 14px 10px; /* 44px tap target; margin pulls the box back so layout is unchanged */
 		margin: -14px -10px;
 		cursor: pointer;
 		font-family: var(--sans);
 		font-size: 11px;
+		line-height: 16px;
 		letter-spacing: .1em;
 		text-transform: uppercase;
 		color: var(--grey);
@@ -144,7 +156,7 @@ const telHref = `tel:${settings.phone.replace(/[^\d+]/g, '')}`;
 	   hero/PriceForm CTA; the header needs a smaller instance to fit its
 	   60px bar. .cta's :after light-line flash is left untouched — it reads
 	   fine at this scale. */
-	.hdr__price { flex: 0 0 auto; padding: 12px 26px; font-size: 11px; }
+	.hdr__price { flex: 0 0 auto; padding: 13px 26px; font-size: 11px; } /* 44px tall */
 	.hdr__price-short { display: none; }
 
 	@media (max-width: 700px) {
@@ -154,7 +166,7 @@ const telHref = `tel:${settings.phone.replace(/[^\d+]/g, '')}`;
 		.hdr__menu-toggle { display: inline-block; }
 		/* .cta's own ≤470px rule sets width:100% for the full-size hero button
 		   — reset it here so the compact plate doesn't stretch across the row. */
-		.hdr__price { width: auto; padding: 10px 18px; }
+		.hdr__price { width: auto; padding: 13px 18px; }
 		.hdr__price-full { display: none; }
 		.hdr__price-short { display: inline; }
 	}
@@ -190,22 +202,11 @@ const telHref = `tel:${settings.phone.replace(/[^\d+]/g, '')}`;
 	.hdr-menu[hidden] { display: none; }
 	.hdr-menu.on { opacity: 1; pointer-events: auto; }
 
-	.hdr-menu__top { display: flex; justify-content: flex-end; align-items: center; height: 64px; flex: 0 0 auto; border-bottom: 1px solid var(--line); }
-	.hdr-menu__close {
-		background: none;
-		border: 0;
-		padding: 14px 10px;
-		margin: -14px -10px;
-		cursor: pointer;
-		font-family: var(--sans);
-		font-size: 11px;
-		letter-spacing: .1em;
-		text-transform: uppercase;
-		color: var(--grey);
-		transition: color var(--t) ease;
-	}
-	.hdr-menu__close:hover,
-	.hdr-menu__close:focus-visible { color: var(--ivory); }
+	/* .wrap centres itself with auto margins, and in this flex column auto margins
+	   shrink it to its content — the menu collapsed into a narrow centred strip */
+	.hdr-menu > * { width: 100%; }
+	/* a copy of the header bar (height 64px at ≤700px), so opening the menu only swaps «Меню» for «Закрыть» */
+	.hdr-menu__top { height: 64px; flex: 0 0 auto; border-bottom: 1px solid var(--line); }
 
 	.hdr-menu__nav { display: flex; flex-direction: column; padding-top: 8px; }
 	.hdr-menu__nav a {
@@ -222,6 +223,7 @@ const telHref = `tel:${settings.phone.replace(/[^\d+]/g, '')}`;
 		border-top: 1px solid var(--line-soft);
 	}
 	.hdr-menu__nav a:last-child { border-bottom: 1px solid var(--line-soft); }
+	.hdr-menu__nav a:first-child { border-top: 0; } /* the bar above already draws this line */
 	.hdr-menu__nav a:after {
 		content: '';
 		position: absolute;
@@ -237,10 +239,13 @@ const telHref = `tel:${settings.phone.replace(/[^\d+]/g, '')}`;
 	.hdr-menu__nav a:hover:after,
 	.hdr-menu__nav a:focus-visible:after { transform: scaleX(1); }
 
-	.hdr-menu__foot { display: flex; flex-direction: column; align-items: center; gap: 22px; padding: 32px 0 40px; margin-top: auto; }
+	.hdr-menu__foot { display: flex; flex-direction: column; align-items: flex-start; gap: 18px; padding-top: 32px; padding-bottom: 40px; margin-top: auto; }
 	.hdr-menu__tel {
+		display: inline-block;
+		padding: 12px 0; /* 44px tap target */
 		font-family: var(--mono);
 		font-size: 15px;
+		line-height: 20px;
 		color: var(--ivory);
 		text-decoration: none;
 		transition: color var(--t) ease, text-shadow var(--t) ease;
@@ -328,16 +333,16 @@ const telHref = `tel:${settings.phone.replace(/[^\d+]/g, '')}`;
 		});
 		closeBtn.addEventListener('click', function () { close(); });
 
-		// Focus trap for the aria-modal dialog: the overlay's focusable set is
-		// fixed (close button, 4 nav links, phone, price CTA — same order as
-		// the markup), so a plain first/last wrap is enough — no need to walk
-		// a dynamic list. Escape closes from anywhere while open.
+		// Focus trap for the aria-modal dialog: wrap between the first and the
+		// last focusable in the overlay (logo, close, price plate, section
+		// links, phone, price CTA). Escape closes from anywhere while open.
 		document.addEventListener('keydown', function (e) {
 			if (overlay.hidden) return;
 			if (e.key === 'Escape') { close(); return; }
 			if (e.key !== 'Tab') return;
-			var first = closeBtn;
-			var last = overlay.querySelector('.hdr-menu__price');
+			var focusables = overlay.querySelectorAll('a[href], button');
+			var first = focusables[0];
+			var last = focusables[focusables.length - 1];
 			if (e.shiftKey && document.activeElement === first) {
 				e.preventDefault();
 				last.focus();

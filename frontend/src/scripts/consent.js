@@ -79,8 +79,30 @@ window.amConsent = {
 		document.body.style.paddingBottom = height;
 	}
 
-	if (!readConsent()) {
+	// On phones the stacked bar is ~110px tall and landed right on the first
+	// screen's «Получить прайс» button, so there it waits for the first scroll
+	// (or a jump to #price) before appearing. Nothing is collected in the
+	// meantime: Metrika loads only after «Разрешить».
+	var barPending = false;
+	function showPendingBar() {
+		if (!barPending) return;
+		barPending = false;
 		bar.hidden = false;
+		updateBarSpacing();
+	}
+	if (!readConsent()) {
+		var narrow = window.matchMedia('(max-width: 740px)').matches;
+		if (narrow && window.scrollY < 80 && window.location.hash !== '#price') {
+			barPending = true;
+			var onFirstScroll = function () {
+				if (window.scrollY < 80) return;
+				window.removeEventListener('scroll', onFirstScroll);
+				showPendingBar();
+			};
+			window.addEventListener('scroll', onFirstScroll, { passive: true });
+		} else {
+			bar.hidden = false;
+		}
 	}
 	updateBarSpacing();
 	window.addEventListener('resize', updateBarSpacing);
@@ -101,6 +123,7 @@ window.amConsent = {
 	function scrollToPriceClear() {
 		var target = document.getElementById('price');
 		if (!target) return;
+		showPendingBar(); // the scroll below must leave room for the bar
 		var header = document.getElementById('siteHeader');
 		var headerHeight = header ? header.getBoundingClientRect().height : 0;
 		var barHeight = bar.hidden ? 0 : bar.getBoundingClientRect().height;

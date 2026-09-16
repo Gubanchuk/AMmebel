@@ -30,7 +30,7 @@ const { conditions } = Astro.props;
 </section>
 
 <style>
-	.cond__scroll { overflow-x: auto; border-top: 1px solid var(--line-soft); }
+	.cond__scroll { overflow-x: auto; border-top: 1px solid var(--line-soft); margin-top: 18px; } /* + h2's 10px = the 28px section step */
 	.cond__table { width: 100%; border-collapse: collapse; min-width: 480px; }
 	.cond__table tr { border-bottom: 1px solid var(--line-soft); }
 	/* Row labels are the scannable part of this table (user 08.09: «заголовки

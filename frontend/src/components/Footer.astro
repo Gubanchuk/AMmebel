@@ -31,7 +31,7 @@ const year = new Date().getFullYear();
 		<div class="foot__grid">
 			<div>
 				<p class="lbl">Юрлицо</p>
-				<p>{legal.name}<br />ИНН {legal.inn} · КПП {legal.kpp}<br />ОГРН {legal.ogrn}</p>
+				<p>{legal.name}<br /><span class="nw">ИНН {legal.inn}</span> · <span class="nw">КПП {legal.kpp}</span><br />ОГРН {legal.ogrn}</p>
 				<p class="foot__sub">Юр. адрес: {legal.address}</p>
 			</div>
 			<div>
@@ -63,7 +63,8 @@ const year = new Date().getFullYear();
 	.foot__grid p { margin: 4px 0 0; color: var(--grey); font-size: 13.5px; line-height: 1.5; }
 	.foot__grid .lbl { margin: 0; }
 	.foot__grid a { text-decoration: none; }
-	.foot__tel, .foot__mail { display: inline-block; padding: 11px 0; margin: -11px 0; } /* ≥40px tap target, layout unchanged */
+	.foot__tel, .foot__mail { display: inline-block; line-height: 20px; padding: 12px 0; margin: -12px 0; } /* 44px tap target, layout unchanged */
+	.nw { white-space: nowrap; } /* a number never breaks away from its label */
 	.foot__tel { font-family: var(--mono); color: var(--ivory); transition: color var(--t) ease, text-shadow var(--t) ease; }
 	.foot__tel:hover { text-shadow: 0 0 12px var(--glow); }
 	.foot__mail { color: var(--grey); transition: color var(--t) ease; }
@@ -72,10 +73,6 @@ const year = new Date().getFullYear();
 	.foot__grid .ray { font-size: 13px; margin-top: 8px; }
 	.foot__grid .ray { align-items: flex-start; } /* two-line document links: keep the line on the first line */
 	.foot__grid .ray i { margin-top: .75em; }
-	/* four-column layout: the line is a shrinkable flex item, so labels of different
-	   length squeezed it by different amounts and the three lines sat at different x.
-	   A fixed, shorter line keeps them aligned and each label within two lines. */
-	@media (min-width: 991px) { .foot__grid .ray i { flex: 0 0 48px; width: 48px; } }
 	.foot__legal { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; color: var(--grey-dim); margin: 0; }
 
 	@media (prefers-reduced-motion: reduce) {

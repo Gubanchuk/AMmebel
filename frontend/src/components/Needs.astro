@@ -56,5 +56,8 @@ const items = [
 	.needs__meta { font-family: var(--mono); font-size: 11px; letter-spacing: .11em; color: var(--grey-dim); margin: 0; flex: 0 0 auto; } /* not the stretching paragraph */
 	.needs__card h3 { font-size: 18px; font-weight: 600; color: var(--ivory); margin: 0; }
 	.needs__card p { color: var(--grey); font-size: 14px; line-height: 1.5; margin: 0; flex: 1; }
+	/* `.needs__card p` above outranks `.needs__meta` and gave the number flex:1 too:
+	   cards with shorter text pushed their title down (card 04 sat 21px below 03) */
+	.needs__card .needs__meta { flex: 0 0 auto; }
 	.needs__card .ray { margin-top: 6px; }
 </style>

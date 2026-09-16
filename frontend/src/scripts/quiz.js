@@ -51,11 +51,11 @@ if (typeof window.amGoal !== 'function') {
 		errorEl.textContent = message;
 	}
 
-	// Consent only gates the finish action (last step) — earlier steps advance
-	// via the same shared button without needing it checked. While the lead is
-	// being sent the button stays disabled.
+	// The button is disabled only while the lead is being sent. On the last
+	// step a press without consent shows the consent message from finish()
+	// instead of a disabled button that still looks active.
 	function syncNextState() {
-		next.disabled = sending || ((s === total) && !(consentInput && consentInput.checked));
+		next.disabled = sending;
 	}
 
 	function paint() {
@@ -179,7 +179,14 @@ if (typeof window.amGoal !== 'function') {
 		else { finish(); }
 	});
 	back.addEventListener('click', function () { if (s > 1) { setStep(s - 1, true); } });
-	if (consentInput) { consentInput.addEventListener('change', syncNextState); }
+	if (consentInput) {
+		consentInput.addEventListener('change', function () {
+			if (consentInput.checked && consentInput.getAttribute('aria-invalid') === 'true') {
+				setError(null);
+				markInvalid(null);
+			}
+		});
+	}
 
 	setStep(1);
 })();
