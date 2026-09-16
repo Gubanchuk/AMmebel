@@ -83,9 +83,18 @@ docker compose cp directus:/tmp/schema.yaml ./directus-schema.yaml
 
 ## Резервные копии
 
-Каждую ночь в 03:30 `backup.sh` снимает `db-<дата>.dump` (pg_dump) и `uploads-<дата>.tgz` (фото из Directus), хранит 7 дней. Лог — `/opt/am-site/backups/backup.log`.
+Каждую ночь в 03:30 `backup.sh` снимает `db-<дата>.dump` (pg_dump) и `uploads-<дата>.tgz` (фото из Directus), хранит 7 дней на сервере и отправляет те же файлы в S3. Лог — `/opt/am-site/backups/backup.log`.
 
-Пока нет хранилища S3, копии лежат на том же сервере: от ошибки в данных спасают, от потери сервера — нет. Файл `.env` в копию не входит, его держать отдельно в менеджере паролей: без `DIRECTUS_SECRET` и паролей базу не поднять.
+S3 с 17.09.2026: Timeweb Cloud, Санкт-Петербург, «Стандартный», 10 ГБ, 79 ₽/мес, автомасштабирование выключено, приватный бакет `am-site-backup` на аккаунте Андрея. Ключи — у отдельного пользователя хранилища `am-site-backup-server` с правами «Чтение и запись» только на этот бакет, лежат в `.env` (`S3_ENDPOINT`, `S3_REGION`, `S3_BUCKET`, `S3_ACCESS_KEY`, `S3_SECRET_KEY`). rclone (из apt) берёт настройки из переменных окружения, файла конфигурации нет. В хранилище копии живут 14 дней (`rclone delete --min-age 14d`). Первая отправка и чтение проверены 17.09.2026.
+
+Посмотреть, что лежит в хранилище (на сервере под `deploy`):
+
+```
+E=/opt/am-site/infra/.env; g(){ grep "^$1=" $E | cut -d= -f2-; }
+RCLONE_CONFIG=/dev/null RCLONE_CONFIG_O_TYPE=s3 RCLONE_CONFIG_O_PROVIDER=Other RCLONE_CONFIG_O_ENDPOINT=$(g S3_ENDPOINT) RCLONE_CONFIG_O_REGION=$(g S3_REGION) RCLONE_CONFIG_O_ACCESS_KEY_ID=$(g S3_ACCESS_KEY) RCLONE_CONFIG_O_SECRET_ACCESS_KEY=$(g S3_SECRET_KEY) rclone ls o:$(g S3_BUCKET)
+```
+
+Файл `.env` в копию не входит, его держать отдельно в менеджере паролей: без `DIRECTUS_SECRET` и паролей базу не поднять.
 
 Восстановление базы в отдельный контейнер проверено 13.09.2026: все десять проверенных таблиц совпали с рабочей базой по числу строк. Порядок восстановления рабочей базы (целиком не прогонялся):
 
@@ -115,7 +124,7 @@ docker compose --profile tools run --rm certbot certonly --webroot -w /var/www/c
 - Directus: cookie входа только по https; ограничение 150 запросов в секунду с адреса; в библиотеку файлов — только jpeg, png, webp, avif; пароль не короче 12 символов; публичная регистрация и MCP выключены. Роли: администратор; «Контент-редактор» (контент, заявки только чтение); «Сборка сайта» (токен только на чтение контента, к заявкам — 403).
 - nginx: HSTS, TLS 1.2/1.3 (1.0 и 1.1 отклоняются), HTTP/3, версия сервера скрыта, 5 попыток входа в админку в минуту с адреса, неизвестные имена не обслуживаются, `Permissions-Policy` и `Cross-Origin-Opener-Policy` на сайте, сайт и админка закрыты от индексации (`X-Robots-Tag`).
 - Журналы: nginx пишет IP посетителя без последнего октета (`nginx/00-logging.conf`), в журнале ошибок nginx адрес полный; логи контейнеров ротируются по размеру, 10 МБ × 3. Directus удаляет журнал действий и историю правок через год, журналы flow — через 30 дней; у заявок хранится только журнал действий, без снимков записи.
-- Антивирус: ClamAV установлен, но базы признаков из России не скачиваются (сеть доставки обновлений отказывает по региону, 13.09.2026); служба `clamav-freshclam` выключена, ночная проверка не настроена до выбора источника обновлений.
+- Антивирус (17.09.2026): ClamAV 1.5.3. Официальная сеть доставки баз отвечает из России 403, поэтому в `/etc/clamav/freshclam.conf` вместо `DatabaseMirror` — `PrivateMirror https://mirror.truenetwork.ru/clamav` и запасной `PrivateMirror https://packages.microsoft.com/clamav`, `ScriptedUpdates no`, `Checks 2`, `TestDatabases no` (исходный файл — `freshclam.conf.orig`). Служба `clamav-freshclam` включена. Ночная проверка — `infra/antivirus-scan.sh` из `/etc/cron.d/am-site-antivirus` в 04:30 от root: том с фото Directus и весь `/opt/am-site`, журнал `/var/log/am-site/antivirus.log`. О находке, ошибке проверки и базах старше трёх дней скрипт пишет в MAX (чат из `MAX_CHAT_ID`), имена файлов — только в журнал. Проверено 17.09.2026: базы скачались с зеркала с файлами подписи, тестовый EICAR найден, полная проверка 2 мин 5 с, пик памяти 1,0 ГБ, чисто. `DRY_RUN=1` печатает сообщение вместо отправки. Если зеркала перестанут обновлять базы — запасной вариант Dr.Web Server Security Suite для Unix (сравнение в `clients/sf-sofa/checklist-zapusk.md`).
 - DNS: записи CAA панель Timeweb не поддерживает (13.09.2026 в списке типов только A, AAAA, TXT, SRV, CNAME, MX).
 
 ## Обновление Directus
