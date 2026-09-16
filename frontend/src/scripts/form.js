@@ -16,7 +16,7 @@ if (typeof window.amGoal !== 'function') {
 	};
 }
 
-// Follow-up field per "need" select value — labels are the client's own wording
+// Follow-up field per "need" radio value — labels are the client's own wording
 // (task brief map): салон -> сколько точек, онлайн -> какие площадки,
 // объект -> объём и срок, агент -> проектов в год.
 var NEED_EXTRA = {
@@ -111,7 +111,8 @@ export function restoreFocus(button) {
 	var form = document.getElementById('pfForm');
 	if (!form) return;
 
-	var needSelect = document.getElementById('pf-need');
+	var needGroup = document.getElementById('pfNeed');
+	var needRadios = form.querySelectorAll('input[name="need"]');
 	var extraWrap = document.getElementById('pfNeedExtraWrap');
 	var extraLabel = document.getElementById('pfNeedExtraLabel');
 	var extraInput = document.getElementById('pf-need-extra');
@@ -123,7 +124,7 @@ export function restoreFocus(button) {
 	var sending = false;
 
 	function updateExtraField() {
-		var meta = NEED_EXTRA[needSelect.value];
+		var meta = NEED_EXTRA[form.elements.need.value];
 		if (!meta) {
 			extraWrap.hidden = true;
 			return;
@@ -146,8 +147,12 @@ export function restoreFocus(button) {
 	// Screen readers get the error text via role=alert; sighted keyboard users
 	// and AT users on the field itself get aria-invalid/aria-describedby too.
 	var validated = ['company_inn', 'name', 'phone', 'city', 'need'];
+	// «need» is a radio group: the fieldset carries the invalid state, not a single radio
+	function fieldFor(key) {
+		return key === 'need' ? needGroup : form.elements[key];
+	}
 	function markInvalid(list) {
-		validated.map(function (k) { return form.elements[k]; }).concat([consent]).forEach(function (el) {
+		validated.map(fieldFor).concat([consent]).forEach(function (el) {
 			if (!el) return;
 			el.removeAttribute('aria-invalid');
 			el.removeAttribute('aria-describedby');
@@ -184,7 +189,24 @@ export function restoreFocus(button) {
 		return match ? match.length : 0;
 	}
 
-	needSelect.addEventListener('change', updateExtraField);
+	needRadios.forEach(function (radio) {
+		radio.addEventListener('change', function () {
+			updateExtraField();
+			if (needGroup.getAttribute('aria-invalid') === 'true') {
+				needGroup.removeAttribute('aria-invalid');
+				needGroup.removeAttribute('aria-describedby');
+			}
+		});
+	});
+	// «Оставить заявку» on a buyer-task card picks the same task in the form.
+	document.querySelectorAll('a[data-need]').forEach(function (link) {
+		link.addEventListener('click', function () {
+			var radio = form.querySelector('input[name="need"][value="' + link.getAttribute('data-need') + '"]');
+			if (!radio || radio.checked) return;
+			radio.checked = true;
+			radio.dispatchEvent(new Event('change'));
+		});
+	});
 	// Ticking consent after the consent error clears that error right away.
 	consent.addEventListener('change', function () {
 		if (consent.checked && consent.getAttribute('aria-invalid') === 'true') {
@@ -215,7 +237,7 @@ export function restoreFocus(button) {
 
 		if (!fields.company_inn || !fields.name || !fields.phone || !fields.city || !fields.need) {
 			setError('Заполните все обязательные поля.');
-			markInvalid(validated.filter(function (k) { return !fields[k]; }).map(function (k) { return form.elements[k]; }));
+			markInvalid(validated.filter(function (k) { return !fields[k]; }).map(fieldFor));
 			return;
 		}
 		// «Компания / ИНН» takes a name or an INN; digits only means an INN,

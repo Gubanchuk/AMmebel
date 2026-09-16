@@ -121,10 +121,9 @@ const pad = (n: number) => (n < 10 ? `0${n}` : String(n));
 	.prod__head { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; }
 	.prod__head .sec__lead { margin-bottom: 0; }
 	.prod__nav { display: flex; gap: 6px; flex: 0 0 auto; padding-bottom: 4px; }
-	/* the strip runs to the screen edges (it used to stop at the 1080px column and
-	   cut cards at an invisible line on wide screens); padding and scroll-padding
-	   keep the first card on the text column. --edge is absolute on purpose:
-	   a percentage in scroll-padding resolves against the strip itself. */
+	/* up to 1080px the strip runs to the screen edges, wider it stays inside the
+	   text column (--edge in tokens.css); padding and scroll-padding keep the first
+	   card on the column. It used to stick out by --pad and cut cards mid-way. */
 	.prod__track {
 		display: flex;
 		gap: 16px;
@@ -163,7 +162,7 @@ const pad = (n: number) => (n < 10 ? `0${n}` : String(n));
 	.stage__num { font-family: var(--mono); font-size: 11px; letter-spacing: .1em; color: var(--grey-dim); flex: 0 0 auto; }
 	.facts { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
 	.facts li { display: flex; gap: 16px; align-items: baseline; color: var(--ivory); font-size: 14.5px; line-height: 1.5; }
-	.facts b { flex: 0 0 150px; }
+	.facts b { flex: 0 0 150px; font-weight: 500; } /* <b> asks for 700; Plex Mono ships 400/500, the browser smeared a fake bold */
 
 	@media (max-width: 860px) {
 		.stage { flex-basis: calc((100% - 32px) / 3); }

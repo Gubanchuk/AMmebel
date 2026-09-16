@@ -35,15 +35,18 @@ const needs = [
 					<label for="pf-city">Город</label>
 					<input id="pf-city" name="city" required placeholder="Краснодар" autocomplete="address-level2" />
 				</div>
-				<div class="fld">
-					<label for="pf-need">Что нужно</label>
-					<select id="pf-need" name="need" required>
-						<option value="" disabled selected>Выберите вариант</option>
+				<fieldset class="pf__need" id="pfNeed" role="radiogroup">
+					<legend>Что нужно</legend>
+					<div class="pf__tiles">
 						{needs.map((n) => (
-							<option value={n.value}>{n.label}</option>
+							<label class="tile">
+								<input type="radio" name="need" value={n.value} />
+								<span class="tile__mark" aria-hidden="true"></span>
+								<span class="tile__text">{n.label}</span>
+							</label>
 						))}
-					</select>
-				</div>
+					</div>
+				</fieldset>
 				<div class="fld" id="pfNeedExtraWrap" hidden>
 					<label for="pf-need-extra" id="pfNeedExtraLabel">Уточнение</label>
 					<input id="pf-need-extra" name="need_extra" placeholder="" />
@@ -78,21 +81,32 @@ const needs = [
 	@media (max-width: 640px) {
 		.pf__grid { grid-template-columns: 1fr; }
 	}
-	/* no native arrow: its inner padding pushed the text 4px off the input column;
-	   the chevron is drawn with two gradients in the text colour */
-	.fld select {
-		appearance: none;
-		-webkit-appearance: none;
-		padding-right: 26px;
-		cursor: pointer;
-		background-image: linear-gradient(45deg, transparent 50%, var(--grey) 50%), linear-gradient(135deg, var(--grey) 50%, transparent 50%);
-		background-position: calc(100% - 12px) 52%, calc(100% - 7px) 52%;
-		background-size: 5px 5px;
-		background-repeat: no-repeat;
+	/* «Что нужно» — four tiles instead of a native select: every option is visible
+	   at once, one tap picks one, and there is no OS-styled dropdown. Native radios
+	   underneath keep arrow-key navigation and form semantics. */
+	.pf__need { grid-column: 1 / -1; border: 0; margin: 4px 0 18px; padding: 0; min-width: 0; }
+	.pf__need legend { padding: 0; margin-bottom: 10px; font-family: var(--mono); font-size: 11.5px; letter-spacing: .12em; color: var(--grey-dim); text-transform: uppercase; transition: color var(--t) ease; }
+	.pf__need[aria-invalid="true"] legend { color: var(--ivory); }
+	.pf__tiles { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+	@media (max-width: 640px) {
+		.pf__tiles { grid-template-columns: 1fr; }
 	}
-	.fld select option { background: var(--panel); color: var(--ivory); }
-	/* nothing chosen yet: the prompt reads as a placeholder, not as a value */
-	.fld select:has(option[value=""]:checked) { color: var(--grey-dim); }
+	.tile { position: relative; display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 12px 16px; background: #1F1C18; border: 1px solid var(--line); color: #DAD5C9; font-size: 14.5px; line-height: 1.35; cursor: pointer; transition: border-color var(--t) ease, background var(--t) ease, color var(--t) ease; }
+	.tile input { position: absolute; opacity: 0; width: 1px; height: 1px; margin: 0; pointer-events: none; }
+	.tile__mark { flex: 0 0 16px; width: 16px; height: 16px; border: 1px solid var(--line-ui); border-radius: 50%; position: relative; transition: border-color var(--t) ease; } /* round: one choice, unlike the square consent checkbox */
+	.tile__mark:after { content: ''; position: absolute; inset: 3px; border-radius: 50%; background: var(--ivory); transform: scale(0); transition: transform var(--t) ease; }
+	.tile:has(input:checked) { background: #241F19; border-color: #6B6456; color: var(--ivory); }
+	.tile:has(input:checked) .tile__mark { border-color: var(--ivory); }
+	.tile:has(input:checked) .tile__mark:after { transform: scale(1); }
+	.tile:has(input:focus-visible) { outline: 2px solid var(--ivory); outline-offset: 3px; }
+	.pf__need[aria-invalid="true"] .tile { border-style: dashed; border-color: var(--line-ui); }
+	@media (hover: hover) {
+		.tile:hover { background: #242019; border-color: #3A352C; }
+		.tile:has(input:checked):hover { border-color: #6B6456; }
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.tile, .tile__mark, .tile__mark:after, .pf__need legend { transition: none; }
+	}
 
 	.pf__hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
 

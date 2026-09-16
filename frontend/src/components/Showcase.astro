@@ -195,10 +195,9 @@ const track = [
 	.models__head { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; }
 	.models__head .sec__lead { margin-bottom: 0; }
 	.models__nav { display: flex; gap: 6px; flex: 0 0 auto; padding-bottom: 4px; }
-	/* the strip runs to the screen edges (it used to stop at the 1080px column and
-	   cut cards at an invisible line on wide screens); padding and scroll-padding
-	   keep the first card on the text column. --edge is absolute on purpose:
-	   a percentage in scroll-padding resolves against the strip itself. */
+	/* up to 1080px the strip runs to the screen edges, wider it stays inside the
+	   text column (--edge in tokens.css); padding and scroll-padding keep the first
+	   card on the column. It used to stick out by --pad and cut cards mid-way. */
 	.models__track {
 		display: flex;
 		gap: 20px;
