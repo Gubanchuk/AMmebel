@@ -80,6 +80,42 @@ export function postLead(detail) {
 	}
 }
 
+// Consent gate for a lead button. The button stays visibly inactive
+// (aria-disabled, so a press still reaches our handler) until the consent box
+// is ticked, and the hint next to it says what to do. A press on the inactive
+// button lights the hint up and draws the box in with its dashed outline.
+// setApplies(false) lifts the gate (quiz steps before the contact step).
+export function consentGate(box, button, hint) {
+	var applies = true;
+	function update() {
+		var blocked = applies && !box.checked;
+		if (blocked) { button.setAttribute('aria-disabled', 'true'); }
+		else { button.removeAttribute('aria-disabled'); }
+		hint.hidden = !blocked;
+		if (!blocked) {
+			hint.classList.remove('is-nudged');
+			box.removeAttribute('aria-invalid');
+		}
+	}
+	box.addEventListener('change', update);
+	update();
+	return {
+		setApplies: function (on) { applies = on; update(); },
+		blocked: function () { return applies && !box.checked; },
+		nudge: function () {
+			hint.classList.add('is-nudged');
+			box.removeAttribute('aria-invalid');
+			void box.offsetWidth; // restart the outline animation on every press
+			box.setAttribute('aria-invalid', 'true');
+			box.focus({ preventScroll: true });
+			var r = box.getBoundingClientRect();
+			if (r.top < 80 || r.bottom > window.innerHeight - 20) {
+				box.scrollIntoView({ block: 'center', behavior: 'smooth' });
+			}
+		},
+	};
+}
+
 // Failure notice inside a role="alert" element. The phone is taken from the
 // page's own tel: link (header and footer render it from the CMS settings), so
 // the number lives in one place.
@@ -164,10 +200,8 @@ export function restoreFocus(button) {
 		});
 	}
 
-	// The CTA is disabled only while a lead is being sent. It used to stay
-	// disabled until consent was ticked, but a disabled button explains
-	// nothing: visitors pressed it and saw no reaction. Now a press without
-	// consent shows the consent message from the submit handler.
+	// disabled only while a lead is being sent; the consent gate is separate
+	var gate = consentGate(consent, submit, document.getElementById('pfConsentHint'));
 	function syncSubmitState() {
 		submit.disabled = sending;
 	}
@@ -207,18 +241,16 @@ export function restoreFocus(button) {
 			radio.dispatchEvent(new Event('change'));
 		});
 	});
-	// Ticking consent after the consent error clears that error right away.
-	consent.addEventListener('change', function () {
-		if (consent.checked && consent.getAttribute('aria-invalid') === 'true') {
-			setError(null);
-			markInvalid([]);
-		}
-	});
 	syncSubmitState();
 
 	form.addEventListener('submit', function (event) {
 		event.preventDefault();
 		if (sending) return;
+		// Enter in a field submits too: without consent, point at the box first
+		if (gate.blocked()) {
+			gate.nudge();
+			return;
+		}
 
 		var honeypot = form.elements.website;
 		if (honeypot && honeypot.value.trim() !== '') {
@@ -253,12 +285,6 @@ export function restoreFocus(button) {
 			markInvalid([form.elements.phone]);
 			return;
 		}
-		if (!consent.checked) {
-			setError('Отметьте согласие на обработку персональных данных.');
-			markInvalid([consent]);
-			return;
-		}
-
 		setError(null);
 		markInvalid([]);
 

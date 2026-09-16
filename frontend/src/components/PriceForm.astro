@@ -63,7 +63,8 @@ const needs = [
 			</label>
 
 			<div class="pf__actions">
-				<button class="cta" type="submit" id="pfSubmit">Получить оптовый прайс</button>
+				<button class="cta" type="submit" id="pfSubmit" aria-disabled="true" aria-describedby="pfConsentHint">Получить оптовый прайс</button>
+				<p class="consent-hint" id="pfConsentHint"><i></i><span>Отметьте согласие — и кнопка станет активной</span></p>
 				<p class="pf__err" id="pfError" role="alert" hidden></p>
 			</div>
 		</form>

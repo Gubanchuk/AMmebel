@@ -91,8 +91,9 @@ const scene = [
 		</div>
 		<div class="qz__nav">
 			<button class="ghost" type="button" id="qback" disabled>Назад</button>
-			<button class="cta" type="button" id="qnext">Дальше</button>
+			<button class="cta" type="button" id="qnext" aria-describedby="qzConsentHint">Дальше</button>
 		</div>
+		<p class="consent-hint qz__hint" id="qzConsentHint" hidden><i></i><span>Отметьте согласие — и кнопка станет активной</span></p>
 	</div>
 
 	<div class="qz__res" id="qres">
@@ -134,6 +135,7 @@ const scene = [
 	.qz__nav { display: flex; gap: 12px; align-items: stretch; flex-wrap: wrap; margin-top: 6px; }
 	/* «Назад» takes the row height, so both buttons share one top and bottom edge */
 	.qz__nav .ghost { padding-top: 0; padding-bottom: 0; }
+	.qz__hint { margin-top: 14px; }
 	.qz__res { display: none; padding: 30px 20px 34px; text-align: center; }
 	/* the panel keeps the left column's height, so the message sits in the middle of the freed space */
 	.qz__res.on { display: flex; flex-direction: column; justify-content: center; flex: 1 1 auto; }

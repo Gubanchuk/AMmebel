@@ -11,7 +11,7 @@
 // data-lit="1".."4" on #qzScene (and this file's caption strings) changed.
 
 import { CONSENT_VERSION } from './consent-version.js';
-import { postLead, restoreFocus, showSendFailure } from './form.js';
+import { consentGate, postLead, restoreFocus, showSendFailure } from './form.js';
 
 if (typeof window.amGoal !== 'function') {
 	window.amGoal = function (name) {
@@ -39,6 +39,8 @@ if (typeof window.amGoal !== 'function') {
 	var consentInput = document.getElementById('qzConsent');
 	var errorEl = document.getElementById('qzError');
 	var sending = false;
+	// the consent gate holds only the last step's «Получить прайс»
+	var gate = consentInput ? consentGate(consentInput, next, document.getElementById('qzConsentHint')) : null;
 
 	function setError(message) {
 		if (!errorEl) return;
@@ -51,9 +53,7 @@ if (typeof window.amGoal !== 'function') {
 		errorEl.textContent = message;
 	}
 
-	// The button is disabled only while the lead is being sent. On the last
-	// step a press without consent shows the consent message from finish()
-	// instead of a disabled button that still looks active.
+	// disabled only while the lead is being sent; the consent gate is separate
 	function syncNextState() {
 		next.disabled = sending;
 	}
@@ -66,6 +66,7 @@ if (typeof window.amGoal !== 'function') {
 		back.disabled = (s === 1);
 		next.textContent = (s === total) ? 'Получить прайс' : 'Дальше';
 		setError(null);
+		if (gate) { gate.setApplies(s === total); }
 		syncNextState();
 	}
 
@@ -127,11 +128,6 @@ if (typeof window.amGoal !== 'function') {
 			markInvalid(phoneInput);
 			return;
 		}
-		if (!consentInput || !consentInput.checked) {
-			setError('Отметьте согласие на обработку персональных данных.');
-			markInvalid(consentInput);
-			return;
-		}
 		setError(null);
 		markInvalid(null);
 
@@ -176,17 +172,10 @@ if (typeof window.amGoal !== 'function') {
 
 	next.addEventListener('click', function () {
 		if (s < total) { setStep(s + 1, true); }
+		else if (gate && gate.blocked()) { gate.nudge(); }
 		else { finish(); }
 	});
 	back.addEventListener('click', function () { if (s > 1) { setStep(s - 1, true); } });
-	if (consentInput) {
-		consentInput.addEventListener('change', function () {
-			if (consentInput.checked && consentInput.getAttribute('aria-invalid') === 'true') {
-				setError(null);
-				markInvalid(null);
-			}
-		});
-	}
 
 	setStep(1);
 })();
