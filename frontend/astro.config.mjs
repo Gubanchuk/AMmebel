@@ -2,8 +2,9 @@
 import { defineConfig } from 'astro/config';
 
 // Yandex Metrika hosts (src/scripts/metrika.js), from Yandex's CSP list:
-// yandex.ru/support/metrica/ru/code/install-counter-csp. The wss:// and
-// webvisor hosts are left out: they serve session recording, which is off.
+// yandex.ru/support/metrica/ru/code/install-counter-csp. The webvisor hosts
+// are left out (session recording is off). tag.js opens wss://mc.yandex.ru
+// even with Webvisor off, so the socket hosts go into connect-src.
 const METRIKA_HOSTS = [
 	'https://mc.yandex.ru', 'https://mc.yandex.az', 'https://mc.yandex.by',
 	'https://mc.yandex.co.il', 'https://mc.yandex.com', 'https://mc.yandex.com.am',
@@ -13,6 +14,9 @@ const METRIKA_HOSTS = [
 	'https://mc.yandex.tj', 'https://mc.yandex.tm', 'https://mc.yandex.uz',
 	'https://yastatic.net',
 ];
+const METRIKA_SOCKETS = METRIKA_HOSTS
+	.filter((host) => host.startsWith('https://mc.'))
+	.map((host) => host.replace('https://', 'wss://'));
 
 // https://astro.build/config
 export default defineConfig({
@@ -28,7 +32,7 @@ export default defineConfig({
 				"default-src 'self'",
 				`img-src 'self' data: ${METRIKA_HOSTS.join(' ')}`,
 				"font-src 'self'",
-				`connect-src 'self' ${METRIKA_HOSTS.join(' ')}`,
+				`connect-src 'self' ${[...METRIKA_HOSTS, ...METRIKA_SOCKETS].join(' ')}`,
 				"form-action 'self'",
 				"base-uri 'self'",
 				"object-src 'none'",
