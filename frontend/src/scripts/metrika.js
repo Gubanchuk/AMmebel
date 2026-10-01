@@ -11,11 +11,12 @@
 // any lead the service stored (am:lead from form.js and quiz.js). Direct is
 // pointed at the lead goal.
 //
-// The counter belongs to the am.sofa.ru Yandex login (the Direct account).
-// COUNTER_ID 0 keeps Metrika off.
+// Counter 113250938 belongs to the am.sofa.ru Yandex login (the Direct
+// account). The tag URL and init options follow the snippet Metrika issued for
+// it, minus ecommerce (no shop on the site). COUNTER_ID 0 keeps Metrika off.
 
-var COUNTER_ID = 0;
-var TAG_URL = 'https://mc.yandex.ru/metrika/tag.js';
+var COUNTER_ID = 113250938;
+var TAG_URL = 'https://mc.yandex.ru/metrika/tag.js?id=' + COUNTER_ID;
 
 var loaded = false;
 
@@ -36,6 +37,7 @@ function load() {
 		a.parentNode.insertBefore(k, a);
 	})(window, document, 'script', TAG_URL, 'ym');
 	window.ym(COUNTER_ID, 'init', {
+		ssr: true,
 		clickmap: true,
 		trackLinks: true,
 		accurateTrackBounce: true,
