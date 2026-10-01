@@ -1,5 +1,5 @@
 // Cookie consent (page block 11, site-wide via CookieBar). Exposes
-// window.amConsent.analyticsAllowed() for the Metrika loader (task 15) and
+// window.amConsent.analyticsAllowed() for the Metrika loader (metrika.js) and
 // dispatches am:consent-analytics when the visitor accepts. Choice persists in
 // localStorage.amConsent as {analytics, v, ts}; every localStorage call is
 // guarded so a disabled or unavailable storage (private mode, browser setting)

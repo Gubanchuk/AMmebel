@@ -82,9 +82,8 @@ const year = new Date().getFullYear();
 </style>
 
 <script>
-	// amGoal is defined once, globally, by quiz.js on the pages where the quiz
-	// mounts. The legal pages don't load quiz.js, so guard the call instead of
-	// assuming it exists — never redefine it here.
+	// amGoal is defined once, globally, by metrika.js (loaded with the cookie
+	// bar). Guard the call instead of assuming it exists — never redefine it here.
 	(function () {
 		var tel = document.getElementById('footTel');
 		if (!tel) return;

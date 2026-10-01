@@ -1,21 +1,34 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 
+// Yandex Metrika hosts (src/scripts/metrika.js), from Yandex's CSP list:
+// yandex.ru/support/metrica/ru/code/install-counter-csp. The wss:// and
+// webvisor hosts are left out: they serve session recording, which is off.
+const METRIKA_HOSTS = [
+	'https://mc.yandex.ru', 'https://mc.yandex.az', 'https://mc.yandex.by',
+	'https://mc.yandex.co.il', 'https://mc.yandex.com', 'https://mc.yandex.com.am',
+	'https://mc.yandex.com.ge', 'https://mc.yandex.com.tr', 'https://mc.yandex.ee',
+	'https://mc.yandex.fr', 'https://mc.yandex.kg', 'https://mc.yandex.kz',
+	'https://mc.yandex.lt', 'https://mc.yandex.lv', 'https://mc.yandex.md',
+	'https://mc.yandex.tj', 'https://mc.yandex.tm', 'https://mc.yandex.uz',
+	'https://yastatic.net',
+];
+
 // https://astro.build/config
 export default defineConfig({
 	security: {
 		// Content-Security-Policy as a <meta> tag on every page. Astro hashes the
 		// inline scripts and styles it renders at build time, so the policy stays
 		// valid after every rebuild triggered from the admin panel. Yandex
-		// Metrika (plan task 15) will need its hosts added to scriptDirective,
-		// connect-src and img-src. frame-ancestors cannot be set from a meta tag;
-		// nginx sends X-Frame-Options instead.
+		// Metrika's hosts are allowed in script-src, connect-src and img-src.
+		// frame-ancestors cannot be set from a meta tag; nginx sends
+		// X-Frame-Options instead.
 		csp: {
 			directives: [
 				"default-src 'self'",
-				"img-src 'self' data:",
+				`img-src 'self' data: ${METRIKA_HOSTS.join(' ')}`,
 				"font-src 'self'",
-				"connect-src 'self'",
+				`connect-src 'self' ${METRIKA_HOSTS.join(' ')}`,
 				"form-action 'self'",
 				"base-uri 'self'",
 				"object-src 'none'",
@@ -24,7 +37,7 @@ export default defineConfig({
 				"manifest-src 'self'",
 			],
 			scriptDirective: {
-				resources: ["'self'"],
+				resources: ["'self'", ...METRIKA_HOSTS],
 				// Astro does not hash is:inline scripts. This is the one in
 				// src/components/Showcase.astro that parks the models carousel
 				// before first paint; it has no injected values, so the hash is

@@ -1,7 +1,7 @@
 // PriceForm behavior (page block 11) and the lead sending it shares with the
 // quiz (quiz.js imports postLead/showSendFailure/restoreFocus from here).
-// window.amGoal: this file and quiz.js install the same console.debug
-// placeholder when none exists; neither overwrites an existing one.
+// window.amGoal comes from metrika.js; this file and quiz.js install the same
+// console.debug placeholder only when it is missing.
 //
 // Sending: a valid form is POSTed to /api/lead (lead-service). Only a 201 shows
 // the thank-you state and fires am:lead and the goal; any other answer, a
@@ -29,24 +29,59 @@ var NEED_EXTRA = {
 var LEAD_URL = '/api/lead';
 var LEAD_TIMEOUT_MS = 15000;
 var UTM_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'];
+var UTM_STORE_KEY = 'amUtm';
 
-function readUtm() {
+// Keeps only known UTM keys with non-empty string values.
+function pickUtm(get) {
 	var utm = {};
 	var found = false;
+	UTM_KEYS.forEach(function (key) {
+		var value = get(key);
+		if (typeof value === 'string' && value) {
+			utm[key] = value.slice(0, 255);
+			found = true;
+		}
+	});
+	return found ? utm : null;
+}
+
+function utmFromUrl() {
 	try {
 		var params = new URLSearchParams(window.location.search);
-		UTM_KEYS.forEach(function (key) {
-			var value = params.get(key);
-			if (value) {
-				utm[key] = value.slice(0, 255);
-				found = true;
-			}
-		});
+		return pickUtm(function (key) { return params.get(key); });
 	} catch (e) {
 		return null;
 	}
-	return found ? utm : null;
 }
+
+// An ad click lands on the home page with UTM in the address. A visitor who
+// then opens /politika or /soglasie and comes back has none in the address,
+// so the landing labels are kept in sessionStorage (this tab only) and sent
+// with the lead. Labels in the current address win; a new ad click replaces
+// the stored ones.
+function rememberUtm() {
+	var utm = utmFromUrl();
+	if (!utm) return;
+	try {
+		window.sessionStorage.setItem(UTM_STORE_KEY, JSON.stringify(utm));
+	} catch (e) {
+		// Storage unavailable — the lead goes without labels after a detour.
+	}
+}
+
+function readUtm() {
+	var utm = utmFromUrl();
+	if (utm) return utm;
+	try {
+		var stored = JSON.parse(window.sessionStorage.getItem(UTM_STORE_KEY));
+		if (!stored || typeof stored !== 'object') return null;
+		return pickUtm(function (key) { return stored[key]; });
+	} catch (e) {
+		return null;
+	}
+}
+
+rememberUtm();
 
 // detail is the am:lead detail {type, fields, consent}. Resolves true only when
 // the service stored the lead (201); never rejects.
