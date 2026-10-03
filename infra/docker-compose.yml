@@ -98,6 +98,8 @@ services:
       - certbot-webroot:/var/www/certbot:ro
       # Выпуски сайта, которые собирает builder; nginx только читает.
       - ../site:/srv/site:ro
+      # Журнал статистики страниц (location = /s в nginx/site.conf).
+      - ../stats:/var/log/am-stats
     networks:
       # Две сети: наружу за сертификатами и к посетителям, внутрь — к Directus.
       # Сам Directus остаётся только во внутренней и в интернет не ходит.

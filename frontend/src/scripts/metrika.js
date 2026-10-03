@@ -46,6 +46,8 @@ function load() {
 }
 
 window.amGoal = function (name) {
+	// Cookie-free page statistics (stats.js) count goals for every visitor.
+	if (typeof window.amStatGoal === 'function') window.amStatGoal(name);
 	if (loaded) {
 		window.ym(COUNTER_ID, 'reachGoal', name);
 	} else {
