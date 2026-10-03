@@ -6,4 +6,4 @@
 // When a consent text changes: add the new date to
 // lead-service/src/consent-versions.mjs and deploy the service first, then
 // change it here and deploy the site.
-export const CONSENT_VERSION = '2026-10-03';
+export const CONSENT_VERSION = '2026-10-04';

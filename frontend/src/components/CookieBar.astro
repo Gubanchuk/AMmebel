@@ -4,19 +4,26 @@
 // in markup to avoid a flash before JS decides; consent.js un-hides it when no
 // choice is stored, when the stored choice was made under a different consent
 // version (../scripts/consent-version.js), or when it is older than 365 days.
-// Text and button labels: clients/sf-sofa/legal/07-teksty-dlya-sajta.md §2 —
-// "Разрешить" names what the visitor agrees to.
+// Text: short, in the manner of large Russian sites (research 03.10.2026),
+// without naming the service — Yandex is named in the consent text behind
+// «Подробнее». One main button «Разрешить»; refusal is the small cross in the
+// top-right corner (#cookieDecline, same handler as the former «Отклонить»
+// button). The cross is small to the eye but keeps a 40px tap area.
+// Document copy to update: clients/sf-sofa/legal/07-teksty-dlya-sajta.md §2
+// (listed in legal/next-revision.md).
 ---
 
 <div class="cookie" id="cookieBar" hidden>
 	<div class="wrap cookie__row">
 		<p class="cookie__text">
-			Разрешить cookie Яндекс Метрики для статистики сайта? <a href="/soglasie-cookie">Подробнее</a>
+			Cookie помогают нам делать сайт удобнее. <a href="/soglasie-cookie">Подробнее</a>
 		</p>
 		<div class="cookie__actions">
-			<button class="ghost" type="button" id="cookieDecline">Отклонить</button>
 			<button class="cta" type="button" id="cookieAccept">Разрешить</button>
 		</div>
+		<button class="cookie__close" type="button" id="cookieDecline" aria-label="Отклонить cookie" title="Отклонить">
+			<svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true"><path d="M1 1l10 10M11 1L1 11" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /></svg>
+		</button>
 	</div>
 </div>
 
@@ -26,16 +33,23 @@
 	.cookie__text { margin: 0; color: var(--grey); font-size: 13px; line-height: 1.5; max-width: 62ch; }
 	.cookie__text a { color: var(--ivory); }
 	.cookie__actions { display: flex; gap: 10px; flex-wrap: nowrap; flex: 0 0 auto; }
+	/* Refusal: a small cross in the bar's top-right corner, 40px tap area. */
+	.cookie__close { position: absolute; top: 4px; right: 4px; width: 40px; height: 40px; padding: 0; display: flex; align-items: center; justify-content: center; background: transparent; border: 0; color: var(--grey-dim); cursor: pointer; transition: color var(--t) ease; }
+	.cookie__close:hover { color: var(--grey); }
+	.cookie__close:focus-visible { outline: 1px solid var(--grey); outline-offset: -6px; }
+	/* keep the button clear of the cross where the row reaches the bar's edge */
+	@media (min-width: 741px) {
+		.cookie__row { padding-right: calc(var(--pad) + 36px); }
+	}
 
-	/* Compact stacked layout: text on its own line (1-2 lines), buttons below it
-	   in a single row (never stacked vertically) — keeps total bar height well
-	   under the viewport so it doesn't bury content sitting near the bottom. */
+	/* Compact stacked layout: text on its own line (1-2 lines), the button below
+	   it — keeps total bar height well under the viewport so it doesn't bury
+	   content sitting near the bottom. The text leaves room for the cross. */
 	@media (max-width: 740px) {
 		.cookie__row { padding-top: 12px; padding-bottom: 12px; gap: 10px; }
-		.cookie__text { flex: 1 1 100%; font-size: 12.5px; line-height: 1.4; }
+		.cookie__text { flex: 1 1 100%; font-size: 12.5px; line-height: 1.4; padding-right: 32px; }
 		.cookie__actions { flex: 1 1 100%; flex-wrap: nowrap; }
-		.cookie__actions .cta,
-		.cookie__actions .ghost { flex: 1 1 0; padding: 14px 12px; font-size: 11px; white-space: nowrap; }
+		.cookie__actions .cta { flex: 1 1 0; padding: 14px 12px; font-size: 11px; white-space: nowrap; }
 	}
 	/* phone held landscape: keep text and buttons on one row so the bar is not a fifth of the screen */
 	@media (max-height: 500px) and (min-width: 741px) {
