@@ -1,9 +1,11 @@
 // Yandex Metrika loader, site-wide via CookieBar. The counter loads only after
 // the visitor allowed analytics cookies (consent.js): at once when the choice
 // is already stored, otherwise on am:consent-analytics. Session recording
-// (Webvisor) stays off, as the cookie consent text promises
-// (clients/sf-sofa/legal/03-soglasie.md, document 2, §4). No <noscript> pixel:
-// it would count a visit before any consent.
+// (Webvisor, also the scroll map and form analytics) is on since consent
+// version 2026-10-03, which names it (clients/sf-sofa/legal/03-soglasie.md,
+// document 2, §4); form fields carry ym-disable-keys so their contents are
+// recorded as asterisks. No <noscript> pixel: it would count a visit before
+// any consent.
 //
 // window.amGoal(name) is defined here for every page and sends a goal to the
 // counter; until the counter is loaded it only logs to console.debug. Goals the
@@ -41,7 +43,7 @@ function load() {
 		clickmap: true,
 		trackLinks: true,
 		accurateTrackBounce: true,
-		webvisor: false,
+		webvisor: true,
 	});
 }
 

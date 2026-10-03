@@ -3,7 +3,8 @@
 // Needs cards already link to #price). Copy follows ruling R12: the site never
 // promises automatic price delivery — a manager sends the offer manually, since
 // prices differ per buyer segment. Validation and the am:lead dispatch live in
-// ../scripts/form.js.
+// ../scripts/form.js. Every text field carries ym-disable-keys: Webvisor
+// records it as asterisks (consent text, document 2, §4) — keep it on new ones.
 const needs = [
 	{ value: 'salon', label: 'Выставить у себя' },
 	{ value: 'online', label: 'Продать онлайн без склада' },
@@ -21,19 +22,19 @@ const needs = [
 			<div class="pf__grid">
 				<div class="fld">
 					<label for="pf-company">Компания / ИНН</label>
-					<input id="pf-company" name="company_inn" required placeholder="ООО «Ромашка» или ИНН" autocomplete="organization" />
+					<input id="pf-company" class="ym-disable-keys" name="company_inn" required placeholder="ООО «Ромашка» или ИНН" autocomplete="organization" />
 				</div>
 				<div class="fld">
 					<label for="pf-name">Имя</label>
-					<input id="pf-name" name="name" required placeholder="Как к вам обращаться" autocomplete="name" />
+					<input id="pf-name" class="ym-disable-keys" name="name" required placeholder="Как к вам обращаться" autocomplete="name" />
 				</div>
 				<div class="fld">
 					<label for="pf-phone">Телефон</label>
-					<input id="pf-phone" name="phone" type="tel" required placeholder="+7 …" autocomplete="tel" inputmode="tel" />
+					<input id="pf-phone" class="ym-disable-keys" name="phone" type="tel" required placeholder="+7 …" autocomplete="tel" inputmode="tel" />
 				</div>
 				<div class="fld">
 					<label for="pf-city">Город</label>
-					<input id="pf-city" name="city" required placeholder="Краснодар" autocomplete="address-level2" />
+					<input id="pf-city" class="ym-disable-keys" name="city" required placeholder="Краснодар" autocomplete="address-level2" />
 				</div>
 				<fieldset class="pf__need" id="pfNeed" role="radiogroup">
 					<legend>Что нужно</legend>
@@ -49,12 +50,12 @@ const needs = [
 				</fieldset>
 				<div class="fld" id="pfNeedExtraWrap" hidden>
 					<label for="pf-need-extra" id="pfNeedExtraLabel">Уточнение</label>
-					<input id="pf-need-extra" name="need_extra" placeholder="" />
+					<input id="pf-need-extra" class="ym-disable-keys" name="need_extra" placeholder="" />
 				</div>
 			</div>
 
 			<div class="pf__hp" aria-hidden="true">
-				<input name="website" tabindex="-1" autocomplete="off" />
+				<input name="website" class="ym-disable-keys" tabindex="-1" autocomplete="off" />
 			</div>
 
 			<label class="consent pf__consent">
