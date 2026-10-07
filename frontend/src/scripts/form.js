@@ -16,16 +16,6 @@ if (typeof window.amGoal !== 'function') {
 	};
 }
 
-// Follow-up field per "need" radio value — labels are the client's own wording
-// (task brief map): салон -> сколько точек, онлайн -> какие площадки,
-// объект -> объём и срок, агент -> проектов в год.
-var NEED_EXTRA = {
-	salon: { label: 'Сколько точек', placeholder: 'Например, 2' },
-	online: { label: 'Какие площадки', placeholder: 'Например, Wildberries, свой магазин' },
-	project: { label: 'Объём и срок', placeholder: 'Например, 40 номеров, к сентябрю' },
-	agent: { label: 'Проектов в год', placeholder: 'Например, 5–10' },
-};
-
 var LEAD_URL = '/api/lead';
 var LEAD_TIMEOUT_MS = 15000;
 var UTM_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'];
@@ -182,28 +172,14 @@ export function restoreFocus(button) {
 	var form = document.getElementById('pfForm');
 	if (!form) return;
 
-	var needGroup = document.getElementById('pfNeed');
-	var needRadios = form.querySelectorAll('input[name="need"]');
-	var extraWrap = document.getElementById('pfNeedExtraWrap');
-	var extraLabel = document.getElementById('pfNeedExtraLabel');
-	var extraInput = document.getElementById('pf-need-extra');
+	var phoneInput = form.elements.phone;
+	var nameInput = form.elements.name;
 	var consent = document.getElementById('pfConsent');
 	var submit = document.getElementById('pfSubmit');
 	var errorEl = document.getElementById('pfError');
 	var doneEl = document.getElementById('pfDone');
 	var submitLabel = submit.textContent;
 	var sending = false;
-
-	function updateExtraField() {
-		var meta = NEED_EXTRA[form.elements.need.value];
-		if (!meta) {
-			extraWrap.hidden = true;
-			return;
-		}
-		extraLabel.textContent = meta.label;
-		extraInput.placeholder = meta.placeholder;
-		extraWrap.hidden = false;
-	}
 
 	function setError(message) {
 		if (!message) {
@@ -215,25 +191,36 @@ export function restoreFocus(button) {
 		errorEl.textContent = message;
 	}
 
-	// Screen readers get the error text via role=alert; sighted keyboard users
-	// and AT users on the field itself get aria-invalid/aria-describedby too.
-	var validated = ['company_inn', 'name', 'phone', 'city', 'need'];
-	// «need» is a radio group: the fieldset carries the invalid state, not a single radio
-	function fieldFor(key) {
-		return key === 'need' ? needGroup : form.elements[key];
+	// Screen readers get the error text via role=alert; the phone field also
+	// gets aria-invalid/aria-describedby. The phone is the only required field.
+	function markPhone(invalid) {
+		if (invalid) {
+			phoneInput.setAttribute('aria-invalid', 'true');
+			phoneInput.setAttribute('aria-describedby', 'pfError');
+		} else {
+			phoneInput.removeAttribute('aria-invalid');
+			phoneInput.removeAttribute('aria-describedby');
+		}
 	}
-	function markInvalid(list) {
-		validated.map(fieldFor).concat([consent]).forEach(function (el) {
-			if (!el) return;
-			el.removeAttribute('aria-invalid');
-			el.removeAttribute('aria-describedby');
-		});
-		list.forEach(function (el) {
-			if (!el) return;
-			el.setAttribute('aria-invalid', 'true');
-			el.setAttribute('aria-describedby', 'pfError');
-		});
+
+	// The phone message comes first, before the consent hint, and asks for the
+	// number with the reason to give it — the client's wording of 08.10.2026.
+	function askForPhone(message) {
+		setError(message);
+		markPhone(true);
+		phoneInput.focus({ preventScroll: true });
+		var r = phoneInput.getBoundingClientRect();
+		if (r.top < 80 || r.bottom > window.innerHeight - 20) {
+			phoneInput.scrollIntoView({ block: 'center', behavior: 'smooth' });
+		}
 	}
+
+	phoneInput.addEventListener('input', function () {
+		if (phoneInput.getAttribute('aria-invalid') === 'true') {
+			markPhone(false);
+			setError(null);
+		}
+	});
 
 	// disabled only while a lead is being sent; the consent gate is separate
 	var gate = consentGate(consent, submit, document.getElementById('pfConsentHint'));
@@ -258,34 +245,11 @@ export function restoreFocus(button) {
 		return match ? match.length : 0;
 	}
 
-	needRadios.forEach(function (radio) {
-		radio.addEventListener('change', function () {
-			updateExtraField();
-			if (needGroup.getAttribute('aria-invalid') === 'true') {
-				needGroup.removeAttribute('aria-invalid');
-				needGroup.removeAttribute('aria-describedby');
-			}
-		});
-	});
-	// «Оставить заявку» on a buyer-task card picks the same task in the form.
-	document.querySelectorAll('a[data-need]').forEach(function (link) {
-		link.addEventListener('click', function () {
-			var radio = form.querySelector('input[name="need"][value="' + link.getAttribute('data-need') + '"]');
-			if (!radio || radio.checked) return;
-			radio.checked = true;
-			radio.dispatchEvent(new Event('change'));
-		});
-	});
 	syncSubmitState();
 
 	form.addEventListener('submit', function (event) {
 		event.preventDefault();
 		if (sending) return;
-		// Enter in a field submits too: without consent, point at the box first
-		if (gate.blocked()) {
-			gate.nudge();
-			return;
-		}
 
 		var honeypot = form.elements.website;
 		if (honeypot && honeypot.value.trim() !== '') {
@@ -294,34 +258,25 @@ export function restoreFocus(button) {
 		}
 
 		var fields = {
-			company_inn: form.elements.company_inn.value.trim(),
-			name: form.elements.name.value.trim(),
-			phone: form.elements.phone.value.trim(),
-			city: form.elements.city.value.trim(),
-			need: form.elements.need.value,
-			need_extra: extraInput.value.trim(),
+			name: nameInput.value.trim(),
+			phone: phoneInput.value.trim(),
 		};
 
-		if (!fields.company_inn || !fields.name || !fields.phone || !fields.city || !fields.need) {
-			setError('Заполните все обязательные поля.');
-			markInvalid(validated.filter(function (k) { return !fields[k]; }).map(fieldFor));
-			return;
-		}
-		// «Компания / ИНН» takes a name or an INN; digits only means an INN,
-		// which has 10 (company) or 12 (sole trader) digits. Same rule on the server.
-		var companyDigits = fields.company_inn.replace(/\s/g, '');
-		if (/^\d+$/.test(companyDigits) && companyDigits.length !== 10 && companyDigits.length !== 12) {
-			setError('Проверьте ИНН — в нём 10 или 12 цифр.');
-			markInvalid([form.elements.company_inn]);
+		if (!fields.phone) {
+			askForPhone('Напишите номер телефона — пришлём на него оптовый прайс.');
 			return;
 		}
 		if (digitsCount(fields.phone) < 10) {
-			setError('Проверьте номер телефона — нужно не меньше 10 цифр.');
-			markInvalid([form.elements.phone]);
+			askForPhone('В номере не хватает цифр — проверьте, пожалуйста.');
 			return;
 		}
 		setError(null);
-		markInvalid([]);
+		markPhone(false);
+		// Enter in a field submits too: without consent, point at the box
+		if (gate.blocked()) {
+			gate.nudge();
+			return;
+		}
 
 		var detail = {
 			type: 'price',

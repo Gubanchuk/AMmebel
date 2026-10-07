@@ -53,6 +53,26 @@ test('quiz lead: answers go to need/need_extra, skipped steps allowed, socket ip
 	assert.equal(minimal.status, 201);
 });
 
+test('price lead from the two-field form: phone alone or phone and name', async (t) => {
+	const app = await startApp(t);
+	const phoneOnly = await postJson(app.base, priceLead({ fields: { phone: '+7 918 000-00-00' } }), freshIp());
+	assert.equal(phoneOnly.status, 201);
+	const blankName = await postJson(app.base, priceLead({ fields: { name: '   ', phone: '+7 918 000-00-01' } }), freshIp());
+	assert.equal(blankName.status, 201);
+	const withName = await postJson(app.base, priceLead({ fields: { name: 'Иван', phone: '+7 918 000-00-02' } }), freshIp());
+	assert.equal(withName.status, 201);
+	const [first, second, third] = app.repo.rows;
+	for (const row of [first, second]) {
+		assert.equal(row.name, null);
+		assert.equal(row.company_inn, null);
+		assert.equal(row.city, null);
+		assert.equal(row.need, null);
+		assert.equal(row.need_extra, null);
+	}
+	assert.equal(third.name, 'Иван');
+	assert.equal(third.phone, '+7 918 000-00-02');
+});
+
 test('company field accepts a company name or an INN of 10 or 12 digits', async (t) => {
 	const app = await startApp(t);
 	for (const value of ['ООО «Ромашка»', '2310123456', '231012345678', '2310 123456']) {
@@ -149,13 +169,13 @@ test('invalid fields get 400 with the field names and are not stored', async (t)
 	const cases = [
 		[priceLead({ type: 'order' }), ['type']],
 		[priceLead({ fields: priceFields({ phone: '8 918 12' }) }), ['phone']],
-		[priceLead({ fields: priceFields({ name: '   ' }) }), ['name']],
-		[priceLead({ fields: priceFields({ city: undefined }) }), ['city']],
+		[priceLead({ fields: { name: 'Иван' } }), ['phone']],
 		[priceLead({ fields: priceFields({ need: 'other' }) }), ['need']],
 		[priceLead({ fields: priceFields({ name: 'x'.repeat(256) }) }), ['name']],
 		[priceLead({ fields: priceFields({ phone: 79180000000 }) }), ['phone']],
 		[priceLead({ fields: 'text' }), ['fields']],
 		[quizLead({ fields: { city: 'Ростов-на-Дону' } }), ['name', 'phone']],
+		[quizLead({ fields: { name: '   ', phone: '+7 900 000 00 01' } }), ['name']],
 	];
 	for (const [body, fields] of cases) {
 		const response = await postJson(app.base, body, freshIp());

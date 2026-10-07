@@ -6,4 +6,4 @@
 // New consent text: add its date here and deploy the service, then change
 // CONSENT_VERSION in frontend/src/scripts/consent-version.js and deploy the
 // site. Remove a date once its text must no longer be accepted.
-export const CONSENT_VERSIONS = Object.freeze(['2026-09-13', '2026-10-03', '2026-10-04']);
+export const CONSENT_VERSIONS = Object.freeze(['2026-09-13', '2026-10-03', '2026-10-04', '2026-10-08']);

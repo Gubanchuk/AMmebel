@@ -78,20 +78,23 @@ export function validateLead(body) {
 		return value === '' ? null : value;
 	}
 
-	const name = field('name', true);
+	// Since 08.10.2026 the price form asks for the phone only, the name is
+	// optional there. The quiz still requires the name.
+	const name = field('name', type !== 'price');
 	const phone = field('phone', true);
 	if (phone !== null && digitCount(phone) < 10) errors.add('phone');
 
 	let lead = null;
 	if (type === 'price') {
-		// The field is «Компания / ИНН»: a company name or an INN. A value made of
-		// digits only is taken as an INN and must have 10 or 12 digits.
-		const companyInn = field('company_inn', true);
+		// Company, city and task were dropped from the form on 08.10.2026. They are
+		// still accepted when sent (an old page in a visitor's tab), with the old
+		// checks: «Компания / ИНН» made of digits only is an INN of 10 or 12 digits.
+		const companyInn = field('company_inn');
 		if (companyInn !== null && /^[\d\s]+$/.test(companyInn) && ![10, 12].includes(digitCount(companyInn))) {
 			errors.add('company_inn');
 		}
-		const city = field('city', true);
-		const need = field('need', true);
+		const city = field('city');
+		const need = field('need');
 		if (need !== null && !NEEDS.includes(need)) errors.add('need');
 		const needExtra = field('need_extra');
 		lead = { type, company_inn: companyInn, name, phone, city, need, need_extra: needExtra };

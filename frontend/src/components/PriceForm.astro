@@ -1,56 +1,27 @@
 ---
 // PriceForm (page block 11) — id="price" per controller ruling R8 (Hero CTA and
-// Needs cards already link to #price). Copy follows ruling R12: the site never
-// promises automatic price delivery — a manager sends the offer manually, since
-// prices differ per buyer segment. Validation and the am:lead dispatch live in
+// Needs cards already link to #price). Two fields only, by the client's decision
+// of 08.10.2026: the phone is what the manager needs, the name is optional, and
+// a short form is what a visitor actually fills in. The manager sends the price
+// by hand (ruling R12). Validation and the am:lead dispatch live in
 // ../scripts/form.js. Every text field carries ym-disable-keys: Webvisor
 // records it as asterisks (consent text, document 2, §4) — keep it on new ones.
-const needs = [
-	{ value: 'salon', label: 'Выставить у себя' },
-	{ value: 'online', label: 'Продать онлайн без склада' },
-	{ value: 'project', label: 'Закрыть объект' },
-	{ value: 'agent', label: 'Привести клиента' },
-];
 ---
 
 <section class="sec price" id="price">
 	<div class="wrap">
 		<h2>Получить оптовый прайс</h2>
-		<p class="sec__lead">Оставьте заявку — менеджер свяжется с вами по телефону и направит оптовое предложение под ваш запрос.</p>
+		<p class="sec__lead">Оставьте номер телефона — пришлём на него оптовый прайс.</p>
 
 		<form class="pf" id="pfForm" novalidate>
 			<div class="pf__grid">
-				<div class="fld">
-					<label for="pf-company">Компания / ИНН</label>
-					<input id="pf-company" class="ym-disable-keys" name="company_inn" required placeholder="ООО «Ромашка» или ИНН" autocomplete="organization" />
-				</div>
-				<div class="fld">
-					<label for="pf-name">Имя</label>
-					<input id="pf-name" class="ym-disable-keys" name="name" required placeholder="Как к вам обращаться" autocomplete="name" />
-				</div>
 				<div class="fld">
 					<label for="pf-phone">Телефон</label>
 					<input id="pf-phone" class="ym-disable-keys" name="phone" type="tel" required placeholder="+7 …" autocomplete="tel" inputmode="tel" />
 				</div>
 				<div class="fld">
-					<label for="pf-city">Город</label>
-					<input id="pf-city" class="ym-disable-keys" name="city" required placeholder="Краснодар" autocomplete="address-level2" />
-				</div>
-				<fieldset class="pf__need" id="pfNeed" role="radiogroup">
-					<legend>Что нужно</legend>
-					<div class="pf__tiles">
-						{needs.map((n) => (
-							<label class="tile">
-								<input type="radio" name="need" value={n.value} />
-								<span class="tile__mark" aria-hidden="true"></span>
-								<span class="tile__text">{n.label}</span>
-							</label>
-						))}
-					</div>
-				</fieldset>
-				<div class="fld" id="pfNeedExtraWrap" hidden>
-					<label for="pf-need-extra" id="pfNeedExtraLabel">Уточнение</label>
-					<input id="pf-need-extra" class="ym-disable-keys" name="need_extra" placeholder="" />
+					<label for="pf-name">Имя</label>
+					<input id="pf-name" class="ym-disable-keys" name="name" placeholder="Как к вам обращаться" autocomplete="name" />
 				</div>
 			</div>
 
@@ -72,7 +43,7 @@ const needs = [
 
 		<div class="pf__done" id="pfDone" role="status" tabindex="-1" hidden>
 			<h3>Заявка отправлена</h3>
-			<p>Менеджер свяжется с вами по телефону и направит оптовое предложение.</p>
+			<p>Менеджер пришлёт оптовый прайс на ваш номер.</p>
 		</div>
 	</div>
 </section>
@@ -83,33 +54,6 @@ const needs = [
 	@media (max-width: 640px) {
 		.pf__grid { grid-template-columns: 1fr; }
 	}
-	/* «Что нужно» — four tiles instead of a native select: every option is visible
-	   at once, one tap picks one, and there is no OS-styled dropdown. Native radios
-	   underneath keep arrow-key navigation and form semantics. */
-	.pf__need { grid-column: 1 / -1; border: 0; margin: 4px 0 18px; padding: 0; min-width: 0; }
-	.pf__need legend { padding: 0; margin-bottom: 10px; font-family: var(--mono); font-size: 11.5px; letter-spacing: .12em; color: var(--grey-dim); text-transform: uppercase; transition: color var(--t) ease; }
-	.pf__need[aria-invalid="true"] legend { color: var(--ivory); }
-	.pf__tiles { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-	@media (max-width: 640px) {
-		.pf__tiles { grid-template-columns: 1fr; }
-	}
-	.tile { position: relative; display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 12px 16px; background: #1F1C18; border: 1px solid var(--line); color: #DAD5C9; font-size: 14.5px; line-height: 1.35; cursor: pointer; transition: border-color var(--t) ease, background var(--t) ease, color var(--t) ease; }
-	.tile input { position: absolute; opacity: 0; width: 1px; height: 1px; margin: 0; pointer-events: none; }
-	.tile__mark { flex: 0 0 16px; width: 16px; height: 16px; border: 1px solid var(--line-ui); border-radius: 50%; position: relative; transition: border-color var(--t) ease; } /* round: one choice, unlike the square consent checkbox */
-	.tile__mark:after { content: ''; position: absolute; inset: 3px; border-radius: 50%; background: var(--ivory); transform: scale(0); transition: transform var(--t) ease; }
-	.tile:has(input:checked) { background: #241F19; border-color: #6B6456; color: var(--ivory); }
-	.tile:has(input:checked) .tile__mark { border-color: var(--ivory); }
-	.tile:has(input:checked) .tile__mark:after { transform: scale(1); }
-	.tile:has(input:focus-visible) { outline: 2px solid var(--ivory); outline-offset: 3px; }
-	.pf__need[aria-invalid="true"] .tile { border-style: dashed; border-color: var(--line-ui); }
-	@media (hover: hover) {
-		.tile:hover { background: #242019; border-color: #3A352C; }
-		.tile:has(input:checked):hover { border-color: #6B6456; }
-	}
-	@media (prefers-reduced-motion: reduce) {
-		.tile, .tile__mark, .tile__mark:after, .pf__need legend { transition: none; }
-	}
-
 	.pf__hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
 
 	.pf__consent { margin: 8px 0 22px; max-width: 56ch; }
