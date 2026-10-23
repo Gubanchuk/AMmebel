@@ -130,8 +130,9 @@ test('sql/grant.sql grants exactly the columns the queries use, and nothing broa
 		new Set(grantedColumns(sql, 'INSERT')),
 		new Set(['created_at', 'consent_at', 'email_status', ...INSERT_COLUMNS, ...INSERT_EXTERNAL_COLUMNS]),
 	);
-	// SELECT: returned columns, plus email_status for the WHERE clause.
-	assert.deepEqual(new Set(grantedColumns(sql, 'SELECT')), new Set([...OUTBOX_COLUMNS, 'email_status']));
+	// SELECT: returned columns, email_status for the WHERE clause and
+	// external_id, the ON CONFLICT target of INSERT_EXTERNAL_LEAD.
+	assert.deepEqual(new Set(grantedColumns(sql, 'SELECT')), new Set([...OUTBOX_COLUMNS, 'email_status', 'external_id']));
 	assert.deepEqual(grantedColumns(sql, 'UPDATE'), ['email_status']);
 
 	for (const consentLog of ['ip', 'consent_version', 'consent_at']) {
