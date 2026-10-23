@@ -1,5 +1,6 @@
 // lead-service entry point: reads the environment, wires the database, the mail
-// outbox and the messenger trigger, and shuts down cleanly on SIGTERM.
+// outbox, the messenger trigger and the VK lead form poller, and shuts down
+// cleanly on SIGTERM.
 //
 // Intake ships switched off. Unless LEADS_ENABLED is exactly "true" the service
 // opens no database connection, sends nothing and answers POST /api/lead with
@@ -12,6 +13,7 @@ import { log } from './log.mjs';
 import { setupOutbox } from './mail.mjs';
 import { createRateLimiter } from './rate-limit.mjs';
 import { createMaxNotifier } from './trigger.mjs';
+import { createVkPoller } from './vk-leads.mjs';
 
 const SHUTDOWN_TIMEOUT_MS = 10_000;
 
@@ -23,6 +25,7 @@ let pool = null;
 let repo = null;
 let outbox = null;
 let notify = null;
+let vkPoller = null;
 const pending = new Set();
 
 if (enabled) {
@@ -34,15 +37,16 @@ if (enabled) {
 	repo = createRepository(pool);
 	outbox = setupOutbox({ env, repo, log });
 	notify = createMaxNotifier({ env, log });
+	vkPoller = createVkPoller({ env, repo, onStored, log });
 	log('lead intake is on');
 } else {
-	log('lead intake is off (LEADS_ENABLED is not "true"): POST /api/lead answers 503, database, mail and messenger are not used');
+	log('lead intake is off (LEADS_ENABLED is not "true"): POST /api/lead answers 503, database, mail, messenger and VK are not used');
 }
 
-function onStored(id) {
+function onStored(id, source) {
 	if (outbox) outbox.tick();
 	if (notify) {
-		const task = notify(id).finally(() => pending.delete(task));
+		const task = notify(id, source).finally(() => pending.delete(task));
 		pending.add(task);
 	}
 }
@@ -61,6 +65,7 @@ const server = createServer({
 server.listen(port, () => {
 	log(`listening on ${server.address().port}`);
 	if (outbox) outbox.start();
+	if (vkPoller) vkPoller.start();
 });
 
 let stopping = false;
@@ -80,6 +85,7 @@ async function shutdown(signal) {
 		server.close(resolve);
 		server.closeIdleConnections();
 	});
+	if (vkPoller) await vkPoller.stop();
 	if (outbox) await outbox.stop();
 	await Promise.allSettled(pending);
 	if (pool) await pool.end();

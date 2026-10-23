@@ -200,20 +200,28 @@ def main():
         meta={"interface": "datetime", "readonly": True, "width": "half"},
         schema={"is_nullable": True},
     )
+    lead_types = {"choices": [{"text": "Квиз", "value": "quiz"},
+                              {"text": "Форма прайса", "value": "price"},
+                              {"text": "Лид-форма VK", "value": "vk"}]}
     make_field(
         "leads",
         "type",
         "string",
-        "Откуда пришла: quiz — из квиза, price — из формы прайса",
+        "Откуда пришла: quiz — из квиза, price — из формы прайса, vk — из лид-формы VK",
         meta={
             "interface": "select-dropdown",
-            "options": {"choices": [{"text": "Квиз", "value": "quiz"},
-                                     {"text": "Форма прайса", "value": "price"}]},
+            "options": lead_types,
             "readonly": True,
             "width": "half",
         },
         schema={"is_nullable": True},
     )
+    # make_field не трогает существующее поле, а вариант «Лид-форма VK»
+    # добавлен 23.10.2026 — дописываем его в уже созданную коллекцию.
+    call("PATCH", "/fields/leads/type", {"meta": {
+        "note": "Откуда пришла: quiz — из квиза, price — из формы прайса, vk — из лид-формы VK",
+        "options": lead_types,
+    }})
     for f, note in [
         ("company_inn", "ИНН компании"),
         ("name", "Имя закупщика"),
@@ -262,6 +270,16 @@ def main():
         "Когда отмечено согласие",
         meta={"interface": "datetime", "readonly": True, "width": "half"},
         schema={"is_nullable": True},
+    )
+    # Номер заявки во внешнем сервисе. Уникальный: lead-service забирает
+    # заявки VK раз в минуту и по этому полю не пишет одну заявку дважды.
+    make_field(
+        "leads",
+        "external_id",
+        "string",
+        "Номер заявки во внешнем сервисе, например vk:123",
+        meta={"interface": "input", "readonly": True, "width": "half"},
+        schema={"is_nullable": True, "is_unique": True},
     )
     make_field(
         "leads",

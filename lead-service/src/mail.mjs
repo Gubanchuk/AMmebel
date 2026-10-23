@@ -102,6 +102,14 @@ export function formatLeadEmail(lead) {
 			['Что нужно', NEED_LABELS[lead.need] || lead.need],
 			['Уточнение', lead.need_extra],
 		);
+	} else if (lead.type === 'vk') {
+		rows.push(
+			['Откуда', 'лид-форма VK'],
+			['Имя', lead.name],
+			['Телефон', lead.phone],
+			['Город', lead.city],
+			['Ответы', lead.need],
+		);
 	} else {
 		rows.push(
 			['Откуда', 'квиз на первом экране'],
@@ -117,6 +125,7 @@ export function formatLeadEmail(lead) {
 
 	const text = `${rows.map(([label, value]) => `${label}: ${clean(value)}`).join('\n')}\n\nЗаявка сохранена в админке, раздел «Заявки».\n`;
 	// The subject carries no personal data: mail providers log subjects widely.
+	if (lead.type === 'vk') return { subject: `Заявка №${lead.id} из лид-формы VK`, text };
 	const source = lead.type === 'price' ? 'форма прайса' : 'квиз';
 	return { subject: `Заявка №${lead.id} с сайта am-fabrika.ru (${source})`, text };
 }

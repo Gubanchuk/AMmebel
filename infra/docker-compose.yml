@@ -162,6 +162,11 @@ services:
       MAIL_TO: ${MAIL_TO:-}
       MAX_BOT_TOKEN: ${MAX_BOT_TOKEN:-}
       MAX_CHAT_ID: ${MAX_CHAT_ID:-}
+      # Заявки из лид-форм VK Рекламы: сервис забирает их по API раз в минуту.
+      # Не заданы — VK не опрашивается.
+      VK_ADS_CLIENT_ID: ${VK_ADS_CLIENT_ID:-}
+      VK_ADS_CLIENT_SECRET: ${VK_ADS_CLIENT_SECRET:-}
+      VK_LEAD_FORM_IDS: ${VK_LEAD_FORM_IDS:-}
       # Кнопка «Открыть заявку» в сообщении MAX ведёт на карточку в админке.
       ADMIN_URL: ${PUBLIC_URL}
       # platform-api2.max.ru подписан корнем Минцифры, которого Node не знает.
@@ -170,8 +175,8 @@ services:
       - ./certs/russian_trusted_root_ca.pem:/etc/ssl/extra/russian_trusted_root_ca.pem:ro
     networks:
       - am-internal
-      # Выход наружу для письма менеджеру и MAX. Кроме lead-service в этой
-      # сети никого нет.
+      # Выход наружу для письма менеджеру, MAX и API VK Рекламы. Кроме
+      # lead-service в этой сети никого нет.
       - am-leads-out
 
   # Установка npm-пакетов для сборки. Запускает deploy-site.sh, когда меняется

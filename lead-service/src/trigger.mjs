@@ -16,8 +16,8 @@
 
 export const MAX_API_URL = 'https://platform-api2.max.ru';
 
-export function leadMessage(id) {
-	return `Новая заявка №${id} с сайта`;
+export function leadMessage(id, source = 'site') {
+	return source === 'vk' ? `Новая заявка №${id} из VK` : `Новая заявка №${id} с сайта`;
 }
 
 // Card of the lead in the Directus admin panel.
@@ -48,7 +48,8 @@ export function buildMaxRequest({ apiUrl = MAX_API_URL, token, chatId, text, lin
 	};
 }
 
-// Returns notify(id) -> Promise<boolean>, or null when MAX is not configured.
+// Returns notify(id, source?) -> Promise<boolean>, or null when MAX is not
+// configured. source is 'site' (default) or 'vk'.
 // Failures are logged and swallowed: e-mail and the database are the primary
 // channels (spec §8).
 export function createMaxNotifier({ env, log, fetchImpl = fetch, timeoutMs = 5_000 }) {
@@ -68,9 +69,9 @@ export function createMaxNotifier({ env, log, fetchImpl = fetch, timeoutMs = 5_0
 		log('messenger notification: ADMIN_URL is not a valid URL, messages go without the button');
 	}
 
-	return async function notify(id) {
+	return async function notify(id, source) {
 		const link = adminUrl ? leadLink(adminUrl, id) : undefined;
-		const { url, init } = buildMaxRequest({ apiUrl, token, chatId, text: leadMessage(id), link });
+		const { url, init } = buildMaxRequest({ apiUrl, token, chatId, text: leadMessage(id, source), link });
 		try {
 			const response = await fetchImpl(url, { ...init, signal: AbortSignal.timeout(timeoutMs) });
 			await response.arrayBuffer().catch(() => {});

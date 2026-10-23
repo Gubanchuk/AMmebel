@@ -26,6 +26,27 @@ INSERT INTO leads (created_at, consent_at, email_status, ${INSERT_COLUMNS.join('
 VALUES (now(), now(), 'queued', ${INSERT_COLUMNS.map((_, i) => `$${i + 1}`).join(', ')})
 RETURNING id`;
 
+// Leads pulled from VK Ads lead forms (src/vk-leads.mjs). external_id is the
+// VK lead id and a unique column, so a lead seen on every poll is stored once:
+// on a repeat the INSERT does nothing and returns no id. $1 is the time VK
+// received the lead (consent was given then); NULL falls back to now().
+export const INSERT_EXTERNAL_COLUMNS = [
+	'type',
+	'name',
+	'phone',
+	'city',
+	'need',
+	'utm',
+	'consent_version',
+	'external_id',
+];
+
+export const INSERT_EXTERNAL_LEAD = `
+INSERT INTO leads (created_at, consent_at, email_status, ${INSERT_EXTERNAL_COLUMNS.join(', ')})
+VALUES (COALESCE($1::timestamptz, now()), COALESCE($1::timestamptz, now()), 'queued', ${INSERT_EXTERNAL_COLUMNS.map((_, i) => `$${i + 2}`).join(', ')})
+ON CONFLICT (external_id) DO NOTHING
+RETURNING id`;
+
 export const OUTBOX_COLUMNS = [
 	'id',
 	'created_at',
@@ -72,6 +93,19 @@ export function createRepository(pool) {
 			});
 			const { rows } = await pool.query(INSERT_LEAD, values);
 			return rows[0].id;
+		},
+
+		// Returns the new id, or null when the lead is already stored.
+		async insertExternalLead(lead) {
+			const values = [
+				lead.received_at ?? null,
+				...INSERT_EXTERNAL_COLUMNS.map((column) => {
+					const value = lead[column] ?? null;
+					return column === 'utm' && value !== null ? JSON.stringify(value) : value;
+				}),
+			];
+			const { rows } = await pool.query(INSERT_EXTERNAL_LEAD, values);
+			return rows.length > 0 ? rows[0].id : null;
 		},
 
 		async pickOutbox(limit) {

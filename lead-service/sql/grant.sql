@@ -48,8 +48,10 @@ $$;
 
 GRANT USAGE ON SCHEMA public TO lead_service;
 
+-- external_id — номер заявки из лид-формы VK; ON CONFLICT DO NOTHING по нему
+-- требует только права на INSERT.
 GRANT INSERT (created_at, consent_at, email_status, type, company_inn, name, phone,
-              city, need, need_extra, source_page, utm, ip, consent_version)
+              city, need, need_extra, source_page, utm, ip, consent_version, external_id)
   ON TABLE leads TO lead_service;
 
 GRANT SELECT (id, created_at, type, company_inn, name, phone, city, need, need_extra,

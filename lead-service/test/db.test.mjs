@@ -3,6 +3,8 @@ import { readFile } from 'node:fs/promises';
 import { test } from 'node:test';
 import {
 	INSERT_COLUMNS,
+	INSERT_EXTERNAL_COLUMNS,
+	INSERT_EXTERNAL_LEAD,
 	INSERT_LEAD,
 	OUTBOX_COLUMNS,
 	PICK_OUTBOX,
@@ -64,6 +66,40 @@ test('missing optional values are sent as NULL', async () => {
 	assert.equal(pool.queries[0].values.filter((value) => value === null).length, INSERT_COLUMNS.length - 3);
 });
 
+test('insertExternalLead passes the VK time first and returns null on a repeat', async () => {
+	const pool = fakePool({ rows: [{ id: 21 }] });
+	const repo = createRepository(pool);
+	const lead = {
+		type: 'vk',
+		received_at: '2026-10-23T10:05:42.251Z',
+		name: 'Алексей',
+		phone: '+79180000000',
+		city: null,
+		need: 'Когда нужен диван: В ближайший месяц',
+		utm: { utm_source: 'vk', utm_medium: 'leadform' },
+		consent_version: 'vk-form-1026922',
+		external_id: 'vk:42',
+	};
+	assert.equal(await repo.insertExternalLead(lead), 21);
+	assert.equal(pool.queries[0].text, INSERT_EXTERNAL_LEAD);
+	assert.deepEqual(pool.queries[0].values, [
+		'2026-10-23T10:05:42.251Z',
+		'vk',
+		'Алексей',
+		'+79180000000',
+		null,
+		'Когда нужен диван: В ближайший месяц',
+		'{"utm_source":"vk","utm_medium":"leadform"}',
+		'vk-form-1026922',
+		'vk:42',
+	]);
+	assert.equal(pool.queries[0].values.length, INSERT_EXTERNAL_COLUMNS.length + 1);
+	assert.match(INSERT_EXTERNAL_LEAD, /ON CONFLICT \(external_id\) DO NOTHING\s+RETURNING id/);
+
+	const repeat = createRepository(fakePool({ rows: [] }));
+	assert.equal(await repeat.insertExternalLead(lead), null);
+});
+
 test('outbox queries take the limit, the id and the status as parameters', async () => {
 	const rows = [{ id: 3 }];
 	const pool = fakePool({ rows });
@@ -92,7 +128,7 @@ test('sql/grant.sql grants exactly the columns the queries use, and nothing broa
 
 	assert.deepEqual(
 		new Set(grantedColumns(sql, 'INSERT')),
-		new Set(['created_at', 'consent_at', 'email_status', ...INSERT_COLUMNS]),
+		new Set(['created_at', 'consent_at', 'email_status', ...INSERT_COLUMNS, ...INSERT_EXTERNAL_COLUMNS]),
 	);
 	// SELECT: returned columns, plus email_status for the WHERE clause.
 	assert.deepEqual(new Set(grantedColumns(sql, 'SELECT')), new Set([...OUTBOX_COLUMNS, 'email_status']));

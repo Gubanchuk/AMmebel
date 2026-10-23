@@ -80,6 +80,8 @@ docker compose cp directus:/tmp/schema.yaml ./directus-schema.yaml
 3. Выход наружу и MAX готовы с 14.09.2026: сеть `am-leads-out`, корневой сертификат Минцифры `certs/russian_trusted_root_ca.pem` смонтирован, `NODE_EXTRA_CA_CERTS` задан в compose. Отправка из контейнера проверена тестовым сообщением.
 4. `docker compose up -d lead-service`, отправить тестовую заявку с сайта, проверить её в админке и удалить.
 
+**Заявки из лид-формы VK** (с 23.10.2026, код в `lead-service/src/vk-leads.mjs`, описание в README сервиса): сервис раз в минуту забирает заявки форм из `VK_LEAD_FORM_IDS` через API VK Рекламы и пишет их в `leads` с типом `vk`. Включить: в `.env` задать `VK_ADS_CLIENT_ID`, `VK_ADS_CLIENT_SECRET`, `VK_LEAD_FORM_IDS=1026922`, затем `docker compose up -d lead-service`; в логе должно быть `vk lead forms: polling forms 1026922 every 60 s`. Выход к `ads.vk.ru` из контейнера проверен 23.10.2026. Поле `leads.external_id` (уникальное) добавлено `setup-collections.py` 23.10.2026.
+
 Новый код сервиса: скопировать папку в `/opt/am-site/lead-service`, `docker compose build lead-service && docker compose up -d lead-service`. Права роли переустанавливаются повторным запуском `sql/grant.sql` (команда в шапке файла). Интеграционный тест прогнан 13.09.2026 на копии рабочей базы из бэкапа — под владельцем таблицы и под `lead_service`.
 
 ## Статистика страниц
