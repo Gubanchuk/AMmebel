@@ -2,7 +2,7 @@
 //
 // The leads table belongs to Directus (infra/setup-collections.py). The service
 // connects as the lead_service role from sql/grant.sql: it may insert leads,
-// read the columns listed in PICK_OUTBOX plus id, and change email_status —
+// read the columns listed in PICK_OUTBOX plus external_id, and change email_status —
 // nothing else. test/db.test.mjs checks that grant.sql covers these queries.
 
 import pg from 'pg';
@@ -46,6 +46,15 @@ INSERT INTO leads (created_at, consent_at, email_status, ${INSERT_EXTERNAL_COLUM
 VALUES (COALESCE($1::timestamptz, now()), COALESCE($1::timestamptz, now()), 'queued', ${INSERT_EXTERNAL_COLUMNS.map((_, i) => `$${i + 2}`).join(', ')})
 ON CONFLICT (external_id) DO NOTHING
 RETURNING id`;
+
+// external_id values of the list that are already stored. The VK poller asks
+// before inserting: an INSERT that ends in ON CONFLICT still takes a number
+// from the id sequence, and polling the same leads every minute made lead
+// numbers jump from 7 to 1484 overnight (24.10.2026).
+export const PICK_KNOWN_EXTERNAL_IDS = `
+SELECT external_id
+FROM leads
+WHERE external_id = ANY($1::text[])`;
 
 export const OUTBOX_COLUMNS = [
 	'id',
@@ -106,6 +115,12 @@ export function createRepository(pool) {
 			];
 			const { rows } = await pool.query(INSERT_EXTERNAL_LEAD, values);
 			return rows.length > 0 ? rows[0].id : null;
+		},
+
+		async knownExternalIds(ids) {
+			if (ids.length === 0) return new Set();
+			const { rows } = await pool.query(PICK_KNOWN_EXTERNAL_IDS, [ids]);
+			return new Set(rows.map((row) => row.external_id));
 		},
 
 		async pickOutbox(limit) {

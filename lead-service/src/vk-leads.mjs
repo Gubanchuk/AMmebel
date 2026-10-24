@@ -207,7 +207,9 @@ export function createVkPoller({ env, repo, onStored, log, fetchImpl = fetch, ti
 	}
 
 	// One poll: the 50 newest leads of the forms, stored oldest first so that
-	// lead numbers follow the order the leads came in. Returns how many were new.
+	// lead numbers follow the order the leads came in. Leads already in the
+	// table are not inserted again: a conflicting INSERT would still use up a
+	// lead number. Returns how many were new.
 	async function pollOnce() {
 		let result = await fetchLeads(await tokens.get());
 		if (result.status === 401) {
@@ -216,13 +218,16 @@ export function createVkPoller({ env, repo, onStored, log, fetchImpl = fetch, ti
 		}
 		if (!result.ok) throw new Error(`leads HTTP ${result.status}`);
 		const items = Array.isArray(result.body?.items) ? result.body.items : [];
-		let stored = 0;
+		const leads = [];
 		for (const item of items.slice().reverse()) {
 			const lead = mapVkLead(item);
-			if (!lead) {
-				log('vk: lead without id skipped');
-				continue;
-			}
+			if (lead) leads.push(lead);
+			else log('vk: lead without id skipped');
+		}
+		const known = await repo.knownExternalIds(leads.map((lead) => lead.external_id));
+		let stored = 0;
+		for (const lead of leads) {
+			if (known.has(lead.external_id)) continue;
 			const id = await repo.insertExternalLead(lead);
 			if (id === null) continue;
 			stored += 1;

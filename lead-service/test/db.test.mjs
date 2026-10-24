@@ -7,6 +7,7 @@ import {
 	INSERT_EXTERNAL_LEAD,
 	INSERT_LEAD,
 	OUTBOX_COLUMNS,
+	PICK_KNOWN_EXTERNAL_IDS,
 	PICK_OUTBOX,
 	SET_EMAIL_STATUS,
 	createRepository,
@@ -100,6 +101,17 @@ test('insertExternalLead passes the VK time first and returns null on a repeat',
 	assert.equal(await repeat.insertExternalLead(lead), null);
 });
 
+test('knownExternalIds asks for the whole list in one query and skips an empty one', async () => {
+	const pool = fakePool({ rows: [{ external_id: 'vk:41' }] });
+	const repo = createRepository(pool);
+	assert.deepEqual(await repo.knownExternalIds(['vk:41', 'vk:42']), new Set(['vk:41']));
+	assert.deepEqual(pool.queries, [{ text: PICK_KNOWN_EXTERNAL_IDS, values: [['vk:41', 'vk:42']] }]);
+	assert.match(PICK_KNOWN_EXTERNAL_IDS, /SELECT external_id\s+FROM leads\s+WHERE external_id = ANY\(\$1::text\[\]\)/);
+
+	assert.deepEqual(await repo.knownExternalIds([]), new Set());
+	assert.equal(pool.queries.length, 1);
+});
+
 test('outbox queries take the limit, the id and the status as parameters', async () => {
 	const rows = [{ id: 3 }];
 	const pool = fakePool({ rows });
@@ -131,7 +143,8 @@ test('sql/grant.sql grants exactly the columns the queries use, and nothing broa
 		new Set(['created_at', 'consent_at', 'email_status', ...INSERT_COLUMNS, ...INSERT_EXTERNAL_COLUMNS]),
 	);
 	// SELECT: returned columns, email_status for the WHERE clause and
-	// external_id, the ON CONFLICT target of INSERT_EXTERNAL_LEAD.
+	// external_id, the ON CONFLICT target of INSERT_EXTERNAL_LEAD and the
+	// column PICK_KNOWN_EXTERNAL_IDS reads.
 	assert.deepEqual(new Set(grantedColumns(sql, 'SELECT')), new Set([...OUTBOX_COLUMNS, 'email_status', 'external_id']));
 	assert.deepEqual(grantedColumns(sql, 'UPDATE'), ['email_status']);
 

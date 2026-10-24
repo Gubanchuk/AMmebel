@@ -50,7 +50,8 @@ GRANT USAGE ON SCHEMA public TO lead_service;
 
 -- external_id — номер заявки из лид-формы VK. ON CONFLICT (external_id) требует
 -- права читать эту колонку (без него ошибка 42501, проверено 23.10.2026),
--- поэтому она есть и в SELECT. Персональных данных в ней нет.
+-- поэтому она есть и в SELECT; по ней же сервис перед вставкой узнаёт, какие
+-- заявки VK уже записаны (PICK_KNOWN_EXTERNAL_IDS). Персональных данных в ней нет.
 GRANT INSERT (created_at, consent_at, email_status, type, company_inn, name, phone,
               city, need, need_extra, source_page, utm, ip, consent_version, external_id)
   ON TABLE leads TO lead_service;

@@ -60,14 +60,23 @@ function fakeVk({ items = [], tokenReplies = [[200, { access_token: 'a1', refres
 	return { calls, fetchImpl };
 }
 
+// Behaves like the leads table: every INSERT takes the next id from the
+// sequence, even one that ends in ON CONFLICT DO NOTHING.
 function dedupRepo() {
 	const rows = [];
+	let sequence = 100;
 	return {
 		rows,
+		inserts: 0,
+		async knownExternalIds(ids) {
+			return new Set(rows.map((row) => row.external_id).filter((id) => ids.includes(id)));
+		},
 		async insertExternalLead(lead) {
+			this.inserts += 1;
+			sequence += 1;
 			if (rows.some((row) => row.external_id === lead.external_id)) return null;
 			rows.push(lead);
-			return rows.length + 100;
+			return sequence;
 		},
 	};
 }
@@ -156,6 +165,7 @@ test('stores new leads oldest first, once, and reports them as vk', async () => 
 
 	assert.equal(await poller.pollOnce(), 0, 'the same leads on the next poll are not stored again');
 	assert.equal(stored.length, 3);
+	assert.equal(repo.inserts, 3, 'known leads are not inserted again, so they take no ids');
 
 	const tokenCalls = vk.calls.filter((call) => call.path === '/api/v2/oauth2/token.json');
 	assert.equal(tokenCalls.length, 1, 'the token is reused between polls');
@@ -170,6 +180,23 @@ test('stores new leads oldest first, once, and reports them as vk', async () => 
 
 	const text = logs.join('\n');
 	assert.ok(!text.includes('Алексей') && !text.includes('+7918'), 'no personal data in logs');
+});
+
+test('a new lead after many polls gets the next number', async () => {
+	const items = [vkItem({ id: '502' }), vkItem({ id: '501' })];
+	const vk = fakeVk({ items });
+	const repo = dedupRepo();
+	const { stored, log, onStored } = collect();
+	const poller = createVkPoller({ env: ENV, repo, onStored, log, fetchImpl: vk.fetchImpl });
+
+	for (let poll = 0; poll < 5; poll += 1) await poller.pollOnce();
+	items.unshift(vkItem({ id: '503' }));
+	assert.equal(await poller.pollOnce(), 1);
+	assert.deepEqual(stored, [
+		[101, 'vk'],
+		[102, 'vk'],
+		[103, 'vk'],
+	]);
 });
 
 test('token limit: deletes the old tokens and asks again', async () => {
