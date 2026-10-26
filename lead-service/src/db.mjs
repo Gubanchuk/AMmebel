@@ -36,6 +36,7 @@ export const INSERT_EXTERNAL_COLUMNS = [
 	'phone',
 	'city',
 	'need',
+	'need_extra',
 	'utm',
 	'consent_version',
 	'external_id',

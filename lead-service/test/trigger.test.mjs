@@ -103,6 +103,59 @@ test('without a valid ADMIN_URL the message goes without the button', async (t) 
 	}
 });
 
+test('VK lead with an ad: the title in the text, the picture before the button', async (t) => {
+	const stub = await stubServer(t, (req, res) => {
+		res.writeHead(200, { 'content-type': 'application/json' });
+		res.end('{"message":{"body":{"mid":"1"}}}');
+	});
+	const { logs, log } = collectLogs();
+	const notify = createMaxNotifier({
+		env: { MAX_BOT_TOKEN: 'bot-token-123', MAX_CHAT_ID: '7', MAX_API_URL: stub.url, ADMIN_URL: 'https://admin.example.ru' },
+		log,
+	});
+	const ad = { title: 'Битва за диван отменяется', image: 'https://r.mradx.net/imgs/18/fd/square.jpg' };
+
+	assert.equal(await notify(4214, 'vk', ad), true);
+	assert.equal(stub.requests.length, 1);
+	assert.deepEqual(JSON.parse(stub.requests[0].body), {
+		text: 'Новая заявка №4214 из VK\nОбъявление «Битва за диван отменяется»',
+		attachments: [
+			{ type: 'image', payload: { url: 'https://r.mradx.net/imgs/18/fd/square.jpg' } },
+			{
+				type: 'inline_keyboard',
+				payload: {
+					buttons: [
+						[{ type: 'link', text: 'Открыть заявку', url: 'https://admin.example.ru/admin/content/leads/4214' }],
+					],
+				},
+			},
+		],
+	});
+	assert.deepEqual(logs, ['lead 4214 messenger notification sent']);
+});
+
+test('picture refused by MAX: the message goes again without it', async (t) => {
+	let answered = 0;
+	const stub = await stubServer(t, (req, res) => {
+		answered += 1;
+		res.writeHead(answered === 1 ? 400 : 200, { 'content-type': 'application/json' });
+		res.end(answered === 1 ? '{"code":"attachment.not.ready"}' : '{"message":{"body":{"mid":"1"}}}');
+	});
+	const { logs, log } = collectLogs();
+	const notify = createMaxNotifier({
+		env: { MAX_BOT_TOKEN: 'bot-token-123', MAX_CHAT_ID: '7', MAX_API_URL: stub.url },
+		log,
+	});
+
+	assert.equal(await notify(8, 'vk', { title: 'Кот одобрил', image: 'https://r.mradx.net/a.jpg' }), true);
+	assert.equal(stub.requests.length, 2);
+	assert.deepEqual(JSON.parse(stub.requests[1].body), { text: 'Новая заявка №8 из VK\nОбъявление «Кот одобрил»' });
+	assert.deepEqual(logs, [
+		'lead 8 messenger notification with the ad picture failed: HTTP 400, sending without it',
+		'lead 8 messenger notification sent',
+	]);
+});
+
 test('API error is logged by status and swallowed', async (t) => {
 	const stub = await stubServer(t, (req, res) => {
 		res.writeHead(401, { 'content-type': 'application/json' });

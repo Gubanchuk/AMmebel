@@ -17,6 +17,10 @@
 //     -> {count, items: [{id, form_id, ad_plan_id, ad_group_id, banner_id, created_at,
 //          contact_info: {first_name, phone, city, ...},
 //          answers: [{question_text, answer_options: [{id, text}], answer_text}]}]}
+// The lead names only the banner, so the ad itself is looked up (checked 26.10.2026):
+//   GET /api/v2/banners.json?fields=id,textblocks,content&_id__in=<banner ids>
+//     -> {count, items: [{id, textblocks: {title_40_vkads: {text}, ...},
+//          content: {image_600x600: {variants: {original: {url}, ...}}, ...}}]}
 // A webhook (/api/v3/subscription.json) exists too, but it is unsigned and would
 // need a public endpoint; polling keeps the service without incoming traffic
 // from VK.
@@ -90,6 +94,36 @@ export function mapVkLead(item) {
 		// details entered in the form settings.
 		consent_version: clean(`vk-form-${item.form_id ?? 'unknown'}`),
 		external_id: `vk:${item.id}`,
+	};
+}
+
+function imageUrl(slot) {
+	const original = isObject(slot) && isObject(slot.variants) ? slot.variants.original : null;
+	const url = isObject(original) ? original.url : null;
+	return typeof url === 'string' && url.startsWith('https://') && url.length <= MAX_TEXT ? url : null;
+}
+
+// Title and picture of a VK Ads banner, or null when it has neither.
+export function bannerAd(banner) {
+	if (!isObject(banner)) return null;
+	const blocks = isObject(banner.textblocks) ? banner.textblocks : {};
+	const titleKeys = ['title_40_vkads', ...Object.keys(blocks).filter((key) => key.startsWith('title_'))];
+	const title = titleKeys.map((key) => (isObject(blocks[key]) ? clean(blocks[key].text) : null)).find(Boolean) || null;
+	const content = isObject(banner.content) ? banner.content : {};
+	const imageKeys = ['image_600x600', ...Object.keys(content).filter((key) => key.startsWith('image_'))];
+	const image = imageKeys.map((key) => imageUrl(content[key])).find(Boolean) || null;
+	return title || image ? { title, image } : null;
+}
+
+// The lead with the ad it answered. The manager needs to know which sofa the
+// person liked before calling: the ad title goes in front of the answers and
+// the picture link into need_extra.
+export function withAd(lead, ad) {
+	if (!ad) return lead;
+	return {
+		...lead,
+		need: clean([ad.title ? `Объявление «${ad.title}»` : null, lead.need].filter(Boolean).join('; ')),
+		need_extra: ad.image ? `Картинка объявления: ${ad.image}` : (lead.need_extra ?? null),
 	};
 }
 
@@ -175,7 +209,8 @@ export function createVkTokens({ apiUrl, clientId, clientSecret, fetchImpl, time
 }
 
 // Returns { start, stop, pollOnce }, or null when VK is not configured.
-// onStored(id, 'vk') is called for every lead stored for the first time.
+// onStored(id, 'vk', ad) is called for every lead stored for the first time;
+// ad is {title, image} of the banner it came from, or null.
 export function createVkPoller({ env, repo, onStored, log, fetchImpl = fetch, timeoutMs = 10_000 }) {
 	const clientId = env.VK_ADS_CLIENT_ID;
 	const clientSecret = env.VK_ADS_CLIENT_SECRET;
@@ -197,8 +232,8 @@ export function createVkPoller({ env, repo, onStored, log, fetchImpl = fetch, ti
 	leadsUrl.searchParams.set('sorting', '-id');
 	leadsUrl.searchParams.set('limit', String(PAGE_LIMIT));
 
-	async function fetchLeads(access) {
-		const response = await fetchImpl(leadsUrl, {
+	async function getJson(url, access) {
+		const response = await fetchImpl(url, {
 			headers: { authorization: `Bearer ${access}` },
 			signal: AbortSignal.timeout(timeoutMs),
 		});
@@ -206,15 +241,39 @@ export function createVkPoller({ env, repo, onStored, log, fetchImpl = fetch, ti
 		return { status: response.status, ok: response.ok, body };
 	}
 
+	// Title and picture of the ads the leads answered, by banner id. A failed
+	// lookup does not hold the leads back: they are stored and announced
+	// without the ad.
+	async function lookupAds(leads) {
+		const ads = new Map();
+		const ids = [...new Set(leads.map((lead) => lead.utm.utm_content).filter((id) => /^\d+$/.test(id || '')))];
+		if (ids.length === 0) return ads;
+		try {
+			const url = new URL('/api/v2/banners.json', apiUrl);
+			url.searchParams.set('fields', 'id,textblocks,content');
+			url.searchParams.set('_id__in', ids.join(','));
+			url.searchParams.set('limit', String(PAGE_LIMIT));
+			const result = await getJson(url, await tokens.get());
+			if (!result.ok) throw new Error(`banners HTTP ${result.status}`);
+			for (const banner of Array.isArray(result.body?.items) ? result.body.items : []) {
+				const ad = bannerAd(banner);
+				if (ad && banner.id !== undefined && banner.id !== null) ads.set(String(banner.id), ad);
+			}
+		} catch (error) {
+			log(`vk: ad lookup failed: ${describe(error)}`);
+		}
+		return ads;
+	}
+
 	// One poll: the 50 newest leads of the forms, stored oldest first so that
 	// lead numbers follow the order the leads came in. Leads already in the
 	// table are not inserted again: a conflicting INSERT would still use up a
 	// lead number. Returns how many were new.
 	async function pollOnce() {
-		let result = await fetchLeads(await tokens.get());
+		let result = await getJson(leadsUrl, await tokens.get());
 		if (result.status === 401) {
 			tokens.invalidate();
-			result = await fetchLeads(await tokens.get());
+			result = await getJson(leadsUrl, await tokens.get());
 		}
 		if (!result.ok) throw new Error(`leads HTTP ${result.status}`);
 		const items = Array.isArray(result.body?.items) ? result.body.items : [];
@@ -225,14 +284,16 @@ export function createVkPoller({ env, repo, onStored, log, fetchImpl = fetch, ti
 			else log('vk: lead without id skipped');
 		}
 		const known = await repo.knownExternalIds(leads.map((lead) => lead.external_id));
+		const fresh = leads.filter((lead) => !known.has(lead.external_id));
+		const ads = await lookupAds(fresh);
 		let stored = 0;
-		for (const lead of leads) {
-			if (known.has(lead.external_id)) continue;
-			const id = await repo.insertExternalLead(lead);
+		for (const lead of fresh) {
+			const ad = ads.get(lead.utm.utm_content) || null;
+			const id = await repo.insertExternalLead(withAd(lead, ad));
 			if (id === null) continue;
 			stored += 1;
 			log(`lead ${id} stored from vk`);
-			onStored(id, 'vk');
+			onStored(id, 'vk', ad);
 		}
 		return stored;
 	}

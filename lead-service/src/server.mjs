@@ -43,10 +43,10 @@ if (enabled) {
 	log('lead intake is off (LEADS_ENABLED is not "true"): POST /api/lead answers 503, database, mail, messenger and VK are not used');
 }
 
-function onStored(id, source) {
+function onStored(id, source, ad) {
 	if (outbox) outbox.tick();
 	if (notify) {
-		const task = notify(id, source).finally(() => pending.delete(task));
+		const task = notify(id, source, ad).finally(() => pending.delete(task));
 		pending.add(task);
 	}
 }

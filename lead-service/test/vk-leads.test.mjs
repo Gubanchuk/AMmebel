@@ -1,7 +1,15 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { leadMessage } from '../src/trigger.mjs';
-import { createVkPoller, createVkTokens, mapVkLead, parseFormIds, parseVkTime } from '../src/vk-leads.mjs';
+import {
+	bannerAd,
+	createVkPoller,
+	createVkTokens,
+	mapVkLead,
+	parseFormIds,
+	parseVkTime,
+	withAd,
+} from '../src/vk-leads.mjs';
 
 const ENV = {
 	VK_ADS_CLIENT_ID: 'client-1',
@@ -31,12 +39,42 @@ function jsonResponse(status, body) {
 	return new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } });
 }
 
-// A fake VK API: answers token requests from `tokenReplies` in turn and lead
-// requests with `items`, recording every call.
-function fakeVk({ items = [], tokenReplies = [[200, { access_token: 'a1', refresh_token: 'r1', expires_in: 86400 }]], leadReplies = [] } = {}) {
+// A banner as VK Ads returns it (trimmed), the green sofa ad of 22.10.2026.
+function vkBanner(overrides = {}) {
+	return {
+		id: 245614123,
+		textblocks: {
+			about_company_115: { text: 'ООО "АВТОРСКАЯ МЕБЕЛЬ"', title: '' },
+			title_30_additional: { text: 'Посчитаем цену под ваш размер', title: '' },
+			title_40_vkads: { text: 'Битва за диван отменяется', title: '' },
+		},
+		content: {
+			icon_256x256: { variants: { original: { url: 'https://r.mradx.net/imgs/c9/bf/icon.jpg' } } },
+			image_1080x1350: { variants: { original: { url: 'https://r.mradx.net/imgs/09/26/tall.jpg' } } },
+			image_600x600: {
+				variants: {
+					'240x240': { url: 'https://r.mradx.net/imgs/3e/dc/small.jpg' },
+					original: { url: 'https://r.mradx.net/imgs/18/fd/square.jpg' },
+				},
+			},
+		},
+		...overrides,
+	};
+}
+
+// A fake VK API: answers token requests from `tokenReplies` in turn, lead
+// requests with `items` and banner requests with `banners`, recording every call.
+function fakeVk({
+	items = [],
+	banners = [],
+	tokenReplies = [[200, { access_token: 'a1', refresh_token: 'r1', expires_in: 86400 }]],
+	leadReplies = [],
+	bannerReplies = [],
+} = {}) {
 	const calls = [];
 	const tokens = [...tokenReplies];
 	const leads = [...leadReplies];
+	const bannerAnswers = [...bannerReplies];
 	async function fetchImpl(url, init = {}) {
 		const target = new URL(url);
 		calls.push({
@@ -53,6 +91,10 @@ function fakeVk({ items = [], tokenReplies = [[200, { access_token: 'a1', refres
 		if (target.pathname === '/api/v2/oauth2/token/delete.json') return jsonResponse(200, {});
 		if (target.pathname === '/api/v1/lead_ads/leads.json') {
 			const [status, body] = leads.shift() || [200, { count: items.length, items }];
+			return jsonResponse(status, body);
+		}
+		if (target.pathname === '/api/v2/banners.json') {
+			const [status, body] = bannerAnswers.shift() || [200, { count: banners.length, items: banners }];
 			return jsonResponse(status, body);
 		}
 		return jsonResponse(404, {});
@@ -290,4 +332,95 @@ test('a failed poll is logged and the next one runs', async () => {
 test('MAX message names VK as the source', () => {
 	assert.equal(leadMessage(7, 'vk'), 'Новая заявка №7 из VK');
 	assert.equal(leadMessage(7), 'Новая заявка №7 с сайта');
+});
+
+test('MAX message names the ad of a VK lead', () => {
+	assert.equal(
+		leadMessage(7, 'vk', { title: 'Битва за диван отменяется', image: null }),
+		'Новая заявка №7 из VK\nОбъявление «Битва за диван отменяется»',
+	);
+	assert.equal(leadMessage(7, 'vk', { title: null, image: 'https://r.mradx.net/a.jpg' }), 'Новая заявка №7 из VK');
+});
+
+test('bannerAd takes the main title and the square picture', () => {
+	assert.deepEqual(bannerAd(vkBanner()), {
+		title: 'Битва за диван отменяется',
+		image: 'https://r.mradx.net/imgs/18/fd/square.jpg',
+	});
+	assert.deepEqual(bannerAd(vkBanner({ textblocks: {}, content: { image_1080x1350: vkBanner().content.image_1080x1350 } })), {
+		title: null,
+		image: 'https://r.mradx.net/imgs/09/26/tall.jpg',
+	});
+	assert.deepEqual(
+		bannerAd(vkBanner({ content: { image_600x600: { variants: { original: { url: 'http://insecure.example/a.jpg' } } } } })),
+		{ title: 'Битва за диван отменяется', image: null },
+	);
+	assert.equal(bannerAd(vkBanner({ textblocks: null, content: null })), null);
+	assert.equal(bannerAd(null), null);
+});
+
+test('withAd puts the ad title before the answers and the picture link into need_extra', () => {
+	const lead = mapVkLead(vkItem());
+	assert.equal(withAd(lead, null), lead);
+	const withBoth = withAd(lead, { title: 'Битва за диван отменяется', image: 'https://r.mradx.net/a.jpg' });
+	assert.equal(withBoth.need, 'Объявление «Битва за диван отменяется»; Когда нужен диван: В ближайший месяц');
+	assert.equal(withBoth.need_extra, 'Картинка объявления: https://r.mradx.net/a.jpg');
+	assert.equal(withBoth.external_id, 'vk:501');
+	const titleOnly = withAd(mapVkLead(vkItem({ answers: [] })), { title: 'Т'.repeat(300), image: null });
+	assert.equal(titleOnly.need.length, 255);
+	assert.equal(titleOnly.need_extra, null);
+});
+
+test('a new lead carries the ad it answered to the table and to MAX', async () => {
+	const vk = fakeVk({ items: [vkItem({ banner_id: 245614123 })], banners: [vkBanner()] });
+	const repo = dedupRepo();
+	const announced = [];
+	const poller = createVkPoller({
+		env: ENV,
+		repo,
+		onStored: (id, source, ad) => announced.push([id, source, ad]),
+		log() {},
+		fetchImpl: vk.fetchImpl,
+	});
+
+	assert.equal(await poller.pollOnce(), 1);
+	assert.equal(repo.rows[0].need, 'Объявление «Битва за диван отменяется»; Когда нужен диван: В ближайший месяц');
+	assert.equal(repo.rows[0].need_extra, 'Картинка объявления: https://r.mradx.net/imgs/18/fd/square.jpg');
+	assert.deepEqual(announced, [
+		[101, 'vk', { title: 'Битва за диван отменяется', image: 'https://r.mradx.net/imgs/18/fd/square.jpg' }],
+	]);
+
+	const bannerCalls = vk.calls.filter((call) => call.path === '/api/v2/banners.json');
+	assert.equal(bannerCalls.length, 1);
+	assert.equal(bannerCalls[0].auth, 'Bearer a1');
+	const query = new URLSearchParams(bannerCalls[0].search);
+	assert.equal(query.get('_id__in'), '245614123');
+	assert.equal(query.get('fields'), 'id,textblocks,content');
+
+	await poller.pollOnce();
+	assert.equal(
+		vk.calls.filter((call) => call.path === '/api/v2/banners.json').length,
+		1,
+		'no lookup when there is nothing new',
+	);
+});
+
+test('a failed ad lookup does not hold the lead back', async () => {
+	const vk = fakeVk({ items: [vkItem()], bannerReplies: [[500, {}]] });
+	const repo = dedupRepo();
+	const announced = [];
+	const logs = [];
+	const poller = createVkPoller({
+		env: ENV,
+		repo,
+		onStored: (id, source, ad) => announced.push([id, source, ad]),
+		log: (message) => logs.push(message),
+		fetchImpl: vk.fetchImpl,
+	});
+
+	assert.equal(await poller.pollOnce(), 1);
+	assert.equal(repo.rows[0].need, 'Когда нужен диван: В ближайший месяц');
+	assert.equal(repo.rows[0].need_extra, undefined);
+	assert.deepEqual(announced, [[101, 'vk', null]]);
+	assert.match(logs.join('\n'), /vk: ad lookup failed: banners HTTP 500/);
 });
