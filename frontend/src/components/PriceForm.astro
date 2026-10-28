@@ -6,12 +6,24 @@
 // by hand (ruling R12). Validation and the am:lead dispatch live in
 // ../scripts/form.js. Every text field carries ym-disable-keys: Webvisor
 // records it as asterisks (consent text, document 2, §4) — keep it on new ones.
+// #adCard above the form stays hidden unless the visitor came from one of the
+// site's banners (utm_content from ../lib/ad-banners.json): then
+// ../scripts/ad-banner.js shows that banner's product and price.
 ---
 
 <section class="sec price" id="price">
 	<div class="wrap">
-		<h2>Получить оптовый прайс</h2>
-		<p class="sec__lead">Оставьте номер телефона — пришлём на него оптовый прайс.</p>
+		<h2>Получить прайс</h2>
+		<p class="sec__lead">Оставьте номер телефона — пришлём на него прайс.</p>
+
+		<div class="adcard" id="adCard" hidden>
+			<figure class="adcard__photo"></figure>
+			<div class="adcard__body">
+				<h3 class="adcard__name"></h3>
+				<p class="adcard__price"></p>
+				<p class="adcard__note"></p>
+			</div>
+		</div>
 
 		<form class="pf" id="pfForm" novalidate>
 			<div class="pf__grid">
@@ -35,7 +47,7 @@
 			</label>
 
 			<div class="pf__actions">
-				<button class="cta" type="submit" id="pfSubmit" aria-disabled="true" aria-describedby="pfConsentHint">Получить оптовый прайс</button>
+				<button class="cta" type="submit" id="pfSubmit" aria-disabled="true" aria-describedby="pfConsentHint">Получить прайс</button>
 				<p class="consent-hint" id="pfConsentHint"><i></i><span>Отметьте согласие — и кнопка станет активной</span></p>
 				<p class="pf__err" id="pfError" role="alert" hidden></p>
 			</div>
@@ -43,7 +55,7 @@
 
 		<div class="pf__done" id="pfDone" role="status" tabindex="-1" hidden>
 			<h3>Заявка отправлена</h3>
-			<p>Менеджер пришлёт оптовый прайс на ваш номер.</p>
+			<p>Менеджер пришлёт прайс на ваш номер.</p>
 		</div>
 	</div>
 </section>
@@ -65,8 +77,27 @@
 	.pf__done h3 { font-family: var(--serif); font-weight: 400; font-size: 20px; margin: 0 0 8px; color: var(--ivory); }
 	.pf__done p { color: var(--grey); font-size: 14px; margin: 0; max-width: 46ch; }
 
+	/* Banner card: filled and shown by ../scripts/ad-banner.js for a visitor from
+	   one of the site's ads. It sits on top of the form as one panel. */
+	.adcard { display: grid; grid-template-columns: 280px 1fr; max-width: 720px; background: var(--panel); border: 1px solid var(--line); }
+	.adcard[hidden] { display: none; }
+	.adcard:not([hidden]) + .pf, .adcard:not([hidden]) ~ .pf__done { border-top: 0; }
+	.adcard__photo { margin: 0; aspect-ratio: 4 / 3; overflow: hidden; background: #000; }
+	.adcard__photo :global(img) { display: block; width: 100%; height: 100%; object-fit: cover; }
+	.adcard__body { padding: 22px 26px; display: flex; flex-direction: column; justify-content: center; }
+	/* the price is in the sans face: Prata's «1» reads as «l», and Direct's
+	   moderator compares this price with the ad */
+	.adcard__name { font-family: var(--serif); font-weight: 400; font-size: 20px; line-height: 1.25; color: var(--ivory); margin: 0; }
+	.adcard__price { font-size: 22px; font-weight: 600; line-height: 1.2; color: var(--ivory); margin: 10px 0 10px; }
+	.adcard__note { color: var(--grey); font-size: 14px; line-height: 1.5; margin: 0; max-width: 42ch; }
+	@media (max-width: 640px) {
+		.adcard { grid-template-columns: 1fr; }
+		.adcard__body { padding: 18px 26px 22px; }
+	}
+
 </style>
 
 <script>
 	import '../scripts/form.js';
+	import '../scripts/ad-banner.js';
 </script>

@@ -1,7 +1,7 @@
 // Messenger notification about a new lead, sent to a MAX chat. The message
 // carries only the lead number and a button to its card in the admin panel,
-// and for a VK lead the title and picture of the ad it answered: no personal
-// data leaves the server this way.
+// and for a lead from an ad (a VK lead form or a site banner) the ad's line
+// and picture: no personal data leaves the server this way.
 //
 // MAX Bot API, checked 13.09.2026 at https://dev.max.ru/docs-api/methods/POST/messages:
 //   POST https://platform-api2.max.ru/messages?chat_id=<chat id>
@@ -18,12 +18,16 @@
 // Node does not trust by default: point NODE_EXTRA_CA_CERTS at that root
 // certificate (see README). MAX_API_URL overrides the host (tests, a relay).
 
+import { adLine } from './ads.mjs';
+
 export const MAX_API_URL = 'https://platform-api2.max.ru';
 
-// ad is {title, image} of the VK banner the lead answered, or null.
+// ad is the ad the lead answered (src/ads.mjs): {title, image} of a VK banner,
+// {title, label, image} of a site banner, or null.
 export function leadMessage(id, source = 'site', ad = null) {
-	if (source !== 'vk') return `Новая заявка №${id} с сайта`;
-	return ad?.title ? `Новая заявка №${id} из VK\nОбъявление «${ad.title}»` : `Новая заявка №${id} из VK`;
+	const head = source === 'vk' ? `Новая заявка №${id} из VK` : `Новая заявка №${id} с сайта`;
+	const line = adLine(ad);
+	return line ? `${head}\n${line}` : head;
 }
 
 // Card of the lead in the Directus admin panel.
@@ -56,7 +60,8 @@ export function buildMaxRequest({ apiUrl = MAX_API_URL, token, chatId, text, lin
 }
 
 // Returns notify(id, source?, ad?) -> Promise<boolean>, or null when MAX is not
-// configured. source is 'site' (default) or 'vk'; ad is {title, image} or null.
+// configured. source is 'site' (default) or 'vk'; ad is an ad from src/ads.mjs
+// or null.
 // Failures are logged and swallowed: e-mail and the database are the primary
 // channels (spec §8).
 export function createMaxNotifier({ env, log, fetchImpl = fetch, timeoutMs = 5_000 }) {

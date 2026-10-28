@@ -9,6 +9,7 @@
 // (422) -> fields (400) -> INSERT.
 
 import http from 'node:http';
+import { siteAd, withAd } from './ads.mjs';
 import { CONSENT_VERSIONS } from './consent-versions.mjs';
 import { log as defaultLog } from './log.mjs';
 import { createRateLimiter } from './rate-limit.mjs';
@@ -153,9 +154,13 @@ export function createHandler({
 			return send(res, 400, { error: 'invalid', fields: result.errors });
 		}
 
+		// A lead from one of the site's banners (utm_content from ad-banners.json)
+		// carries that banner the same way a VK lead carries its ad.
+		const ad = siteAd(result.lead.utm);
+
 		let id;
 		try {
-			id = await repo.insertLead({ ...result.lead, ip: clientIp(req), consent_version: version });
+			id = await repo.insertLead({ ...withAd(result.lead, ad), ip: clientIp(req), consent_version: version });
 		} catch (error) {
 			log(`lead not stored: database error ${error.code || error.name}`);
 			return send(res, 500, { error: 'internal' });
@@ -164,7 +169,7 @@ export function createHandler({
 		log(`lead ${id} stored`);
 		send(res, 201, { id });
 		try {
-			onStored(id);
+			onStored(id, 'site', ad);
 		} catch (error) {
 			log(`lead ${id} follow-up failed: ${error.name}`);
 		}

@@ -25,6 +25,11 @@
 // need a public endpoint; polling keeps the service without incoming traffic
 // from VK.
 
+import { withAd } from './ads.mjs';
+
+// withAd lives in ads.mjs, shared with the site's own banners.
+export { withAd };
+
 export const VK_API_URL = 'https://ads.vk.ru';
 const PAGE_LIMIT = 50;
 // Every text column of leads is varchar(255).
@@ -113,18 +118,6 @@ export function bannerAd(banner) {
 	const imageKeys = ['image_600x600', ...Object.keys(content).filter((key) => key.startsWith('image_'))];
 	const image = imageKeys.map((key) => imageUrl(content[key])).find(Boolean) || null;
 	return title || image ? { title, image } : null;
-}
-
-// The lead with the ad it answered. The manager needs to know which sofa the
-// person liked before calling: the ad title goes in front of the answers and
-// the picture link into need_extra.
-export function withAd(lead, ad) {
-	if (!ad) return lead;
-	return {
-		...lead,
-		need: clean([ad.title ? `Объявление «${ad.title}»` : null, lead.need].filter(Boolean).join('; ')),
-		need_extra: ad.image ? `Картинка объявления: ${ad.image}` : (lead.need_extra ?? null),
-	};
 }
 
 // Form ids as a list of digit strings, or null when the value is malformed.

@@ -59,7 +59,9 @@ function rememberUtm() {
 	}
 }
 
-function readUtm() {
+// Labels of the latest ad click in this tab. ad-banner.js picks the banner
+// card by the same labels the lead will carry.
+export function readUtm() {
 	var utm = utmFromUrl();
 	if (utm) return utm;
 	try {
@@ -263,7 +265,7 @@ export function restoreFocus(button) {
 		};
 
 		if (!fields.phone) {
-			askForPhone('Напишите номер телефона — пришлём на него оптовый прайс.');
+			askForPhone('Напишите номер телефона — пришлём на него прайс.');
 			return;
 		}
 		if (digitsCount(fields.phone) < 10) {
