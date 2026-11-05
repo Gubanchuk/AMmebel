@@ -1,5 +1,5 @@
-// Runs only when DATABASE_URL points at a database where Directus created the
-// leads table (infra/setup-collections.py). Uses test data only.
+// Runs only when DATABASE_URL points at an isolated test database with the
+// Directus leads schema (infra/setup-collections.py). Never use the live DB.
 //
 // As the table owner the test also checks the consent log columns and deletes
 // its row. As lead_service (sql/grant.sql) it checks the privileges instead and
@@ -11,6 +11,60 @@ import { createPool, createRepository } from '../src/db.mjs';
 import { postJson, priceFields, priceLead, startApp } from './helpers.mjs';
 
 const url = process.env.DATABASE_URL;
+
+test('site deduplication is atomic, normalizes phones, and preserves different requests and expired leads', { skip: url ? false : 'DATABASE_URL is not set' }, async (t) => {
+	const pool = createPool(url, (message) => t.diagnostic(message));
+	const ids = new Set();
+	const marker = `integration-${Date.now()}-${process.pid}`;
+	try {
+		const repo = createRepository(pool);
+		const base = { type: 'price', phone: '+7 (900) 000-00-01', name: marker, need_extra: 'Модель: Lounge' };
+		const results = await Promise.all(['+7 (900) 000-00-01', '8 900 000 00 01', '9000000001'].map((phone) => repo.insertLead({ ...base, phone })));
+		for (const { id } of results) ids.add(id);
+		assert.equal(ids.size, 1, 'parallel formatting variants resolve to one row');
+		assert.equal(results.filter(({ created }) => created).length, 1, 'only one caller owns the follow-up');
+		const firstId = results[0].id;
+		assert.ok(Number.isInteger(firstId));
+		assert.deepEqual(await repo.insertLead({ ...base, phone: '79000000001', source_page: '/other/', utm: { utm_source: 'retry' } }),
+			{ id: firstId, created: false }, 'attribution/page changes do not create another request');
+
+		for (const change of [{ need_extra: 'Модель: Mono' }, { need: 'salon' }, { company_inn: marker }, { city: marker }, { name: `${marker}-other` }, { type: 'quiz' }]) {
+			const result = await repo.insertLead({ ...base, ...change });
+			ids.add(result.id);
+			assert.equal(result.created, true, `different request survives: ${Object.keys(change)[0]}`);
+			assert.notEqual(result.id, firstId);
+		}
+
+		const old = await pool.query(`
+			INSERT INTO leads (created_at, consent_at, email_status, type, name, phone, need_extra)
+			VALUES (now() - interval '11 minutes', now(), 'queued', 'price', $1, '8 (900) 000-00-02', 'Модель: Lounge')
+			RETURNING id`, [marker]);
+		ids.add(old.rows[0].id);
+		const afterWindow = await repo.insertLead({ ...base, phone: '+7 900 000 00 02' });
+		ids.add(afterWindow.id);
+		assert.equal(afterWindow.created, true, 'a lead older than ten minutes does not block another request');
+		assert.notEqual(afterWindow.id, old.rows[0].id);
+
+		for (const [phone, retry] of [['+82 (2) 1234-5678', '+82 2 1234 5678'], ['+49 (30) 123456', '+49 30 123456']]) {
+			const result = await repo.insertLead({ ...base, phone });
+			ids.add(result.id);
+			assert.equal(result.created, true);
+			assert.deepEqual(await repo.insertLead({ ...base, phone: retry }), { id: result.id, created: false }, 'explicit international prefixes survive matching stored phones');
+		}
+
+		const stored = await pool.query('SELECT id FROM leads WHERE id = ANY($1::integer[])', [[...ids]]);
+		assert.equal(stored.rows.length, 11);
+	} finally {
+		if (ids.size > 0) {
+			try {
+				await pool.query('DELETE FROM leads WHERE id = ANY($1::integer[])', [[...ids]]);
+			} catch (error) {
+				t.diagnostic(`isolated test rows ${[...ids].join(',')} remain (${error.code}): remove the test database as its owner`);
+			}
+		}
+		await pool.end();
+	}
+});
 
 test('lead is stored in PostgreSQL and passes through the outbox queries', { skip: url ? false : 'DATABASE_URL is not set' }, async (t) => {
 	const pool = createPool(url, (message) => t.diagnostic(message));

@@ -19,6 +19,7 @@
 // Carousel behavior lives in ../scripts/hero.js.
 import Quiz from './Quiz.astro';
 import { srcsetFor, type Model, type Settings } from '../lib/content';
+import { modelPath } from '../lib/models';
 
 interface Props {
 	settings: Settings;
@@ -84,6 +85,17 @@ const SLIDE_SIZES = '(max-width: 860px) 90vw, (max-width: 1080px) 45vw, 476px';
 			<div class="demo__nav">
 				<a class="cta" href="#price">Получить прайс</a>
 				<a class="ray" href="#conditions"><i></i>Условия сотрудничества</a>
+			</div>
+			<div class="demo__model-context" id="heroModelContext">
+				{slides.map((m, i) => (
+					<div class="hero-model" data-hero-model={m.title} hidden={i !== 0}>
+						<p>{m.title}</p>
+						<div class="hero-model__actions">
+							<a href="#price" data-model-request={m.title} aria-label={`Уточнить цену: ${m.title}`}>Уточнить цену</a>
+							<a href={modelPath(m)} aria-label={`Подробнее: ${m.title}`}>Подробнее</a>
+						</div>
+					</div>
+				))}
 			</div>
 		</div>
 		<Quiz />
@@ -211,6 +223,10 @@ const SLIDE_SIZES = '(max-width: 860px) 90vw, (max-width: 1080px) 45vw, 476px';
 	/* a common label width (the longest label, «ОБРАЗЕЦ») so the values start on one line */
 	.usp b { font-family: var(--mono); font-size: 11px; color: var(--grey-dim); flex: 0 0 auto; min-width: 7ch; font-weight: 500; }
 	.demo__nav { display: flex; gap: 12px 22px; align-items: center; flex-wrap: wrap; }
+	.demo__model-context { margin-top: 20px; border-top: 1px solid var(--line); padding-top: 14px; }
+	.hero-model p { margin: 0; color: var(--grey); font-size: 13px; }
+	.hero-model__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 22px; }
+	.hero-model__actions a { display: inline-flex; align-items: center; min-height: 44px; font-size: 13px; text-underline-offset: 3px; }
 
 	@media (max-width: 860px) {
 		.demo .wrap { grid-template-columns: 1fr; }
@@ -219,6 +235,14 @@ const SLIDE_SIZES = '(max-width: 860px) 90vw, (max-width: 1080px) 45vw, 476px';
 	   lands below the fold on iPad portrait — go 4:3 there (phones keep the square) */
 	@media (min-width: 621px) and (max-width: 860px) {
 		.hc__frame { aspect-ratio: 4 / 3; }
+	}
+	@media (max-width: 620px) {
+		/* Put the action directly after the short lead, above the longer facts.
+		   At 390×844 it stays above the unchanged cookie notice. */
+		.demo__main { display: flex; flex-direction: column; }
+		.demo__nav { order: 1; margin-bottom: 20px; }
+		.demo__model-context { order: 2; margin: 0 0 20px; }
+		.usp { order: 3; margin-bottom: 0; }
 	}
 	@media (max-width: 400px) {
 		.hc__cap { font-size: 12.5px; }

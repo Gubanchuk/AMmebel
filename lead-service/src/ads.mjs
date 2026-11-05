@@ -57,6 +57,12 @@ export function siteAd(utm) {
 	};
 }
 
+// The price form's explicit model choice is the current request. A banner in
+// UTM remains attribution, and must not replace it in storage or notification.
+export function hasSelectedModel(lead) {
+	return lead.type === 'price' && typeof lead.need_extra === 'string' && /^Модель:\s+\S/.test(lead.need_extra);
+}
+
 // The line about the ad for need and the MAX message, or null.
 export function adLine(ad) {
 	if (!ad) return null;

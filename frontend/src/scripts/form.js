@@ -146,8 +146,8 @@ export function consentGate(box, button, hint) {
 // Failure notice inside a role="alert" element. The phone is taken from the
 // page's own tel: link (header and footer render it from the CMS settings), so
 // the number lives in one place.
-export function showSendFailure(el) {
-	el.textContent = 'Не отправилось — позвоните, ответим сразу';
+export function showSendFailure(el, message) {
+	el.textContent = message || 'Не отправилось — позвоните, ответим сразу';
 	var tel = document.querySelector('a[href^="tel:"]');
 	if (tel) {
 		var href = tel.getAttribute('href');
@@ -180,8 +180,85 @@ export function restoreFocus(button) {
 	var submit = document.getElementById('pfSubmit');
 	var errorEl = document.getElementById('pfError');
 	var doneEl = document.getElementById('pfDone');
-	var submitLabel = submit.textContent;
+	var titleEl = document.getElementById('pfTitle');
+	var leadEl = document.getElementById('pfLead');
+	var modelEl = document.getElementById('pfModel');
+	var modelInput = form.elements.model;
+	var doneMessage = document.getElementById('pfDoneMessage');
+	var requestMode = modelInput && modelInput.value.trim() ? 'model' : 'price';
+	var submitLabel;
 	var sending = false;
+
+	function updateRequestCopy() {
+		var callback = requestMode !== 'price';
+		var model = modelInput ? modelInput.value.trim() : '';
+		form.dataset.requestMode = requestMode;
+		submitLabel = callback ? 'Уточнить цену' : 'Получить прайс';
+		if (!sending) submit.textContent = submitLabel;
+		if (titleEl) titleEl.textContent = requestMode === 'model' ? 'Уточнить цену модели' : callback ? 'Уточнить цену' : 'Получить прайс';
+		if (leadEl) leadEl.textContent = callback
+			? 'Оставьте телефон — перезвоним и уточним цену и комплектацию.'
+			: 'Оставьте номер телефона — менеджер пришлёт прайс.';
+		if (modelEl) {
+			modelEl.textContent = model ? 'Выбрана модель: ' + model : '';
+			modelEl.hidden = !model;
+		}
+		if (doneMessage) doneMessage.textContent = callback
+			? 'Менеджер перезвонит и уточнит цену и комплектацию ' + (model ? 'выбранной модели' : 'выбранного предложения') + '.'
+			: 'Менеджер пришлёт прайс на ваш номер.';
+	}
+
+	updateRequestCopy();
+
+	// ad-banner.js runs after this module and uses the same stored UTM labels.
+	// An explicit model always wins over an earlier advertising offer.
+	document.addEventListener('am:retail-offer', function () {
+		if (requestMode === 'model' || sending) return;
+		requestMode = 'retail';
+		updateRequestCopy();
+	});
+
+	function scrollToRequestClear() {
+		var section = document.getElementById('price');
+		if (!section) return;
+		var header = document.getElementById('siteHeader');
+		var cookie = document.getElementById('cookieBar');
+		var headerHeight = header ? header.getBoundingClientRect().height : 0;
+		var cookieHeight = cookie && !cookie.hidden ? cookie.getBoundingClientRect().height : 0;
+		var available = window.innerHeight - headerHeight - cookieHeight;
+		var sectionBox = section.getBoundingClientRect();
+		var cardBox = form.getBoundingClientRect();
+		var delta = sectionBox.height <= available
+			? sectionBox.top - headerHeight
+			: cardBox.height <= available
+				? cardBox.top - headerHeight
+				: cardBox.bottom - (window.innerHeight - cookieHeight);
+		var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+		window.scrollBy({ top: delta, behavior: reduced ? 'auto' : 'smooth' });
+	}
+
+	document.addEventListener('click', function (event) {
+		var trigger = event.target && event.target.closest && event.target.closest('[data-model-request]');
+		if (!trigger || !modelInput) return;
+		var model = (trigger.dataset.modelRequest || '').trim();
+		if (!model) return;
+		event.preventDefault();
+		if (sending) return;
+		modelInput.value = model;
+		requestMode = 'model';
+		updateRequestCopy();
+		var card = document.getElementById('adCard');
+		if (card) card.hidden = true;
+		form.hidden = false;
+		doneEl.hidden = true;
+		setError(null);
+		markPhone(false);
+		// consent.js's per-link handler may have positioned the previous form
+		// first. Re-measure after changing the model and hiding any ad card,
+		// preserving clearance for the visible header and cookie notice.
+		scrollToRequestClear();
+		phoneInput.focus({ preventScroll: true });
+	});
 
 	function setError(message) {
 		if (!message) {
@@ -263,9 +340,13 @@ export function restoreFocus(button) {
 			name: nameInput.value.trim(),
 			phone: phoneInput.value.trim(),
 		};
+		var model = modelInput ? modelInput.value.trim() : '';
+		if (model) fields.need_extra = 'Модель: ' + model;
 
 		if (!fields.phone) {
-			askForPhone('Напишите номер телефона — пришлём на него прайс.');
+			askForPhone(requestMode === 'price'
+				? 'Напишите номер телефона — менеджер пришлёт прайс.'
+				: 'Напишите номер телефона — перезвоним и уточним цену.');
 			return;
 		}
 		if (digitsCount(fields.phone) < 10) {
@@ -290,7 +371,7 @@ export function restoreFocus(button) {
 		postLead(detail).then(function (stored) {
 			setSending(false);
 			if (!stored) {
-				showSendFailure(errorEl);
+				showSendFailure(errorEl, 'Не удалось отправить заявку — повторите отправку или позвоните нам');
 				restoreFocus(submit);
 				return;
 			}

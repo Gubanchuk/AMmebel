@@ -21,6 +21,7 @@
 // The inline parking script below is allowed by a hash in astro.config.mjs
 // (security.csp): any change to its text needs a new hash there.
 import { srcsetFor, type Model, type Settings } from '../lib/content';
+import { modelPath } from '../lib/models';
 
 interface Props {
 	settings: Settings;
@@ -66,6 +67,7 @@ const track = [
 						class="model__photo"
 						type="button"
 						data-lightbox-open
+						data-model-title={m.title}
 						tabindex={clone ? -1 : undefined}
 						aria-label={`Открыть фото: ${m.title}`}
 					>
@@ -83,6 +85,10 @@ const track = [
 					<div class="model__body">
 						<h3 class="model__title">{m.title}</h3>
 						{m.size && <p class="model__size">{m.size}</p>}
+						<div class="model__actions">
+							<a class="ghost model__request" href="#price" data-model-request={m.title} tabindex={clone ? -1 : undefined}>Уточнить цену</a>
+							<a class="model__details" href={modelPath(m)} tabindex={clone ? -1 : undefined} aria-label={`Подробнее: ${m.title}`}>Подробнее</a>
+						</div>
 					</div>
 				</div>
 			))}
@@ -92,6 +98,7 @@ const track = [
 	<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Просмотр фото" hidden>
 		<button class="lightbox__close ghost" type="button" id="lightboxClose">Закрыть</button>
 		<img class="lightbox__img" id="lightboxImg" src="" alt="" />
+		<a class="cta lightbox__request" id="lightboxRequest" href="#price" data-model-request="" hidden>Уточнить цену</a>
 	</div>
 </section>
 
@@ -237,6 +244,9 @@ const track = [
 	.model__body { padding: 14px 16px 18px; }
 	.model__title { font-size: 14.5px; font-weight: 600; color: var(--ivory); margin: 0; line-height: 1.3; }
 	.model__size { font-family: var(--mono); font-size: 11px; color: var(--grey-dim); margin: 6px 0 0; }
+	.model__actions { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 16px; margin-top: 16px; }
+	.model__request { min-height: 44px; padding: 12px 14px; font-size: 11px; text-decoration: none; }
+	.model__details { display: inline-flex; align-items: center; min-height: 44px; font-size: 13px; text-underline-offset: 3px; }
 
 	@media (max-width: 860px) {
 		.model { flex-basis: calc((100% - 20px) / 2); }
@@ -251,8 +261,11 @@ const track = [
 		inset: 0;
 		z-index: 100;
 		display: flex;
+		flex-direction: column;
 		align-items: center;
 		justify-content: center;
+		gap: 18px;
+		padding: 76px 24px 24px;
 		background: rgba(19,18,16,.96);
 		opacity: 0;
 		pointer-events: none;
@@ -260,7 +273,10 @@ const track = [
 	}
 	.lightbox[hidden] { display: none; } /* UA [hidden] loses to display:flex above */
 	.lightbox.on { opacity: 1; pointer-events: auto; }
-	.lightbox__img { max-width: 92vw; max-height: 92vh; object-fit: contain; display: block; }
+	.lightbox__img { max-width: 100%; max-height: calc(100vh - 100px); max-height: calc(100svh - 100px); min-height: 0; object-fit: contain; display: block; }
+	.lightbox.has-request .lightbox__img { max-height: calc(100vh - 172px); max-height: calc(100svh - 172px); }
+	.lightbox__request { flex: 0 0 auto; }
+	.lightbox__request[hidden] { display: none; }
 	.lightbox__close { position: absolute; top: 20px; right: 20px; }
 
 	@media (prefers-reduced-motion: reduce) {

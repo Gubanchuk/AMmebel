@@ -83,6 +83,39 @@ test('price lead from a site banner: the banner in need, the picture in need_ext
 	assert.deepEqual(announced, [[1, 'site', siteAd({ utm_content: 'sofa-2' })]]);
 });
 
+test('explicit price model replaces the old banner product while retaining its UTM attribution', async (t) => {
+	const announced = [];
+	const messages = [];
+	let notification;
+	const notify = createMaxNotifier({
+		env: { MAX_BOT_TOKEN: 'token', MAX_CHAT_ID: '-1', MAX_API_URL: 'https://max.test', ADMIN_URL: 'https://admin.example.ru' },
+		log() {},
+		fetchImpl: async (_url, init) => {
+			messages.push(JSON.parse(init.body));
+			return new Response('{}', { status: 200 });
+		},
+	});
+	const app = await startApp(t, { onStored: (...args) => {
+		announced.push(args);
+		notification = notify(...args);
+	} });
+	const utm = { ...AD_UTM, utm_content: 'bed-8' };
+	const models = ['Модель: Модульный диван «Lounge»', `Модель: ${'L'.repeat(247)}`];
+	for (const [index, model] of models.entries()) {
+		const response = await postJson(app.base, priceLead({ fields: { phone: '+7 918 000-00-00', need_extra: model }, utm }), freshIp());
+		assert.equal(response.status, 201);
+		assert.deepEqual(await response.json(), { id: index + 1 });
+		assert.equal(await notification, true);
+		const row = app.repo.rows[index];
+		assert.equal(row.need, null, 'old banner product is not the current request');
+		assert.equal(row.need_extra, model, 'selected model survives without a banner prefix or truncation');
+		assert.deepEqual(row.utm, utm, 'old campaign remains attribution only');
+		assert.deepEqual(announced[index], [index + 1, 'site', null]);
+		assert.equal(messages[index].text, `Новая заявка №${index + 1} с сайта`);
+		assert.deepEqual(messages[index].attachments.map(({ type }) => type), ['inline_keyboard'], 'MAX does not attach the old product picture');
+	}
+});
+
 test('quiz lead from a site banner keeps its answers after the banner', async (t) => {
 	const app = await startApp(t);
 	const response = await postJson(app.base, quizLead({ utm: { utm_content: 'bed-10' } }), freshIp());

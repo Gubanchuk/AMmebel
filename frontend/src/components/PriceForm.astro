@@ -9,12 +9,21 @@
 // #adCard above the form stays hidden unless the visitor came from one of the
 // site's banners (utm_content from ../lib/ad-banners.json): then
 // ../scripts/ad-banner.js shows that banner's product and price.
+interface Props {
+	initialModel?: string;
+}
+
+const initialModel = Astro.props.initialModel?.trim() ?? '';
+const title = initialModel ? 'Уточнить цену модели' : 'Получить прайс';
+const lead = initialModel
+	? 'Оставьте телефон — перезвоним и уточним цену и комплектацию.'
+	: 'Оставьте номер телефона — менеджер пришлёт прайс.';
 ---
 
 <section class="sec price" id="price">
 	<div class="wrap">
-		<h2>Получить прайс</h2>
-		<p class="sec__lead">Оставьте номер телефона — пришлём на него прайс.</p>
+		<h2 id="pfTitle">{title}</h2>
+		<p class="sec__lead" id="pfLead">{lead}</p>
 
 		<div class="adcard" id="adCard" hidden>
 			<figure class="adcard__photo"></figure>
@@ -25,14 +34,16 @@
 			</div>
 		</div>
 
-		<form class="pf" id="pfForm" novalidate>
+		<form class="pf" id="pfForm" data-request-mode={initialModel ? 'model' : 'price'} aria-labelledby="pfTitle" novalidate>
+			<input type="hidden" id="pf-model" name="model" value={initialModel} />
+			<p class="pf__model" id="pfModel" hidden={!initialModel}>Выбрана модель: {initialModel}</p>
 			<div class="pf__grid">
 				<div class="fld">
 					<label for="pf-phone">Телефон</label>
 					<input id="pf-phone" class="ym-disable-keys" name="phone" type="tel" required placeholder="+7 …" autocomplete="tel" inputmode="tel" />
 				</div>
 				<div class="fld">
-					<label for="pf-name">Имя</label>
+					<label for="pf-name">Имя (необязательно)</label>
 					<input id="pf-name" class="ym-disable-keys" name="name" placeholder="Как к вам обращаться" autocomplete="name" />
 				</div>
 			</div>
@@ -47,7 +58,7 @@
 			</label>
 
 			<div class="pf__actions">
-				<button class="cta" type="submit" id="pfSubmit" aria-disabled="true" aria-describedby="pfConsentHint">Получить прайс</button>
+				<button class="cta" type="submit" id="pfSubmit" aria-disabled="true" aria-describedby="pfConsentHint">{initialModel ? 'Уточнить цену' : 'Получить прайс'}</button>
 				<p class="consent-hint" id="pfConsentHint"><i></i><span>Отметьте согласие — и кнопка станет активной</span></p>
 				<p class="pf__err" id="pfError" role="alert" hidden></p>
 			</div>
@@ -55,13 +66,14 @@
 
 		<div class="pf__done" id="pfDone" role="status" tabindex="-1" hidden>
 			<h3>Заявка отправлена</h3>
-			<p>Менеджер пришлёт прайс на ваш номер.</p>
+			<p id="pfDoneMessage">{initialModel ? 'Менеджер перезвонит и уточнит цену и комплектацию выбранной модели.' : 'Менеджер пришлёт прайс на ваш номер.'}</p>
 		</div>
 	</div>
 </section>
 
 <style>
 	.pf { background: var(--panel); border: 1px solid var(--line); padding: 28px 26px 30px; max-width: 720px; }
+	.pf__model { margin: 0 0 22px; color: var(--ivory); font-size: 14px; line-height: 1.5; max-width: 56ch; }
 	.pf__grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0 24px; }
 	@media (max-width: 640px) {
 		.pf__grid { grid-template-columns: 1fr; }

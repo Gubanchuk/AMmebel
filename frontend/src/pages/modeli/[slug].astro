@@ -1,0 +1,139 @@
+---
+import type { GetStaticPaths } from 'astro';
+import '../../styles/tokens.css';
+import '../../styles/base.css';
+import Header from '../../components/Header.astro';
+import Conditions from '../../components/Conditions.astro';
+import PriceForm from '../../components/PriceForm.astro';
+import Footer from '../../components/Footer.astro';
+import CookieBar from '../../components/CookieBar.astro';
+import { getContent, srcsetFor } from '../../lib/content';
+import { getModelGroups, modelPath, type ModelGroup } from '../../lib/models';
+
+export const getStaticPaths = (() => getModelGroups(getContent().models).map((group) => ({
+	params: { slug: group.slug },
+	props: { group },
+}))) satisfies GetStaticPaths;
+
+interface Props {
+	group: ModelGroup;
+}
+
+const { group } = Astro.props;
+const { settings, conditions } = getContent();
+const photos = [...new Map(group.models.map((model) => [model.photo, model])).values()];
+const [firstPhoto, ...otherPhotos] = photos;
+const sizes = [...new Set(group.models.map((model) => model.size.trim()).filter(Boolean))];
+const title = `${group.title} — Авторская Мебель`;
+const description = `${group.title} фабрики «Авторская Мебель». Фотографии${sizes.length ? ', размеры' : ''}, условия сотрудничества и запрос цены модели.`;
+const canonical = new URL(modelPath(group.title), 'https://am-fabrika.ru/').href;
+const previewImage = new URL(firstPhoto.photo, 'https://am-fabrika.ru/').href;
+const PHOTO_SIZES = '(max-width: 700px) 90vw, (max-width: 1080px) 50vw, 540px';
+---
+
+<html lang="ru">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="icon" href="/favicon.ico" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>{title}</title>
+		<meta name="description" content={description} />
+		<link rel="canonical" href={canonical} />
+		<meta name="theme-color" content="#131210" />
+		<meta property="og:type" content="website" />
+		<meta property="og:site_name" content="Авторская Мебель" />
+		<meta property="og:locale" content="ru_RU" />
+		<meta property="og:url" content={canonical} />
+		<meta property="og:title" content={title} />
+		<meta property="og:description" content={description} />
+		<meta property="og:image" content={previewImage} />
+		<meta property="og:image:alt" content={group.title} />
+		<meta name="twitter:card" content="summary_large_image" />
+	</head>
+	<body>
+		<Header settings={settings} requestModel={group.title} />
+		<main>
+			<section class="sec model-page" aria-labelledby="modelTitle">
+				<div class="wrap">
+					<nav class="model-page__back" aria-label="Каталог моделей">
+						<a href="/#models">Все модели</a>
+					</nav>
+					<div class="model-page__head">
+						<div class="model-page__summary">
+							<h1 id="modelTitle">{group.title}</h1>
+							<p class="model-page__note">{settings.priceNote}</p>
+							{sizes.length > 0 && (
+								<dl class="model-page__sizes">
+									<dt>{sizes.length === 1 ? 'Размер' : 'Размеры'}</dt>
+									{sizes.map((size) => <dd>{size}</dd>)}
+								</dl>
+							)}
+							<a class="cta" href="#price" data-model-request={group.title}>Уточнить цену</a>
+							<a class="model-page__conditions" href="#conditions">Условия сотрудничества</a>
+						</div>
+						<img
+							class="model-page__main-photo"
+							src={firstPhoto.photo}
+							srcset={srcsetFor(firstPhoto.photo, firstPhoto.photoSrcset)}
+							sizes={srcsetFor(firstPhoto.photo, firstPhoto.photoSrcset) && PHOTO_SIZES}
+							alt={group.title}
+							width="640"
+							height="800"
+							fetchpriority="high"
+							decoding="async"
+						/>
+					</div>
+					{otherPhotos.length > 0 && (
+						<div class="model-page__more">
+							<h2>Ещё фото модели</h2>
+							<div class="model-page__photos">
+								{otherPhotos.map((model, index) => (
+									<img
+										src={model.photo}
+										srcset={srcsetFor(model.photo, model.photoSrcset)}
+										sizes={srcsetFor(model.photo, model.photoSrcset) && PHOTO_SIZES}
+										alt={`${group.title} — фото ${index + 2}`}
+										width="640"
+										height="800"
+										loading="lazy"
+										decoding="async"
+									/>
+								))}
+							</div>
+						</div>
+					)}
+				</div>
+			</section>
+			<Conditions conditions={conditions} />
+			<PriceForm initialModel={group.title} />
+		</main>
+		<Footer settings={settings} />
+		<CookieBar />
+	</body>
+</html>
+
+<style>
+	.model-page { border-bottom: 1px solid var(--line-soft); }
+	.model-page__back { margin: -8px 0 24px; }
+	.model-page__back a { display: inline-flex; align-items: center; min-height: 44px; color: var(--grey); font-size: 14px; text-underline-offset: 4px; }
+	.model-page__head { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr); gap: clamp(28px, 5vw, 56px); align-items: start; }
+	.model-page__summary { grid-column: 2; grid-row: 1; padding-top: 12px; }
+	.model-page h1 { margin: 0 0 22px; font: 400 clamp(28px, 3.8vw, 42px)/1.18 var(--serif); text-wrap: balance; overflow-wrap: anywhere; }
+	.model-page__note { margin: 0 0 28px; color: var(--grey); max-width: 48ch; }
+	.model-page__sizes { margin: 0 0 28px; }
+	.model-page__sizes dt { margin-bottom: 6px; color: var(--grey); }
+	.model-page__sizes dd { margin: 0; }
+	.model-page__conditions { display: block; width: fit-content; padding: 12px 0; margin-top: 12px; font-size: 14px; color: var(--grey); text-underline-offset: 4px; }
+	.model-page__main-photo { grid-column: 1; grid-row: 1; }
+	.model-page img { display: block; width: 100%; height: auto; aspect-ratio: 4 / 5; object-fit: contain; background: var(--panel); }
+	.model-page__more { margin-top: clamp(32px, 5vw, 56px); }
+	.model-page__more h2 { margin-bottom: 24px; font-size: clamp(24px, 3.2vw, 32px); }
+	.model-page__photos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+	@media (max-width: 700px) {
+		.model-page__head { grid-template-columns: minmax(0, 1fr); gap: 28px; }
+		.model-page__summary { grid-column: 1; grid-row: auto; padding-top: 0; }
+		.model-page__main-photo { grid-column: 1; grid-row: auto; }
+		.model-page__photos { grid-template-columns: minmax(0, 1fr); }
+	}
+</style>

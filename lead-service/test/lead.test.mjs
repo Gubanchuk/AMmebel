@@ -4,6 +4,14 @@ import { leadsEnabled } from '../src/app.mjs';
 import { createRateLimiter } from '../src/rate-limit.mjs';
 import { freshIp, postJson, priceFields, priceLead, quizLead, spyRepo, startApp } from './helpers.mjs';
 
+test('retry keeps 201 with the stored id and does not notify again', async (t) => {
+	const app = await startApp(t, { repo: { async insertLead() { return { id: 31, created: false }; } } });
+	const response = await postJson(app.base, priceLead());
+	assert.equal(response.status, 201);
+	assert.deepEqual(await response.json(), { id: 31 });
+	assert.deepEqual(app.stored, []);
+});
+
 test('valid price lead is stored with ip and consent version, 201 {id}', async (t) => {
 	const app = await startApp(t);
 	const body = priceLead({ utm: { utm_source: 'yandex', utm_campaign: 'opt', gclid: 'dropped' } });

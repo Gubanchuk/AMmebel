@@ -16,6 +16,8 @@
 	var name = document.getElementById('heroName');
 	var prev = document.getElementById('heroPrev');
 	var next = document.getElementById('heroNext');
+	var contextRoot = document.getElementById('heroModelContext');
+	var contexts = contextRoot ? Array.prototype.slice.call(contextRoot.querySelectorAll('[data-hero-model]')) : [];
 	if (slides.length < 2) {
 		if (prev) prev.hidden = true;
 		if (next) next.hidden = true;
@@ -39,6 +41,7 @@
 			s.setAttribute('aria-hidden', on ? 'false' : 'true');
 		});
 		bars.forEach(function (b, i) { b.classList.toggle('on', i === idx); });
+		contexts.forEach(function (context, i) { context.hidden = i !== idx; });
 		if (num) num.textContent = pad(idx + 1) + ' / ' + pad(slides.length);
 		if (name) {
 			var img = slides[idx].querySelector('img');
@@ -86,8 +89,18 @@
 	}
 	root.addEventListener('focusin', stop);
 	root.addEventListener('focusout', function (e) {
-		if (!root.contains(e.relatedTarget)) start();
+		if (!root.contains(e.relatedTarget) && !(contextRoot && contextRoot.contains(e.relatedTarget))) start();
 	});
+	// Model links live below the general price action so they do not push it
+	// under the mobile cookie bar. Keep their model stable while in use.
+	if (contextRoot) {
+		contextRoot.addEventListener('pointerenter', stop);
+		contextRoot.addEventListener('pointerleave', start);
+		contextRoot.addEventListener('focusin', stop);
+		contextRoot.addEventListener('focusout', function (e) {
+			if (!contextRoot.contains(e.relatedTarget) && !root.contains(e.relatedTarget)) start();
+		});
+	}
 	document.addEventListener('visibilitychange', function () {
 		if (document.hidden) stop(); else start();
 	});

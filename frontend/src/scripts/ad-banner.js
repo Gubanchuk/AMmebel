@@ -15,8 +15,8 @@ import BANNERS from '../lib/ad-banners.json';
 import { readUtm } from './form.js';
 
 var NOTES = {
-	sofa: 'Сделаем в вашем размере и ткани, доставим по России. Оставьте телефон — посчитаем цену.',
-	bed: 'Оставьте телефон — перезвоним и назовём цену.',
+	sofa: 'Сделаем в вашем размере и ткани, доставим по России. Оставьте телефон — перезвоним и уточним цену.',
+	bed: 'Оставьте телефон — перезвоним и уточним цену.',
 };
 
 // 128000 -> "от 128 000 ₽" with non-breaking spaces
@@ -27,6 +27,8 @@ function formatPrice(price) {
 (function () {
 	var card = document.getElementById('adCard');
 	if (!card) return;
+	var form = document.getElementById('pfForm');
+	if (form && form.dataset.requestMode === 'model') return;
 	var utm = readUtm();
 	var slug = utm && utm.utm_content;
 	if (!slug || !Object.prototype.hasOwnProperty.call(BANNERS, slug)) return;
@@ -48,4 +50,12 @@ function formatPrice(price) {
 		formatPrice(banner.price) + (banner.priceNote ? ' ' + banner.priceNote : '');
 	card.querySelector('.adcard__note').textContent = note;
 	card.hidden = false;
+	document.dispatchEvent(new CustomEvent('am:retail-offer', { detail: { product: name } }));
+	// The same action keeps the same promise at the entry points to this form.
+	document.querySelectorAll('.hdr__price-full, .hdr-menu__price, .demo__nav .cta').forEach(function (link) {
+		link.textContent = 'Уточнить цену';
+	});
+	document.querySelectorAll('.hdr__price-short').forEach(function (link) {
+		link.textContent = 'Цена';
+	});
 })();

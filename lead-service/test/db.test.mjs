@@ -21,13 +21,121 @@ function fakePool(result = { rows: [] }) {
 			queries.push({ text, values });
 			return result;
 		},
+		async connect() {
+			return {
+				query: async (text, values) => {
+					queries.push({ text, values });
+					return text === INSERT_LEAD ? result : { rows: [] };
+				},
+				release() {},
+			};
+		},
 	};
 }
+
+// PostgreSQL is external to the unit suite. This double only models the
+// transaction/lock boundary; SQL matching and time windows are integration tests.
+function sitePool({ existing = null, failInsert = null } = {}) {
+	const queries = [];
+	let row = existing;
+	let lock = Promise.resolve();
+	let releases = 0;
+	const run = async (text, values, state = {}) => {
+		queries.push({ text, values });
+		if (/pg_advisory_xact_lock/.test(text)) {
+			const before = lock;
+			lock = new Promise((resolve) => { state.unlock = resolve; });
+			await before;
+		} else if (/^\s*SELECT id\s+FROM leads/.test(text)) {
+			return { rows: row === null ? [] : [{ id: row }] };
+		} else if (text === INSERT_LEAD) {
+			if (failInsert) throw failInsert;
+			row = row === null ? 17 : row + 1;
+			return { rows: [{ id: row }] };
+		} else if (/^(COMMIT|ROLLBACK)$/.test(text)) {
+			state.unlock?.();
+		}
+		return { rows: [] };
+	};
+	return {
+		queries,
+		query: run,
+		get releases() { return releases; },
+		async connect() {
+			const state = {};
+			return {
+				query: (text, values) => run(text, values, state),
+				release: () => { releases += 1; },
+			};
+		},
+	};
+}
+
+test('site retry returns the previous id without a second INSERT', async () => {
+	const pool = sitePool({ existing: 12 });
+	const result = await createRepository(pool).insertLead({ type: 'price', phone: '+7 (918) 000-00-00', need_extra: 'Модель: Lounge' });
+	assert.deepEqual(result, { id: 12, created: false });
+	assert.equal(pool.queries.filter(({ text }) => text === INSERT_LEAD).length, 0);
+	assert.match(pool.queries[0].text, /^BEGIN ISOLATION LEVEL READ COMMITTED$/);
+	assert.match(pool.queries[1].text, /pg_advisory_xact_lock/);
+	assert.match(pool.queries[2].text, /^\s*SELECT id\s+FROM leads/);
+	assert.equal(pool.queries.at(-1).text, 'COMMIT');
+	assert.equal(pool.releases, 1);
+});
+
+test('simultaneous site retries serialize before reading and insert once', async () => {
+	const pool = sitePool();
+	const repo = createRepository(pool);
+	const lead = { type: 'price', phone: '+7 918 000-00-00', need_extra: 'Модель: Lounge' };
+	const results = await Promise.all([repo.insertLead(lead), repo.insertLead(lead)]);
+	assert.deepEqual(results, [{ id: 17, created: true }, { id: 17, created: false }]);
+	assert.equal(pool.queries.filter(({ text }) => text === INSERT_LEAD).length, 1);
+	assert.equal(pool.releases, 2);
+});
+
+test('site identity normalizes Russian phone formatting and binds the full request content', async () => {
+	const pool = sitePool({ existing: 12 });
+	const repo = createRepository(pool);
+	for (const phone of ['+7 (918) 000-00-00', '8 918 000 00 00', '9180000000']) {
+		await repo.insertLead({ type: 'price', phone, name: 'Иван', company_inn: 'Компания', city: 'Краснодар', need: 'salon', need_extra: 'Модель: Lounge' });
+	}
+	const locks = pool.queries.filter(({ text }) => /pg_advisory_xact_lock/.test(text));
+	assert.equal(locks.length, 3);
+	assert.deepEqual(locks[0].values, locks[1].values);
+	assert.deepEqual(locks[1].values, locks[2].values);
+	const checks = pool.queries.filter(({ text }) => /^\s*SELECT id\s+FROM leads/.test(text));
+	assert.deepEqual(checks.map(({ values }) => values), [
+		['price', '79180000000', 'Компания', 'Иван', 'Краснодар', 'salon', 'Модель: Lounge'],
+		['price', '79180000000', 'Компания', 'Иван', 'Краснодар', 'salon', 'Модель: Lounge'],
+		['price', '79180000000', 'Компания', 'Иван', 'Краснодар', 'salon', 'Модель: Lounge'],
+	]);
+	await repo.insertLead({ type: 'price', phone: '79180000000', need_extra: 'Модель: Mono' });
+	assert.deepEqual(pool.queries.findLast(({ text }) => /^\s*SELECT id\s+FROM leads/.test(text)).values,
+		['price', '79180000000', null, null, null, null, 'Модель: Mono']);
+});
+
+test('site insert failure rolls back and releases the checked-out connection', async () => {
+	const failure = Object.assign(new Error('insert failed'), { code: '42501' });
+	const pool = sitePool({ failInsert: failure });
+	await assert.rejects(createRepository(pool).insertLead({ type: 'price', phone: '89180000000' }), failure);
+	assert.equal(pool.queries.at(-1).text, 'ROLLBACK');
+	assert.equal(pool.releases, 1);
+});
+
+test('explicit international phone prefixes are preserved in the site identity', async () => {
+	const pool = sitePool({ existing: 12 });
+	const repo = createRepository(pool);
+	for (const phone of ['+82 (2) 1234-5678', '+49 (30) 123456']) {
+		await repo.insertLead({ type: 'price', phone });
+	}
+	const checks = pool.queries.filter(({ text }) => /^\s*SELECT id\s+FROM leads/.test(text));
+	assert.deepEqual(checks.map(({ values }) => values[1]), ['82212345678', '4930123456']);
+});
 
 test('insertLead passes every value as a parameter, in column order', async () => {
 	const pool = fakePool({ rows: [{ id: 17 }] });
 	const repo = createRepository(pool);
-	const id = await repo.insertLead({
+	const result = await repo.insertLead({
 		type: 'price',
 		company_inn: '2310123456',
 		name: "O'Brien'); DROP TABLE leads; --",
@@ -41,10 +149,9 @@ test('insertLead passes every value as a parameter, in column order', async () =
 		consent_version: '2026-08-25',
 	});
 
-	assert.equal(id, 17);
-	assert.equal(pool.queries.length, 1);
-	assert.equal(pool.queries[0].text, INSERT_LEAD);
-	assert.deepEqual(pool.queries[0].values, [
+	assert.deepEqual(result, { id: 17, created: true });
+	const insert = pool.queries.find(({ text }) => text === INSERT_LEAD);
+	assert.deepEqual(insert.values, [
 		'price',
 		'2310123456',
 		"O'Brien'); DROP TABLE leads; --",
@@ -63,8 +170,9 @@ test('insertLead passes every value as a parameter, in column order', async () =
 test('missing optional values are sent as NULL', async () => {
 	const pool = fakePool({ rows: [{ id: 1 }] });
 	await createRepository(pool).insertLead({ type: 'quiz', name: 'Мария', phone: '89180000001' });
-	assert.equal(pool.queries[0].values.length, INSERT_COLUMNS.length);
-	assert.equal(pool.queries[0].values.filter((value) => value === null).length, INSERT_COLUMNS.length - 3);
+	const insert = pool.queries.find(({ text }) => text === INSERT_LEAD);
+	assert.equal(insert.values.length, INSERT_COLUMNS.length);
+	assert.equal(insert.values.filter((value) => value === null).length, INSERT_COLUMNS.length - 3);
 });
 
 test('insertExternalLead passes the VK time first and returns null on a repeat', async () => {

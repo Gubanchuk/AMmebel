@@ -10,6 +10,7 @@
 	var overlay = document.getElementById('lightbox');
 	var img = document.getElementById('lightboxImg');
 	var closeBtn = document.getElementById('lightboxClose');
+	var requestBtn = document.getElementById('lightboxRequest');
 	if (!overlay || !img || !closeBtn) return;
 
 	var lastTrigger = null;
@@ -32,6 +33,13 @@
 		}
 		img.src = pic.currentSrc || pic.src;
 		img.alt = pic.alt;
+		var model = trigger.dataset.modelTitle;
+		if (requestBtn) {
+			requestBtn.hidden = !model;
+			requestBtn.dataset.modelRequest = model || '';
+			if (model) overlay.classList.add('has-request');
+			else overlay.classList.remove('has-request');
+		}
 		lastTrigger = trigger;
 		overlay.hidden = false;
 		document.body.style.overflow = 'hidden';
@@ -43,7 +51,7 @@
 		closeBtn.focus();
 	}
 
-	function close() {
+	function close(restoreTrigger) {
 		if (overlay.hidden) return;
 		overlay.classList.remove('on');
 		document.body.style.overflow = '';
@@ -53,7 +61,7 @@
 			img.src = '';
 			closeTimeoutId = null;
 		}, delay);
-		if (lastTrigger) { lastTrigger.focus(); }
+		if (restoreTrigger !== false && lastTrigger) { lastTrigger.focus(); }
 	}
 
 	document.querySelectorAll('[data-lightbox-open]').forEach(function (btn) {
@@ -62,15 +70,24 @@
 		});
 	});
 
-	// #lightboxClose has no listener of its own by design — it's inside the
-	// overlay, so a click on it bubbles to this handler and closes like any
-	// other click on the overlay. Don't stopPropagation on it elsewhere.
-	overlay.addEventListener('click', close);
+	// The model action bubbles on to form.js, which selects the model and
+	// focuses the phone. Every other overlay click keeps the original close
+	// behavior and returns focus to the photo that opened the dialog.
+	overlay.addEventListener('click', function (event) {
+		var requesting = requestBtn && (event.target === requestBtn || requestBtn.contains(event.target));
+		close(!requesting);
+	});
 
 	document.addEventListener('keydown', function (e) {
-		if (overlay.hidden) return;
+		if (overlay.hidden || !overlay.classList.contains('on')) return;
 		if (e.key === 'Escape') { close(); return; }
-		// aria-modal dialog with a single focusable control: keep Tab on it
-		if (e.key === 'Tab') { e.preventDefault(); closeBtn.focus(); }
+		if (e.key === 'Tab') {
+			e.preventDefault();
+			var controls = requestBtn && !requestBtn.hidden ? [closeBtn, requestBtn] : [closeBtn];
+			var current = controls.indexOf(document.activeElement);
+			var next = current < 0 ? (e.shiftKey ? controls.length - 1 : 0)
+				: (current + (e.shiftKey ? -1 : 1) + controls.length) % controls.length;
+			controls[next].focus();
+		}
 	});
 })();

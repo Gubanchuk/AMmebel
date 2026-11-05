@@ -8,7 +8,7 @@ export function memoryRepo() {
 		async insertLead(lead) {
 			const id = rows.length + 1;
 			rows.push({ id, ...lead, email_status: 'queued' });
-			return id;
+			return { id, created: true };
 		},
 	};
 }

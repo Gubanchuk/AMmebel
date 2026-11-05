@@ -1,43 +1,32 @@
-# Astro Starter Kit: Minimal
+# Сайт фабрики «Авторская Мебель»
+
+Статический Astro-сайт [am-fabrika.ru](https://am-fabrika.ru/). Рабочий сайт собирается на собственном сервере из контента Directus; GitHub хранит исходники и обновляет отдельную Vercel-копию.
+
+## Страницы и обращения
+
+- `/` — модели, условия сотрудничества, производство, квиз и форма прайса.
+- `/modeli/<slug>/` — страницы видимых моделей. Фотографии с одинаковым названием объединены; размеры показываются только при заполнении в Directus.
+- `/politika/`, `/soglasie/`, `/soglasie-cookie/` — опубликованные тексты документов.
+- `/sitemap.xml` — карта из того же набора моделей и опубликованных документов.
+
+Обычная форма запрашивает ручную отправку прайса. Обращение по модели и рекламный вход предлагают звонок для уточнения цены и комплектации. Выбранная модель передаётся через `fields.need_extra`; сохранённые UTM остаются источником обращения. При ошибке введённые значения сохраняются.
+
+Сервер заявок расположен в `../lead-service`: он хранит обращения, защищает от повторного создания одной заявки и уведомляет MAX. Его настройки и тесты описаны в собственном README.
+
+## Локальная работа
+
+Нужны Node.js ≥22.12 и npm.
 
 ```sh
-npm create astro@latest -- --template minimal
+npm ci
+npm run dev
+npm run build
+npm run preview
+node --experimental-strip-types --test test/*.test.mjs
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+`dev` и `build` сначала запускают `scripts/fetch-content.mjs`. Без `DIRECTUS_URL` и `DIRECTUS_TOKEN` используется `../content-fallback.json`. На рабочем сервере `CONTENT_REQUIRED=1` запрещает заменять актуальный CMS-контент резервными данными при ошибке получения.
 
-## 🚀 Project Structure
+Правила фонового dev-сервера — в [AGENTS.md](AGENTS.md). Настройка и выкладка рабочего сайта — в [infra/DEPLOY.md](../infra/DEPLOY.md); обычный `deploy-site.sh` не обновляет nginx и backend.
 
-Inside of your Astro project, you'll see the following folders and files:
-
-```text
-/
-├── public/
-├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
-```
-
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
-
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
-
-Any static assets, like images, can be placed in the `public/` directory.
-
-## 🧞 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+Публичный сайт открыт для индексирования. Админка закрыта отдельно, документы с незаполненными полями сохраняют собственный `noindex`. Аналитика Яндекса загружается после согласия посетителя.
